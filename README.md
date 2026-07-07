@@ -120,12 +120,6 @@ gantt
 
 ---
 
-## 👥 Contributors
-
-* **Anisha Paturi** — Lead Developer & Architect
-
----
-
 ## 🏷️ Tags
 
 `#IndustrialSafety` `#AIAgents` `#GeospatialAnalytics` `#MultiAgentSystems` `#ZeroHarm` `#RAG` `#RiskIntelligence` `#FactoryAct` `#OISD` `#SCADADetector`
