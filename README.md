@@ -1,4 +1,5 @@
-# 🛡️ SentinelSafe: AI-Powered Industrial Safety Intelligence for Zero-Harm Operations
+# 🛡️ ZeroHarm-AI
+: AI-Powered Industrial Safety Intelligence for Zero-Harm Operations
 
 [![Theme: Industrial Safety & AI](https://img.shields.io/badge/Theme-Industrial%20Safety%20%26%20AI-red.svg)](#)
 [![Tech: React + Vite](https://img.shields.io/badge/Tech-React%20%2B%20Vite-blue.svg)](#)
