@@ -85,6 +85,44 @@ Monitors shift changeovers, pre-work safety check logs, and training records. Ca
 
 ---
 
+## 🧠 Backend Implementation - Person A (Compound Risk Detection Engine)
+
+We have implemented the complete backend for the **Compound Risk Detection Engine** using Python and FastAPI. The engine integrates deterministic safety compliance rules with machine learning anomaly detection to assess real-time risk levels in heavy industrial zones.
+
+### Key Features Implemented:
+* **Deterministic Rules Engine**: Implements rules matching the **Factories Act, 1948 (Section 36)** for confined space entries, **OISD-STD-105** for Permit-to-Work systems, and **OISD-GDN-137** for gas monitoring systems.
+* **Hybrid ML Anomaly Detection**: Trains both a supervised **Random Forest Classifier** and an unsupervised **Isolation Forest** on simulated historical operating and near-miss profiles to detect sub-threshold, multi-variable hazard patterns.
+* **Stateful Plant Simulation & Live WebSocket Feed**: Exposes a real-time WebSocket (`/ws/risk-feed`) streaming safety updates, plus a stateful tick generator (`/api/simulate/tick`) for frontend testing.
+
+### Directory Structure:
+* [backend/app/main.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/main.py): FastAPI server, state management, websockets, and simulation.
+* [backend/app/engine/rules.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/rules.py): Rules evaluation matching compliance standards.
+* [backend/app/engine/ml_anomaly.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/ml_anomaly.py): Isolation Forest and Random Forest anomaly scoring.
+* [backend/app/engine/models.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/models.py): Pydantic input/output schemas.
+* [backend/test_api.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/test_api.py): Validation test client executing different scenarios.
+
+### Quick Start Instructions:
+1. **Activate Virtual Environment**:
+   * **PowerShell**:
+     ```powershell
+     .\.venv\Scripts\Activate.ps1
+     ```
+   * **CMD**:
+     ```cmd
+     .venv\Scripts\activate.bat
+     ```
+2. **Start the FastAPI Server**:
+   ```bash
+   python backend/run.py
+   ```
+3. **Run Validation Tests**:
+   ```bash
+   python backend/test_api.py
+   ```
+4. **Interactive Docs (Swagger UI)**: Open [http://localhost:8000/docs](http://localhost:8000/docs) in your browser.
+
+---
+
 ## 🛠️ Tech Stack
 
 * **Frontend**: React (Vite), JavaScript (ES6+)
