@@ -5,7 +5,7 @@ import logging
 import os
 import numpy as np
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from pydantic import BaseModel, Field
 
 # Load environment variables from backend/.env before any component reads them.
@@ -209,6 +209,53 @@ async def startup_event():
     logger.info("Startup complete. Person A + Person B running as one service.")
 
 
+# Buffer to store the last 5 telemetry frames for each zone to calculate rates of change (Person A temporal analysis)
+telemetry_history_buffers: Dict[str, List[Dict[str, Any]]] = {}
+
+def calculate_telemetry_rates(zone: str, current_gas: Dict[str, Any]) -> Tuple[float, float]:
+    """
+    Appends the current sensor readings to a moving buffer of size 5,
+    and returns (d_co_dt, d_pressure_dt) in units per second.
+    """
+    now = datetime.now()
+    co = float(current_gas.get("co", 0.0))
+    pressure = float(current_gas.get("pressure", 1.0))
+    
+    if zone not in telemetry_history_buffers:
+        telemetry_history_buffers[zone] = []
+        
+    buffer = telemetry_history_buffers[zone]
+    
+    # Append current reading
+    buffer.append({
+        "time": now,
+        "co": co,
+        "pressure": pressure
+    })
+    
+    # Keep only the last 5 readings
+    if len(buffer) > 5:
+        buffer.pop(0)
+        
+    if len(buffer) < 2:
+        return 0.0, 0.0
+        
+    # Calculate difference between oldest and newest in the buffer
+    oldest = buffer[0]
+    newest = buffer[-1]
+    
+    dt = (newest["time"] - oldest["time"]).total_seconds()
+    
+    # Safeguard against zero division or extreme delays
+    if dt <= 0.1:
+        return 0.0, 0.0
+        
+    d_co_dt = (newest["co"] - oldest["co"]) / dt
+    d_pressure_dt = (newest["pressure"] - oldest["pressure"]) / dt
+    
+    return round(d_co_dt, 3), round(d_pressure_dt, 4)
+
+
 # ---------------------------------------------------------------------------
 # PERSON A — risk scoring
 # ---------------------------------------------------------------------------
@@ -268,6 +315,16 @@ async def evaluate_risk_score(request: RiskCheckRequest):
     result into Person B's geospatial heatmap + emergency orchestrator.
     """
     try:
+        # Calculate rates of change from moving buffer if not already present
+        gas = request.gas_readings
+        if (gas.d_co_dt == 0.0 or gas.d_co_dt is None) and (gas.d_pressure_dt == 0.0 or gas.d_pressure_dt is None):
+            d_co_dt, d_pressure_dt = calculate_telemetry_rates(
+                request.zone,
+                {"co": gas.co, "pressure": gas.pressure or 1.0}
+            )
+            gas.d_co_dt = d_co_dt
+            gas.d_pressure_dt = d_pressure_dt
+
         rule_score, risk_level, factors, suspend_permits = evaluate_rules(request)
 
         req_dict = request.dict()
@@ -336,7 +393,10 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any]):
     zone_state = plant_state[zone_name]
 
     if "gas_readings" in update:
+        d_co_dt, d_pressure_dt = calculate_telemetry_rates(zone_name, update["gas_readings"])
         zone_state["gas_readings"].update(update["gas_readings"])
+        zone_state["gas_readings"]["d_co_dt"] = d_co_dt
+        zone_state["gas_readings"]["d_pressure_dt"] = d_pressure_dt
     if "permits" in update:
         zone_state["permits"] = update["permits"]
     if "maintenance_active" in update:

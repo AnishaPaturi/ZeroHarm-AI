@@ -8,6 +8,8 @@ class GasReadings(BaseModel):
     h2s: float = Field(..., description="Hydrogen Sulfide concentration in ppm (Normal: < 5)")
     temperature: Optional[float] = Field(None, description="Ambient temperature in Celsius")
     pressure: Optional[float] = Field(None, description="Atmospheric or line pressure in bar")
+    d_co_dt: Optional[float] = Field(0.0, description="Rate of change of Carbon Monoxide in ppm/s")
+    d_pressure_dt: Optional[float] = Field(0.0, description="Rate of change of pressure in bar/s")
 
 class PermitInfo(BaseModel):
     permit_id: str = Field(..., description="Unique permit identifier")

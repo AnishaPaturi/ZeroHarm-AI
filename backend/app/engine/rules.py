@@ -93,7 +93,29 @@ def calculate_gas_risk(gas: GasReadings) -> Tuple[float, List[FactorRisk]]:
             contribution=0.0,
             details=h2s_details
         ))
-    max_gas_score = max(max_gas_score, h2s_score)
+    # 5. Rate of Change (Temporal Telemetry Hazards)
+    d_co = getattr(gas, "d_co_dt", 0.0) or 0.0
+    d_press = getattr(gas, "d_pressure_dt", 0.0) or 0.0
+
+    if d_co > 0.3:  # CO accumulation rate > 0.3 ppm/s
+        co_roc_score = min(100.0, 30.0 + (d_co - 0.3) * 80.0)
+        max_gas_score = max(max_gas_score, co_roc_score)
+        factors.append(FactorRisk(
+            name="CO Rapid Accumulation Anomaly",
+            score=round(co_roc_score, 1),
+            contribution=0.0,
+            details=f"TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at {round(d_co, 2)} ppm/s. Indication of a process gas leak."
+        ))
+
+    if d_press > 0.05:  # pressure buildup rate > 0.05 bar/s
+        press_roc_score = min(100.0, 30.0 + (d_press - 0.05) * 800.0)
+        max_gas_score = max(max_gas_score, press_roc_score)
+        factors.append(FactorRisk(
+            name="Rapid Pressure Buildup",
+            score=round(press_roc_score, 1),
+            contribution=0.0,
+            details=f"TEMPORAL HAZARD: Zone pressure is climbing rapidly at {round(d_press, 3)} bar/s. Threat of mechanical containment blowout."
+        ))
 
     return max_gas_score, factors
 

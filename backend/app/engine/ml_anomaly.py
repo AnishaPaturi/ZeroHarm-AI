@@ -3,6 +3,8 @@ import pandas as pd
 from sklearn.ensemble import IsolationForest, RandomForestClassifier
 from typing import Dict, Any, Tuple
 import logging
+import pickle
+import os
 
 logger = logging.getLogger("risk_engine.ml")
 
@@ -11,6 +13,10 @@ class CompoundRiskMLModel:
         self.rf_model = RandomForestClassifier(n_estimators=50, random_state=42)
         self.if_model = IsolationForest(contamination=0.15, random_state=42)
         self.is_trained = False
+        
+        self.model_dir = os.path.dirname(os.path.abspath(__file__))
+        self.rf_path = os.path.join(self.model_dir, "rf_model.pkl")
+        self.if_path = os.path.join(self.model_dir, "if_model.pkl")
         
         # Features list in exact order
         self.feature_names = [
@@ -145,9 +151,19 @@ class CompoundRiskMLModel:
         return X, y
 
     def train(self):
-        """Train both models on startup using simulated data."""
+        """Train both models on startup using simulated data, or load if serialized files exist."""
         try:
-            logger.info("Generating synthetic training data for Compound Risk Detection Engine...")
+            if os.path.exists(self.rf_path) and os.path.exists(self.if_path):
+                logger.info("Found pre-trained ML models on disk. Loading model states...")
+                with open(self.rf_path, "rb") as f:
+                    self.rf_model = pickle.load(f)
+                with open(self.if_path, "rb") as f:
+                    self.if_model = pickle.load(f)
+                self.is_trained = True
+                logger.info("ML Models successfully loaded from disk.")
+                return
+
+            logger.info("No pre-trained ML models found on disk. Generating synthetic training data...")
             X, y = self.generate_synthetic_data(num_samples=1800)
             
             logger.info("Training Random Forest Classifier on simulated industrial risk events...")
@@ -156,10 +172,17 @@ class CompoundRiskMLModel:
             logger.info("Training Isolation Forest Anomaly Detector...")
             self.if_model.fit(X[y == 0]) # Train Isolation Forest only on normal data
             
+            # Serialize model files
+            logger.info("Serializing ML models to disk...")
+            with open(self.rf_path, "wb") as f:
+                pickle.dump(self.rf_model, f)
+            with open(self.if_path, "wb") as f:
+                pickle.dump(self.if_model, f)
+                
             self.is_trained = True
-            logger.info("ML Models trained and initialized successfully.")
+            logger.info("ML Models trained and serialized successfully.")
         except Exception as e:
-            logger.error(f"Error during ML model training: {e}")
+            logger.error(f"Error during ML model training or serialization: {e}")
             raise e
 
     def predict(self, input_data: Dict[str, Any]) -> Tuple[float, float]:

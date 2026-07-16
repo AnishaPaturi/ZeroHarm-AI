@@ -132,6 +132,12 @@ class ZeroHarmIntegrationPipeline:
             list(risk_assessment.get("suspend_permits", [])) + list(permit_audit.suspend_permits)
         ))
 
+        # If cascading risk is elevated (Warning or Critical), recommend suspending active permits in this zone
+        if cascade_score >= 40.0:
+            active_permit_ids = [p.get("permit_id") for p in zone_state.get("permits", []) if p.get("status", "").lower() == "active"]
+            all_flagged.extend(active_permit_ids)
+            all_flagged = list(dict.fromkeys(all_flagged))
+
         return FullAssessmentResponse(
             zone=zone,
             timestamp=datetime.now().isoformat(),
