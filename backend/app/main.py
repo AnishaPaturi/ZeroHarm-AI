@@ -38,6 +38,15 @@ from .orchestrator.evacuation import EvacuationManager
 from .orchestrator.incident_report import generate_report, get_reports
 from .orchestrator.alert_channels import get_alert_log
 
+# ---------------------------------------------------------------------------
+# PART D — Digital Permit Intelligence Agent + Integration & Deliverables
+# ---------------------------------------------------------------------------
+from .permits.agent import DigitalPermitIntelligenceAgent
+from .permits.models import PermitAuditRequest, FullPlantPermitAuditResponse
+from .integration.pipeline import ZeroHarmIntegrationPipeline
+from .integration.models import FullAssessmentResponse, DemoScenarioResponse
+from .integration.demo_script import get_demo_scenario
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("zeroharm_ai")
 
@@ -45,7 +54,9 @@ app = FastAPI(
     title="ZeroHarm AI — Industrial Safety Intelligence Platform",
     description="Fuses real-time gas telemetry, permits, and operational status into a compound risk score "
                 "(Person A), then projects that risk onto the plant layout and drives evacuation/alert "
-                "workflows (Person B).",
+                "workflows (Person B), cross-references incidents and regulations via RAG (Person C), and "
+                "cross-checks live permits against plant conditions while tying all four agents into one "
+                "demo flow (Person D).",
     version="1.0.0"
 )
 
@@ -70,6 +81,9 @@ worker_sim = WorkerSimulator()
 vector_store = ZeroHarmVectorStore()
 safety_agent = ZeroHarmSafetyAgent(vector_store=vector_store)
 
+# --- Person D globals ---
+permit_agent = DigitalPermitIntelligenceAgent()
+
 
 def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
     # Query RAG compliance agent to append regulatory context
@@ -88,6 +102,15 @@ def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
 
 
 evacuation_mgr = EvacuationManager(worker_simulator=worker_sim, incident_report_generator=_on_incident_needed)
+
+# --- Person D: single wiring point that ties A + B + C + D into one demo flow ---
+integration_pipeline = ZeroHarmIntegrationPipeline(
+    heatmap_engine=heatmap_engine,
+    evacuation_mgr=evacuation_mgr,
+    worker_sim=worker_sim,
+    safety_agent=safety_agent,
+    permit_agent=permit_agent,
+)
 
 
 # WebSocket Connections Manager (shared: Person A's live risk feed AND Person B's heatmap feed
@@ -214,6 +237,20 @@ async def _feed_person_b(zone: str, risk_assessment: dict):
         "risk_assessment": risk_assessment,
         "evacuation_status": evac_record.status if evac_record else "none",
     })
+
+    # --- Person D integration: cross-check permits every time a fresh risk
+    # assessment lands, and broadcast separately only when there's something
+    # to flag (keeps the feed quiet during normal operation). ---
+    try:
+        permit_audit = permit_agent.audit_zone(zone, plant_state[zone], all_zone_states=plant_state)
+        if permit_audit.conflicts:
+            await manager.broadcast({
+                "event": "permit_alert",
+                "zone": zone,
+                "permit_audit": permit_audit.dict(),
+            })
+    except Exception as e:
+        logger.error(f"Permit intelligence audit failed for zone '{zone}': {e}")
 
 
 @app.post("/risk-score", response_model=RiskCheckResponse)
@@ -583,6 +620,88 @@ def audit_compliance(request: ComplianceAuditRequest):
 def get_rag_documents():
     """Returns list of indexed regulatory frameworks and historical incidents."""
     return safety_agent.vector_store.documents
+
+
+# ---------------------------------------------------------------------------
+# PERSON D — Digital Permit Intelligence Agent
+# ---------------------------------------------------------------------------
+@app.post("/api/permits/audit")
+def audit_zone_permits(request: PermitAuditRequest):
+    """
+    Cross-checks every active permit in the given zone against that zone's
+    live telemetry AND against neighbouring zones (e.g. a hot work permit
+    downwind of a zone with an elevated gas reading).
+    """
+    if request.zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Unknown zone '{request.zone}'. Known zones: {config.KNOWN_ZONES}")
+    try:
+        return permit_agent.audit_zone(request.zone, plant_state[request.zone], all_zone_states=plant_state)
+    except Exception as e:
+        logger.error(f"Error auditing permits for zone '{request.zone}': {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/permits/audit/all", response_model=FullPlantPermitAuditResponse)
+def audit_all_permits():
+    """Runs the Digital Permit Intelligence Agent across every zone in one call."""
+    audits = permit_agent.audit_all_zones(plant_state)
+    total_conflicts = sum(len(a.conflicts) for a in audits)
+    return FullPlantPermitAuditResponse(
+        generated_at=datetime.now().isoformat(),
+        zones_audited=len(audits),
+        total_conflicts=total_conflicts,
+        audits=audits,
+    )
+
+
+@app.get("/api/permits/conflicts")
+def get_permit_conflicts():
+    """Flattened, severity-sorted list of every active permit conflict plant-wide — feeds a 'permit conflicts' dashboard widget."""
+    return [c.dict() for c in permit_agent.all_active_conflicts(plant_state)]
+
+
+# ---------------------------------------------------------------------------
+# PERSON D — Integration: the single call that proves A + B + C + D are one platform
+# ---------------------------------------------------------------------------
+@app.post("/api/integration/full-assessment", response_model=FullAssessmentResponse)
+async def full_assessment(request: PermitAuditRequest):
+    """
+    Runs the complete demo flow for one zone:
+      1. Person A scores the current telemetry (and Person B's heatmap/evacuation
+         state is updated as a side effect, same as /risk-score).
+      2. Person D cross-checks every active permit in and around the zone.
+      3. Person C generates a compliance + historical-precedent narrative informed
+         by both (1) and (2).
+      4. Person D synthesises everything into one unified verdict.
+    """
+    zone = request.zone
+    if zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Unknown zone '{zone}'. Known zones: {config.KNOWN_ZONES}")
+
+    zone_state = plant_state[zone]
+    try:
+        req = RiskCheckRequest(
+            zone=zone,
+            gas_readings=GasReadings(**zone_state["gas_readings"]),
+            permits=[PermitInfo(**p) for p in zone_state["permits"]],
+            maintenance_active=zone_state["maintenance_active"],
+            shift_changeover_active=zone_state["shift_changeover_active"],
+            timestamp=zone_state["timestamp"],
+        )
+        risk_response = await evaluate_risk_score(req)
+        return await integration_pipeline.run_full_assessment(zone, risk_response.dict(), plant_state)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error running full assessment for zone '{zone}': {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/integration/demo-scenario", response_model=DemoScenarioResponse)
+def demo_scenario():
+    """Curated, step-by-step narrative tying all four agents together — the script for the demo video and pitch deck."""
+    return get_demo_scenario()
+
 
 @app.get("/api/health")
 def health():
