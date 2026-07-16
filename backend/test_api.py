@@ -43,7 +43,7 @@ def run_test_case(name, data):
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    print("SentinelSafe Risk Engine API Testing Client")
+    print("ZeroHarm AI Risk Engine API Testing Client")
     print("Make sure your FastAPI server is running on http://127.0.0.1:8000")
     
     # 1. Normal State (no hazards, no permits)

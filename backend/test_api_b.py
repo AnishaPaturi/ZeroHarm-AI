@@ -128,7 +128,7 @@ def test_full_integration_via_simulation():
 
 
 if __name__ == "__main__":
-    print("SentinelSafe Part B Test Suite")
+    print("ZeroHarm AI Part B Test Suite")
     print("Make sure the unified server is running: python run.py")
     try:
         test_health()

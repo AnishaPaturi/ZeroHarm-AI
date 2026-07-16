@@ -2,13 +2,29 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import logging
+import os
 import numpy as np
 from datetime import datetime
 from typing import List, Dict, Any
 
+# Load environment variables from backend/.env before any component reads them.
+try:
+    from dotenv import load_dotenv
+    _BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    load_dotenv(os.path.join(_BACKEND_DIR, ".env"))
+except ImportError:
+    pass
+
+from pydantic import BaseModel, Field
 from .engine.models import RiskCheckRequest, RiskCheckResponse, GasReadings, PermitInfo, FactorRisk
 from .engine.rules import evaluate_rules
 from .engine.ml_anomaly import CompoundRiskMLModel
+
+# ---------------------------------------------------------------------------
+# PART C — Incident Pattern Intelligence & Compliance Audit Agent
+# ---------------------------------------------------------------------------
+from .rag.vector_store import ZeroHarmVectorStore
+from .rag.agent import ZeroHarmSafetyAgent
 
 # ---------------------------------------------------------------------------
 # PART B — Geospatial Safety Heatmap + Emergency Response Orchestrator
@@ -23,10 +39,10 @@ from .orchestrator.incident_report import generate_report, get_reports
 from .orchestrator.alert_channels import get_alert_log
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-logger = logging.getLogger("sentinelsafe")
+logger = logging.getLogger("zeroharm_ai")
 
 app = FastAPI(
-    title="SentinelSafe — Industrial Safety Intelligence Platform",
+    title="ZeroHarm AI — Industrial Safety Intelligence Platform",
     description="Fuses real-time gas telemetry, permits, and operational status into a compound risk score "
                 "(Person A), then projects that risk onto the plant layout and drives evacuation/alert "
                 "workflows (Person B).",
@@ -50,10 +66,25 @@ MAX_HISTORY_LEN = 100
 heatmap_engine = HeatmapEngine()
 worker_sim = WorkerSimulator()
 
+# --- Person C globals ---
+vector_store = ZeroHarmVectorStore()
+safety_agent = ZeroHarmSafetyAgent(vector_store=vector_store)
+
 
 def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
+    # Query RAG compliance agent to append regulatory context
+    try:
+        factors_str = ", ".join(f.get("name", "") for f in risk_assessment.get("factors", []))
+        rag_query = f"Identify compliance deviations or past precedents for: Zone {zone} had a risk event with factors: {factors_str}."
+        rag_res = safety_agent.query(rag_query)
+        rag_analysis = rag_res.get("answer", "")
+    except Exception as e:
+        logger.error(f"Failed to fetch RAG analysis for incident report: {e}")
+        rag_analysis = "RAG compliance analysis unavailable."
+
     report = generate_report(zone, risk_assessment, evacuation_record)
-    logger.warning(f"Preliminary incident report generated: {report.report_id} for zone '{zone}'")
+    report.narrative += f"\n\n--- RAG COMPLIANCE & HISTORICAL PRECEDENTS ANALYSIS ---\n{rag_analysis}"
+    logger.warning(f"Preliminary incident report generated with RAG: {report.report_id} for zone '{zone}'")
 
 
 evacuation_mgr = EvacuationManager(worker_simulator=worker_sim, incident_report_generator=_on_incident_needed)
@@ -511,6 +542,48 @@ async def websocket_heatmap_feed(websocket: WebSocket):
         manager.disconnect(websocket)
 
 
+# ---------------------------------------------------------------------------
+# PERSON C — Incident Pattern Intelligence & Compliance Audit Agent
+# ---------------------------------------------------------------------------
+class RAGQueryRequest(BaseModel):
+    query: str
+
+class ComplianceAuditRequest(BaseModel):
+    zone: str
+    telemetry: Dict[str, Any]
+    permits: List[Dict[str, Any]] = []
+    maintenance_active: bool = False
+    shift_changeover_active: bool = False
+
+@app.post("/api/rag/query")
+def query_rag_agent(request: RAGQueryRequest):
+    """Query the ZeroHarm RAG pipeline for safety compliance guidelines and past incident lookups."""
+    try:
+        return safety_agent.query(request.query)
+    except Exception as e:
+        logger.error(f"Error querying RAG agent: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/compliance/audit")
+def audit_compliance(request: ComplianceAuditRequest):
+    """Run a compliance audit on the provided zone telemetry and operational status."""
+    try:
+        return safety_agent.audit_telemetry(
+            zone=request.zone,
+            telemetry=request.telemetry,
+            permits=request.permits,
+            maintenance_active=request.maintenance_active,
+            shift_changeover=request.shift_changeover_active
+        )
+    except Exception as e:
+        logger.error(f"Error auditing compliance: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rag/documents")
+def get_rag_documents():
+    """Returns list of indexed regulatory frameworks and historical incidents."""
+    return safety_agent.vector_store.documents
+
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "zones": list(plant_state.keys())}
+    return {"status": "ok", "zones": list(plant_state.keys()), "rag_mode": safety_agent.vector_store.mode}
