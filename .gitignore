@@ -28,3 +28,89 @@ tmp/
 # OS Files
 .DS_Store
 Thumbs.db
+# ============================
+# --- Python (Backend) ---
+# ============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# --- Virtual environments ---
+venv/
+env/
+ENV/
+.venv/
+
+# --- Distribution / packaging ---
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Test / cache ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# --- ML / model artifacts ---
+*.pkl
+*.joblib
+
+# ============================
+# --- Node / Frontend (React/Next.js/Vite) ---
+# ============================
+node_modules/
+frontend/node_modules/
+
+# --- Build outputs ---
+frontend/build/
+frontend/dist/
+.next/
+out/
+.vite/
+.turbo/
+
+# --- Package manager logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Package manager lockfile artifacts (optional, uncomment if you don't want to track) ---
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# --- Cache ---
+.eslintcache
+.cache/
+.parcel-cache/
+
+# ============================
+# --- Environment variables / secrets (shared) ---
+# ============================
+.env
+.env.*
+*.local
+
+# ============================
+# --- IDE / editor (shared) ---
+# ============================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================
+# --- OS junk (shared) ---
+# ============================
+.DS_Store
+Thumbs.db
+
+# ============================
+# --- Logs (shared) ---
+# ============================
+*.log
