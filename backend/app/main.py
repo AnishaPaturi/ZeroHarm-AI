@@ -6,6 +6,7 @@ import os
 import numpy as np
 from datetime import datetime
 from typing import List, Dict, Any
+from pydantic import BaseModel, Field
 
 # Load environment variables from backend/.env before any component reads them.
 try:
@@ -15,8 +16,7 @@ try:
 except ImportError:
     pass
 
-from pydantic import BaseModel, Field
-from .engine.models import RiskCheckRequest, RiskCheckResponse, GasReadings, PermitInfo, FactorRisk
+from .engine.models import RiskCheckRequest, RiskCheckResponse, GasReadings, PermitInfo, FactorRisk, CCTVAlert
 from .engine.rules import evaluate_rules
 from .engine.ml_anomaly import CompoundRiskMLModel
 
@@ -46,6 +46,7 @@ from .permits.models import PermitAuditRequest, FullPlantPermitAuditResponse
 from .integration.pipeline import ZeroHarmIntegrationPipeline
 from .integration.models import FullAssessmentResponse, DemoScenarioResponse
 from .integration.demo_script import get_demo_scenario
+from .geospatial.topology import PlantTopology
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("zeroharm_ai")
@@ -83,6 +84,7 @@ safety_agent = ZeroHarmSafetyAgent(vector_store=vector_store)
 
 # --- Person D globals ---
 permit_agent = DigitalPermitIntelligenceAgent()
+topology_engine = PlantTopology()
 
 
 def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
@@ -110,6 +112,7 @@ integration_pipeline = ZeroHarmIntegrationPipeline(
     worker_sim=worker_sim,
     safety_agent=safety_agent,
     permit_agent=permit_agent,
+    topology_engine=topology_engine,
 )
 
 
@@ -152,6 +155,7 @@ plant_state: Dict[str, Dict[str, Any]] = {
                      "zone": "Coke Oven Battery 1", "workers_count": 3}],
         "maintenance_active": False,
         "shift_changeover_active": False,
+        "cctv_alerts": [],
         "timestamp": datetime.now().isoformat()
     },
     "Blast Furnace A": {
@@ -161,6 +165,7 @@ plant_state: Dict[str, Dict[str, Any]] = {
                      "zone": "Blast Furnace A", "workers_count": 2}],
         "maintenance_active": False,
         "shift_changeover_active": False,
+        "cctv_alerts": [],
         "timestamp": datetime.now().isoformat()
     },
     "Sinter Plant": {
@@ -170,6 +175,7 @@ plant_state: Dict[str, Dict[str, Any]] = {
                      "zone": "Sinter Plant", "workers_count": 2}],
         "maintenance_active": True,
         "shift_changeover_active": False,
+        "cctv_alerts": [],
         "timestamp": datetime.now().isoformat()
     },
     "Ammonia Storage Tank": {
@@ -179,6 +185,7 @@ plant_state: Dict[str, Dict[str, Any]] = {
                      "zone": "Ammonia Storage Tank", "workers_count": 4}],
         "maintenance_active": False,
         "shift_changeover_active": False,
+        "cctv_alerts": [],
         "timestamp": datetime.now().isoformat()
     }
 }
@@ -336,6 +343,8 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any]):
         zone_state["maintenance_active"] = update["maintenance_active"]
     if "shift_changeover_active" in update:
         zone_state["shift_changeover_active"] = update["shift_changeover_active"]
+    if "cctv_alerts" in update:
+        zone_state["cctv_alerts"] = update["cctv_alerts"]
 
     zone_state["timestamp"] = datetime.now().isoformat()
 
@@ -346,6 +355,7 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any]):
             permits=[PermitInfo(**p) for p in zone_state["permits"]],
             maintenance_active=zone_state["maintenance_active"],
             shift_changeover_active=zone_state["shift_changeover_active"],
+            cctv_alerts=[CCTVAlert(**c) for c in zone_state.get("cctv_alerts", [])],
             timestamp=zone_state["timestamp"]
         )
 
@@ -623,6 +633,110 @@ def get_rag_documents():
 
 
 # ---------------------------------------------------------------------------
+# Computer Vision / CCTV Analytics Integration
+# ---------------------------------------------------------------------------
+class CCTVAlertRequest(BaseModel):
+    zone: str = Field(..., description="Zone where the CCTV alert was triggered")
+    event_type: str = Field(..., description="Type of event: no_ppe, smoke_detected, unauthorized_entry, fire_detected")
+    confidence: float = Field(..., description="Detection confidence score between 0.0 and 1.0")
+
+@app.post("/api/cctv/event")
+async def trigger_cctv_event(request: CCTVAlertRequest):
+    """
+    Receives Computer Vision metadata alerts from active CCTV streams.
+    Saves the alert into the zone state, triggers a risk re-evaluation,
+    and broadcasts the updated risk metrics.
+    """
+    zone_name = request.zone
+    if zone_name not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Zone '{zone_name}' not found.")
+        
+    zone_state = plant_state[zone_name]
+    
+    # Initialize cctv_alerts list if not present
+    if "cctv_alerts" not in zone_state:
+        zone_state["cctv_alerts"] = []
+        
+    # Append the new CCTV alert
+    alert_payload = {
+        "zone": request.zone,
+        "event_type": request.event_type,
+        "confidence": request.confidence,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Check if a similar alert type is already active in this zone, if so, replace it
+    # to avoid stacking duplicate PPE or smoke alerts. Otherwise append.
+    replaced = False
+    for i, active_alert in enumerate(zone_state["cctv_alerts"]):
+        if active_alert["event_type"] == request.event_type:
+            zone_state["cctv_alerts"][i] = alert_payload
+            replaced = True
+            break
+            
+    if not replaced:
+        zone_state["cctv_alerts"].append(alert_payload)
+        
+    # Trigger risk update using the state update flow
+    payload = await update_zone_state(zone_name, {"cctv_alerts": zone_state["cctv_alerts"]})
+    return {
+        "status": "alert_processed",
+        "zone": zone_name,
+        "active_cctv_alerts": zone_state["cctv_alerts"],
+        "risk_assessment": payload["risk_assessment"]
+    }
+
+@app.post("/api/cctv/clear")
+async def clear_cctv_events(zone: str):
+    """Clears all active CCTV alerts for the specified zone."""
+    if zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Zone '{zone}' not found.")
+        
+    plant_state[zone]["cctv_alerts"] = []
+    payload = await update_zone_state(zone, {"cctv_alerts": []})
+    return {
+        "status": "alerts_cleared",
+        "zone": zone,
+        "risk_assessment": payload["risk_assessment"]
+    }
+
+
+# ---------------------------------------------------------------------------
+# Plant Topology and Cascading Risk Engine
+# ---------------------------------------------------------------------------
+@app.get("/api/topology")
+def get_plant_topology():
+    """
+    Returns the process topology knowledge graph (nodes, edges, weights)
+    to enable node-link diagram visualization on the frontend.
+    """
+    nodes = list(topology_engine.graph.nodes)
+    edges = []
+    for u, v, d in topology_engine.graph.edges(data=True):
+        edges.append({
+            "source": u,
+            "target": v,
+            "connection_type": d.get("connection_type"),
+            "propagation_factor": d.get("propagation_factor"),
+            "description": d.get("description")
+        })
+    return {"nodes": nodes, "edges": edges}
+
+@app.get("/api/topology/cascades")
+def get_topology_cascades():
+    """
+    Returns the current calculated risk cascades across all zones
+    based on the latest risk scores in the plant.
+    """
+    active_risks = {}
+    snapshot = heatmap_engine.snapshot()
+    for hz in snapshot.zones:
+        active_risks[hz.zone] = hz.risk_score
+        
+    return topology_engine.get_cascading_risks(active_risks)
+
+
+# ---------------------------------------------------------------------------
 # PERSON D — Digital Permit Intelligence Agent
 # ---------------------------------------------------------------------------
 @app.post("/api/permits/audit")
@@ -686,6 +800,7 @@ async def full_assessment(request: PermitAuditRequest):
             permits=[PermitInfo(**p) for p in zone_state["permits"]],
             maintenance_active=zone_state["maintenance_active"],
             shift_changeover_active=zone_state["shift_changeover_active"],
+            cctv_alerts=[CCTVAlert(**c) for c in zone_state.get("cctv_alerts", [])],
             timestamp=zone_state["timestamp"],
         )
         risk_response = await evaluate_risk_score(req)

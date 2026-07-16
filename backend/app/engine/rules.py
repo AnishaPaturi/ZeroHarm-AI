@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from .models import RiskCheckRequest, FactorRisk, GasReadings, PermitInfo
+from .models import RiskCheckRequest, FactorRisk, GasReadings, PermitInfo, CCTVAlert
 
 def calculate_gas_risk(gas: GasReadings) -> Tuple[float, List[FactorRisk]]:
     factors = []
@@ -231,6 +231,73 @@ def evaluate_rules(req: RiskCheckRequest) -> Tuple[float, str, List[FactorRisk],
             contribution=0.0,
             details=details
         ))
+
+    # 7. CCTV / Computer Vision Alerts
+    # Evaluate physical safety anomalies detected by computer vision streams.
+    for alert in getattr(req, "cctv_alerts", []):
+        alert_type = alert.event_type.lower()
+        conf = alert.confidence
+        
+        if conf > 0.5:
+            cv_risk = 0.0
+            cv_details = ""
+            
+            if alert_type == "no_ppe":
+                # Escalates risk, especially if hazardous work is active
+                cv_risk = 35.0 * conf
+                if req.maintenance_active or has_hot_work or has_confined_space:
+                    cv_risk += 15.0
+                    cv_details = (
+                        f"CRITICAL: Worker spotted without proper PPE (helmet/harness/mask) via CCTV "
+                        f"in '{req.zone}' during active hazardous operations. Breach of Factories Act 1948 Sec. 87."
+                    )
+                else:
+                    cv_details = f"CCTV Alert: Worker spotted without proper PPE (helmet/harness/mask) in '{req.zone}'."
+                
+                factors.append(FactorRisk(
+                    name="CCTV: PPE Non-Compliance",
+                    score=round(cv_risk, 1),
+                    contribution=0.0,
+                    details=cv_details
+                ))
+                composite_score += cv_risk
+                
+            elif alert_type in ("smoke_detected", "fire_detected"):
+                # Extreme physical threat
+                cv_risk = 85.0 if alert_type == "fire_detected" else 60.0
+                cv_risk = cv_risk * conf
+                
+                if has_hot_work:
+                    cv_risk = max(cv_risk, 95.0)
+                    suspend_permits.extend([p.permit_id for p in active_permits if p.permit_type.lower() == "hot_work"])
+                
+                factors.append(FactorRisk(
+                    name=f"CCTV: {alert_type.replace('_', ' ').title()}",
+                    score=round(cv_risk, 1),
+                    contribution=0.0,
+                    details=(
+                        f"CRITICAL: Visual detection of {alert_type.replace('_', ' ')} in '{req.zone}' "
+                        f"({int(conf*100)}% detection confidence)."
+                    )
+                ))
+                composite_score = max(composite_score, cv_risk)
+                
+            elif alert_type == "unauthorized_entry":
+                cv_risk = 25.0 * conf
+                # If there's an active hazard or gas buildup in this zone, entry is extremely risky
+                if gas_score > 40.0:
+                    cv_risk = max(cv_risk, 70.0)
+                
+                factors.append(FactorRisk(
+                    name="CCTV: Unauthorized Zone Entry",
+                    score=round(cv_risk, 1),
+                    contribution=0.0,
+                    details=(
+                        f"CCTV Alert: Unauthorized personnel detected in restricted zone '{req.zone}' "
+                        f"({int(conf*100)}% confidence)."
+                    )
+                ))
+                composite_score += cv_risk
 
     # Clamp composite score to 100
     composite_score = min(composite_score, 100.0)

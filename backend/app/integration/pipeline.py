@@ -13,6 +13,7 @@ from typing import Dict, Any, Optional
 
 from .models import FullAssessmentResponse
 from ..permits.agent import DigitalPermitIntelligenceAgent
+from ..geospatial.topology import PlantTopology
 
 logger = logging.getLogger("zeroharm_ai.integration.pipeline")
 
@@ -26,12 +27,14 @@ class ZeroHarmIntegrationPipeline:
     """
 
     def __init__(self, heatmap_engine, evacuation_mgr, worker_sim, safety_agent,
-                 permit_agent: Optional[DigitalPermitIntelligenceAgent] = None):
+                 permit_agent: Optional[DigitalPermitIntelligenceAgent] = None,
+                 topology_engine: Optional[PlantTopology] = None):
         self.heatmap_engine = heatmap_engine
         self.evacuation_mgr = evacuation_mgr
         self.worker_sim = worker_sim
         self.safety_agent = safety_agent
         self.permit_agent = permit_agent or DigitalPermitIntelligenceAgent()
+        self.topology_engine = topology_engine or PlantTopology()
 
     def _merge_action(self, risk_assessment: Dict[str, Any], permit_audit) -> str:
         """Person A and Person D can each independently recommend action. Merge
@@ -99,9 +102,32 @@ class ZeroHarmIntegrationPipeline:
             logger.error(f"RAG query failed inside integration pipeline: {e}")
             rag_result = {"answer": "Compliance narrative unavailable.", "sources": [], "mode": "error"}
 
+        # --- Topology process risk cascades ---
+        active_risks = {}
+        try:
+            snapshot = self.heatmap_engine.snapshot()
+            for hz in snapshot.zones:
+                active_risks[hz.zone] = hz.risk_score
+        except Exception as e:
+            logger.error(f"Could not extract risk snapshot for topology assessment: {e}")
+
+        cascades = self.topology_engine.get_cascading_risks(active_risks)
+        my_cascade = cascades.get(zone)
+
         # --- Person D: final synthesis across all four agents ---
-        unified_score = round(max(risk_assessment.get("composite_risk_score", 0.0), permit_audit.permit_risk_score), 1)
+        cascade_score = my_cascade.get("propagated_score", 0.0) if my_cascade else 0.0
+        unified_score = round(max(
+            risk_assessment.get("composite_risk_score", 0.0), 
+            permit_audit.permit_risk_score,
+            cascade_score
+        ), 1)
+        
         unified_action = self._merge_action(risk_assessment, permit_audit)
+        
+        if my_cascade and cascade_score > 0.0:
+            sources_str = ", ".join(f"{s['source_zone']} ({s['propagated_risk']} risk via {s['connection']})" for s in my_cascade["sources"])
+            unified_action += f" WARNING: Process topology indicates active cascading risk of {cascade_score} from upstream: {sources_str}."
+
         all_flagged = list(dict.fromkeys(
             list(risk_assessment.get("suspend_permits", [])) + list(permit_audit.suspend_permits)
         ))
@@ -120,4 +146,5 @@ class ZeroHarmIntegrationPipeline:
             unified_risk_score=unified_score,
             unified_action=unified_action,
             all_flagged_permits=all_flagged,
+            topology_cascade=my_cascade,
         )

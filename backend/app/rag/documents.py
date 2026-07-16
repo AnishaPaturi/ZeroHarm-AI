@@ -192,6 +192,22 @@ REGULATORY_DOCS = [
             "3. If methane levels exceed 1.25% at any point, all power to electrical installations in that zone must be cut "
             "off automatically, and personnel must evacuate immediately."
         )
+    },
+    {
+        "id": "cctv_compliance_guidelines",
+        "title": "Industrial Safety Standards - Real-Time Video Analytics & PPE Enforcement",
+        "source": "statutory_compliance",
+        "content": (
+            "Guidelines on visual monitoring systems and PPE enforcement in heavy industrial operations.\n"
+            "1. Automated Video Surveillance (CCTV): High-risk work zones (welding blocks, coke oven batteries, confined entries) "
+            "must be covered by continuous CCTV monitoring linked to real-time Computer Vision (CV) alert systems.\n"
+            "2. Personal Protective Equipment (PPE) detection: CV models must continuously audit workers for helmet compliance, "
+            "safety harness attachment during height work, and breathing apparatus in toxic gas zones. Detection of 'no_ppe' "
+            "breaches must immediately trigger local warnings and notify the safety supervisor.\n"
+            "3. Restricted Area Access: CV systems must establish virtual geofences (exclusion zones) around high-temperature, "
+            "high-pressure, or toxic-gas venting areas. Detected unauthorized entry must raise immediate alarms, and all nearby "
+            "hot work permits must be reassessed/suspended to avoid ignition risks."
+        )
     }
 ]
 
@@ -293,6 +309,22 @@ HISTORICAL_INCIDENTS = [
             "  - RAG engine flagged Section 37 of Factories Act (ignition source exclusion near explosive dust).\n"
             "  - Safety Officer suspended the welding permit, ordered water spraying for dust suppression, and cleared the chute before allowing hot work.\n"
             "  - Potential dust explosion hazard successfully averted."
+        )
+    },
+    {
+        "id": "near_miss_2025_cctv_ppe",
+        "title": "Near-Miss Record: CCTV CV PPE Detection at Coke Oven (October 2025)",
+        "source": "near_miss_logs",
+        "content": (
+            "Near-Miss Summary: Real-time CCTV analysis triggered a high-severity alert for a 'no_ppe' violation in Coke Oven Battery 1.\n"
+            "Contributing Factors:\n"
+            "  - A technician climbed onto the Coke Oven top battery level to adjust a manual pressure gauge under a Height Work permit.\n"
+            "  - The technician failed to secure their safety harness lanyard to the static lifeline (PPE violation).\n"
+            "  - The CV analytics engine detected the unanchored harness and triggered a 'no_ppe' warning at 92% confidence.\n"
+            "Actions Taken:\n"
+            "  - The ZeroHarm platform immediately flagged the zone risk and suspended the overlapping permits.\n"
+            "  - Shift supervisor ordered the technician to halt work and hook up their harness immediately.\n"
+            "  - Potential fall from height incident prevented by automated visual audit."
         )
     }
 ]

@@ -22,12 +22,19 @@ class FactorRisk(BaseModel):
     contribution: float = Field(..., description="Percentage contribution of this factor to the score")
     details: str = Field(..., description="Detailed description of the risk assessment for this factor")
 
+class CCTVAlert(BaseModel):
+    zone: str = Field(..., description="Zone where the alert was triggered")
+    event_type: str = Field(..., description="Type of event: no_ppe, smoke_detected, unauthorized_entry, fire_detected")
+    confidence: float = Field(..., description="Detection confidence score between 0.0 and 1.0")
+    timestamp: str = Field(..., description="Timestamp of the event in ISO format")
+
 class RiskCheckRequest(BaseModel):
     zone: str = Field(..., description="Zone being checked (e.g., Coke Oven Battery 1)")
     gas_readings: GasReadings = Field(..., description="Telemetry from gas sensors in this zone")
     permits: List[PermitInfo] = Field([], description="List of active permits in this zone")
     maintenance_active: bool = Field(False, description="Is general maintenance active in this zone")
     shift_changeover_active: bool = Field(False, description="Is a shift changeover currently in progress")
+    cctv_alerts: List[CCTVAlert] = Field([], description="List of active CCTV alerts in this zone")
     timestamp: str = Field(..., description="Timestamp of the reading in ISO format")
 
 class RiskCheckResponse(BaseModel):
