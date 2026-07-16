@@ -1,0 +1,397 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../hooks/useAuth';
+import { useShallow } from 'zustand/react/shallow';
+import { useIncident, selectPlantSafetyRating, selectOverallRisk } from '../../hooks/useIncident';
+import { useNotifications } from '../../hooks/useNotifications';
+import Loader from '../../component/Loader';
+import { 
+  Activity, 
+  BrainCircuit, 
+  Sparkles, 
+  Cpu, 
+  BookmarkCheck,
+  Shield,
+  ShieldAlert
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+export default function AnalysisPage() {
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { addToast } = useNotifications();
+  const incidents = useIncident(state => state.incidents);
+  const activeIncident = useIncident(state => state.activeIncident);
+  const isAnalyzing = useIncident(state => state.isAnalyzing);
+  const analysisStep = useIncident(state => state.analysisStep);
+  const analysisDetail = useIncident(state => state.analysisDetail);
+  const selectIncident = useIncident(state => state.selectIncident);
+  const runAIAnalysis = useIncident(state => state.runAIAnalysis);
+  const aiReasoning = useIncident(useShallow(state => state.aiReasoning));
+
+  const safetyRating = useIncident(selectPlantSafetyRating);
+  const overallRisk = useIncident(selectOverallRisk);
+
+  const [activeTab, setActiveTab] = useState<'rca' | 'compliance' | 'recommendations' | 'history'>('rca');
+
+  const handleStartAnalysis = async () => {
+    if (!activeIncident) return;
+    addToast('Transferring incident payload to RAG analyzer...', 'info');
+    await runAIAnalysis(activeIncident.id);
+    addToast('AI diagnostic assessment generated', 'success');
+  };
+
+  const getSeverityColor = (sev: string) => {
+    switch (sev) {
+      case 'Critical': return 'text-red-400 border-red-500/20 bg-red-500/10';
+      case 'High': return 'text-orange-400 border-orange-500/20 bg-orange-500/10';
+      case 'Medium': return 'text-amber-400 border-amber-500/20 bg-amber-500/10';
+      default: return 'text-green-400 border-green-500/20 bg-green-500/10';
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="flex flex-col gap-6 py-8 animate-pulse">
+        <div className="h-10 bg-white/5 rounded-xl w-1/3" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-28 bg-white/5 rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center max-w-md mx-auto py-12">
+        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-safety-orange mb-4">
+          <ShieldAlert className="w-6 h-6" />
+        </div>
+        <h3 className="font-heading text-lg font-bold text-white mb-2">Gatehouse Verification Required</h3>
+        <p className="text-xs text-slate-400 leading-relaxed mb-6">
+          You must log into the platform gateway to access the Safety Intelligence Analyzer.
+        </p>
+        <button
+          onClick={() => router.push('/login')}
+          className="bg-safety-orange text-white font-semibold text-xs px-6 py-2.5 rounded-xl hover:bg-safety-orange/90 transition-colors cursor-pointer"
+        >
+          Proceed to Login
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6 py-4">
+      
+      {/* Top Header */}
+      <div>
+        <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest block">
+          RAG WORKSPACE
+        </span>
+        <h1 className="font-heading text-2xl font-bold text-white tracking-tight">
+          Safety Intelligence Analyzer
+        </h1>
+      </div>
+
+      {/* Global Risk Fusion Ticker */}
+      <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex items-start gap-3 flex-1">
+          <div className="w-10 h-10 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center text-safety-orange flex-shrink-0">
+            <Shield className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-heading font-bold text-sm text-white">Live AI Risk Fusion Stream</h3>
+            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+              {aiReasoning.reasoning}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-4 flex-shrink-0 self-end md:self-auto border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
+          <div className="text-right">
+            <span className="text-[9px] text-slate-500 font-mono block">COMPOUND INDEX</span>
+            <span className="text-lg font-bold text-white block mt-0.5">{100 - safetyRating}% Risk</span>
+          </div>
+          <div className="text-right border-l border-white/5 pl-4">
+            <span className="text-[9px] text-slate-500 font-mono block">RAG STATUS</span>
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border block mt-1 ${getSeverityColor(overallRisk)}`}>
+              {overallRisk}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* RAG Console Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        
+        {/* Left Side: Select Case */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
+          <div className="glass-panel border border-white/10 rounded-2xl p-4">
+            <span className="text-[9px] text-slate-400 font-mono uppercase tracking-wider block mb-3">
+              ACTIVE CASE LOGS
+            </span>
+
+            <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto pr-1">
+              {incidents.map((inc) => (
+                <button
+                  key={inc.id}
+                  onClick={() => selectIncident(inc.id)}
+                  className={`w-full p-3.5 rounded-xl border text-left transition-all focus:outline-none ${
+                    activeIncident?.id === inc.id
+                      ? 'bg-white/10 border-safety-orange'
+                      : 'bg-white/[0.01] border-white/5 hover:bg-white/5'
+                  }`}
+                >
+                  <div className="flex justify-between items-center mb-1 text-[9px] font-mono">
+                    <span className="text-slate-500">{inc.id.toUpperCase()}</span>
+                    <span className={inc.aiAnalysis ? 'text-green-400 font-semibold' : 'text-slate-500'}>
+                      {inc.aiAnalysis ? 'ANALYZED' : 'UNAUDITED'}
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-semibold text-white truncate">{inc.title}</h4>
+                  <span className="text-[9px] text-slate-400 font-mono mt-1.5 block">{inc.location}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Analysis Display */}
+        <div className="lg:col-span-8 flex flex-col justify-center">
+          <AnimatePresence mode="wait">
+            
+            {/* 1. Loading progressive diagnostics */}
+            {isAnalyzing && (
+              <motion.div
+                key="loader"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="glass-panel border border-white/10 rounded-3xl p-8 flex items-center justify-center min-h-[50vh]"
+              >
+                <Loader progressStep={analysisStep} detailText={analysisDetail} />
+              </motion.div>
+            )}
+
+            {/* 2. No incident selected */}
+            {!isAnalyzing && !activeIncident && (
+              <motion.div
+                key="empty-state"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-[55vh] border border-dashed border-white/5 rounded-3xl flex flex-col items-center justify-center text-center p-6 text-slate-500 bg-white/[0.01]"
+              >
+                <Sparkles className="w-8 h-8 text-slate-600 mb-3" />
+                <h3 className="font-heading text-sm font-bold text-slate-400">Load Case Payload</h3>
+                <p className="text-xs text-slate-500 max-w-xs mt-1">
+                  Select a registered case log from the left index panel to initiate RAG compliance audits and diagnostic calculations.
+                </p>
+              </motion.div>
+            )}
+
+            {/* 3. Incident selected but not analyzed */}
+            {!isAnalyzing && activeIncident && !activeIncident.aiAnalysis && (
+              <motion.div
+                key="audit-gate"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="glass-panel border border-white/10 rounded-3xl p-8 text-center flex flex-col items-center justify-center min-h-[50vh]"
+              >
+                <Cpu className="w-10 h-10 text-safety-orange animate-pulse mb-4" />
+                <h3 className="font-heading text-lg font-bold text-white mb-2">
+                  Initiate AI Telemetry Audit
+                </h3>
+                <p className="text-xs text-slate-400 max-w-sm leading-relaxed mb-6">
+                  Ready to deploy RAG model agents. This scans the incident log, cross-references Factory Act directives, and extracts root cause indicators.
+                </p>
+                <button
+                  onClick={handleStartAnalysis}
+                  className="bg-safety-orange hover:bg-safety-orange/90 text-white font-semibold text-xs px-6 py-3 rounded-xl transition-all shadow-md flex items-center gap-2 border border-white/5 cursor-pointer focus:outline-none"
+                >
+                  <Activity className="w-4 h-4" />
+                  <span>Execute Analysis Pipeline</span>
+                </button>
+              </motion.div>
+            )}
+
+            {/* 4. Incident Analyzed: Show Results Console */}
+            {!isAnalyzing && activeIncident && activeIncident.aiAnalysis && (
+              <motion.div
+                key="analysis-console"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="glass-panel border border-white/10 rounded-3xl p-6 flex flex-col gap-6"
+              >
+                
+                {/* Console Header */}
+                <div className="flex justify-between items-start gap-4 border-b border-white/5 pb-4">
+                  <div>
+                    <span className="text-[9px] text-slate-500 font-mono">MODEL: ZEROHARM-RAG-V2</span>
+                    <h3 className="font-heading text-lg font-bold text-white mt-1">
+                      Diagnostic File: {activeIncident.id.toUpperCase()}
+                    </h3>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="text-right">
+                      <span className="text-[9px] text-slate-500 font-mono block">CUMULATIVE RISK</span>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border inline-block mt-1 ${getSeverityColor(activeIncident.aiAnalysis.riskLevel)}`}>
+                        {activeIncident.aiAnalysis.riskLevel}
+                      </span>
+                    </div>
+
+                    <div className="text-right border-l border-white/5 pl-4">
+                      <span className="text-[9px] text-slate-500 font-mono block">CERTAINTY RATING</span>
+                      <span className="text-sm font-bold text-emerald-400 block mt-0.5">
+                        {activeIncident.aiAnalysis.confidenceScore}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Internal Navigation Tabs */}
+                <div className="flex border-b border-white/5">
+                  {[
+                    { id: 'rca', label: 'RCA Diagnosis' },
+                    { id: 'compliance', label: 'Code Violations' },
+                    { id: 'recommendations', label: 'Directives / PPE' },
+                    { id: 'history', label: 'Similar Incidents' }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all focus:outline-none ${
+                        activeTab === tab.id
+                          ? 'border-safety-orange text-white'
+                          : 'border-transparent text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Tab Contents */}
+                <div className="min-h-[250px] text-xs">
+                  
+                  {/* Tab: RCA */}
+                  {activeTab === 'rca' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+                      <div>
+                        <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-1.5">ROOT CAUSE DETERMINATION</h4>
+                        <p className="text-xs text-slate-200 bg-white/[0.02] border border-white/5 rounded-xl p-3.5 leading-relaxed font-sans font-medium">
+                          {activeIncident.aiAnalysis.rootCause}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-2">DETECTED ANOMALOUS VARIABLES</h4>
+                        <div className="flex gap-2 flex-wrap">
+                          {activeIncident.aiAnalysis.detectedHazards.map((haz, idx) => (
+                            <span key={idx} className="bg-white/5 border border-white/5 rounded-lg px-3 py-1.5 text-slate-300 font-mono text-[10px]">
+                              {haz}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Tab: Compliance */}
+                  {activeTab === 'compliance' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+                      <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-1.5">REGULATORY DISCREPANCIES</h4>
+                      
+                      <div className="flex flex-col gap-3">
+                        {activeIncident.aiAnalysis.violatedRegulations.map((reg, idx) => (
+                          <div key={idx} className="bg-white/[0.01] border border-white/5 rounded-xl p-4 flex justify-between gap-4">
+                            <div className="flex flex-col gap-1">
+                              <span className="font-heading font-bold text-slate-200 text-sm">{reg.regulation}</span>
+                              <p className="text-xs text-slate-400 leading-relaxed mt-1">{reg.description}</p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className="text-[9px] font-mono text-slate-500 block">ACT CATEGORY</span>
+                              <span className="text-[10px] font-bold text-white uppercase mt-1 inline-block bg-white/5 border border-white/10 px-2 py-0.5 rounded">
+                                {reg.act}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Tab: Recommendations */}
+                  {activeTab === 'recommendations' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      
+                      <div>
+                        <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-2.5">SAFETY DIRECTIVES</h4>
+                        <div className="flex flex-col gap-2">
+                          {activeIncident.aiAnalysis.immediateActions.map((act, i) => (
+                            <div key={i} className="flex items-center gap-2.5 bg-white/5 border border-white/5 p-2.5 rounded-lg text-slate-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-safety-orange" />
+                              <span>{act}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-2.5">RECOMMENDED CRADLE PPE</h4>
+                        <div className="flex flex-col gap-2">
+                          {activeIncident.aiAnalysis.recommendedPPE.map((ppe, i) => (
+                            <div key={i} className="flex items-center gap-2.5 bg-white/5 border border-white/5 p-2.5 rounded-lg text-slate-300">
+                              <BookmarkCheck className="w-4 h-4 text-emerald-400" />
+                              <span>{ppe}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                    </motion.div>
+                  )}
+
+                  {/* Tab: History */}
+                  {activeTab === 'history' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
+                      <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-2.5">PRECEDENTS MATCH</h4>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {activeIncident.aiAnalysis.similarIncidents.map((sim, i) => (
+                          <div key={i} className="bg-white/[0.01] border border-white/5 rounded-xl p-4 flex justify-between items-center">
+                            <div>
+                              <span className="text-[9px] text-slate-500 font-mono">{sim.date}</span>
+                              <h5 className="font-semibold text-slate-200 mt-1">{sim.title}</h5>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-[9px] text-slate-500 font-mono block">MATCH RATE</span>
+                              <span className="text-xs font-bold text-safety-orange block mt-0.5">{sim.similarity}%</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                </div>
+
+              </motion.div>
+            )}
+
+          </AnimatePresence>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
