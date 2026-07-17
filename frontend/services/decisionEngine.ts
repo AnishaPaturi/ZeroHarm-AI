@@ -68,7 +68,6 @@ function mapRAGToCompliance(docs: any[]): any[] {
 
 // Function to fetch compliance documents from the backend RAG store and map to checklists
 async function syncCompliance() {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   try {
     const ragDocs = await fetchBackend<any[]>('/api/rag/documents');
     const mappedCompliance = mapRAGToCompliance(ragDocs);
@@ -100,7 +99,6 @@ function checkEmergencyStatus(state: any): { active: boolean; message: string } 
 
 // Function to fetch worker locations from the backend and update store
 async function syncWorkers() {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   try {
     const backendWorkers = await fetchBackend<any[]>('/api/workers');
     const mappedWorkers = backendWorkers.map(w => ({
@@ -117,7 +115,6 @@ async function syncWorkers() {
 
 // Function to fetch active alerts from the backend and update store
 async function syncAlerts() {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   try {
     const backendAlerts = await fetchBackend<any[]>('/api/alerts');
     const mappedAlerts = backendAlerts.map((a, idx) => ({
@@ -135,7 +132,6 @@ async function syncAlerts() {
 
 // Function to fetch incidents from the backend and update store
 async function syncIncidents() {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   try {
     const backendReports = await fetchBackend<any[]>('/api/incidents');
     const mappedIncidents = backendReports.map(mapBackendReport);
@@ -309,6 +305,12 @@ export const initDecisionEngine = () => {
   // Start WebSocket client connection
   if (typeof window !== 'undefined') {
     connectWebSocket();
+    
+    // Initial sync immediately via REST
+    syncWorkers();
+    syncAlerts();
+    syncIncidents();
+    syncCompliance();
     
     // Set up continuous synchronization loops
     workersInterval = setInterval(syncWorkers, 2500);

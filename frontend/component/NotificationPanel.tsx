@@ -48,9 +48,9 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
   };
 
   return (
-    <div className="glass-panel border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="glass-panel bg-slate-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
       {/* Header */}
-      <div className="px-4 py-3 bg-white/[0.03] border-b border-white/5 flex justify-between items-center">
+      <div className="px-4 py-3 bg-slate-900 border-b border-white/5 flex justify-between items-center">
         <span className="font-heading font-semibold text-xs tracking-wider uppercase text-slate-300">
           Critical Operations Feed
         </span>
@@ -63,9 +63,9 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
       </div>
 
       {/* Alert Feed */}
-      <div className="max-h-80 overflow-y-auto divide-y divide-white/5">
+      <div className="max-h-80 overflow-y-auto divide-y divide-white/5 bg-slate-950">
         {alerts.length === 0 ? (
-          <div className="p-6 text-center text-xs text-slate-400">
+          <div className="p-6 text-center text-xs text-slate-300 bg-slate-950">
             No active safety alerts. All sectors stable.
           </div>
         ) : (
@@ -78,7 +78,10 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
                   <div className="flex justify-between items-baseline gap-2">
                     <span className="text-[10px] text-slate-400 font-mono">{alert.department}</span>
                     <span className="text-[9px] text-slate-500 font-mono">
-                      {new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {(() => {
+                        const d = new Date(alert.timestamp);
+                        return isNaN(d.getTime()) ? 'Just now' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      })()}
                     </span>
                   </div>
                   <p className="text-xs text-slate-200 mt-1 font-medium leading-relaxed">
