@@ -4,145 +4,12 @@ import { ComplianceRecord, SafetyAlert } from '../types/analytics';
 import { AppEvent } from '../lib/eventBus';
 
 // Default Nominal Roster & Parameters
-const DEFAULT_TELEMETRY = { gasLpgLEL: 2.1, segmentDPressure: 9.8, temperature: 38.5 };
-
-const DEFAULT_WORKERS = [
-  { id: 'w_1', name: 'Sarah Jenkins', zone: 'Control Room', ppeOk: true },
-  { id: 'w_2', name: 'David Vance', zone: 'Distillation Unit A', ppeOk: true },
-  { id: 'w_3', name: 'Marcus Brody', zone: 'Plant B - Chemical Storage', ppeOk: true }
-];
-
-const DEFAULT_PERMITS = [
-  { permitId: 'p_101', description: 'Grate cleaning and filter extraction', zone: 'Distillation Unit A', permitType: 'Cold Work' }
-];
-
-const DEFAULT_ALERTS: SafetyAlert[] = [
-  {
-    id: 'a_default_1',
-    message: 'Scheduled safety valve calibrations active in Segment D.',
-    severity: 'Info',
-    timestamp: new Date().toISOString(),
-    department: 'Maintenance'
-  }
-];
-
-const DEFAULT_COMPLIANCE: ComplianceRecord[] = [
-  {
-    id: 'comp_1',
-    standardName: 'OISD-STD-150 (Vessels Pressure Testing)',
-    category: 'OISD',
-    status: 'Compliant',
-    lastAudited: '2026-07-02',
-    score: 100,
-    inspector: 'Marcus Brody',
-    criticalFindingsCount: 0,
-    checklist: [
-      { id: 'item_1_1', text: 'Validate pressure safety valve certification seal integrity', checked: true },
-      { id: 'item_1_2', text: 'Verify hydro-test certificate from external inspector', checked: true },
-      { id: 'item_1_3', text: 'Cross-reference vessel thick gauge reading with nominal specs', checked: true }
-    ]
-  },
-  {
-    id: 'comp_2',
-    standardName: 'DGMS Circular 14 (Gas Telemetry Links)',
-    category: 'DGMS',
-    status: 'Pending Audit',
-    lastAudited: '2026-07-16',
-    score: 66,
-    inspector: 'Sarah Jenkins',
-    criticalFindingsCount: 0,
-    checklist: [
-      { id: 'item_2_1', text: 'Check telemetry link redundant path failover latency', checked: true },
-      { id: 'item_2_2', text: 'Inspect O2/HC gas sniffer calibration tag dates', checked: true },
-      { id: 'item_2_3', text: 'Confirm PLC trip signal routing to ESD manifold', checked: false }
-    ]
-  },
-  {
-    id: 'comp_3',
-    standardName: 'Factory Act Sec 21 (Gearing Guardrails)',
-    category: 'Factory Act',
-    status: 'Compliant',
-    lastAudited: '2026-06-15',
-    score: 100,
-    inspector: 'Marcus Brody',
-    criticalFindingsCount: 0,
-    checklist: [
-      { id: 'item_3_1', text: 'Physical gearing guardrails inspection for cracks or loose welds', checked: true },
-      { id: 'item_3_2', text: 'Inspect yellow warning safety paint lines visibility', checked: true },
-      { id: 'item_3_3', text: 'Safety net netting tension checks under primary walkway', checked: true }
-    ]
-  },
-  {
-    id: 'comp_4',
-    standardName: 'OISD-STD-105 (Emergency Drill Register)',
-    category: 'OISD',
-    status: 'Pending Audit',
-    lastAudited: '2026-07-17',
-    score: 0,
-    inspector: 'Sarah Jenkins',
-    criticalFindingsCount: 0,
-    checklist: [
-      { id: 'item_4_1', text: 'Register review of evacuation log signatures', checked: false },
-      { id: 'item_4_2', text: 'Emergency alarm siren decibel audit at sector fence boundaries', checked: false },
-      { id: 'item_4_3', text: 'First-aid station burn kits supply level verification', checked: false }
-    ]
-  }
-];
-
-const DEFAULT_INCIDENTS: Incident[] = [
-  {
-    id: 'inc_1',
-    title: 'Pressure Release Valve Over-pressurization',
-    description: 'Pressure surge in the primary distillation column pipeline reached 12.2 bar. The safety relief valve spring failed to actuate automatically, requiring manual vent override.',
-    location: 'Segment D-4, Distillation Unit A',
-    department: 'Plant Operations',
-    severity: 'High',
-    status: 'RCA Complete',
-    reportedAt: '2026-07-16T10:15:00Z',
-    reporterName: 'Sarah Jenkins',
-    reporterRole: 'Safety Officer',
-    mediaUrls: [],
-    comments: [
-      {
-        id: 'c_1',
-        authorName: 'David Vance',
-        authorRole: 'Plant Manager',
-        content: 'Physically inspected spring coil, minor signs of scaling observed.',
-        timestamp: '2026-07-16T11:00:00Z'
-      }
-    ],
-    aiAnalysis: {
-      riskLevel: 'High',
-      confidenceScore: 94,
-      detectedHazards: ['Pipeline Pressure Surge', 'Mechanical Valve Failure', 'Thermal Exposure Risk'],
-      rootCause: 'Mechanical fatigue of the valve compression spring, coupled with a telemetry feedback delay from the pressure transmitter.',
-      recommendedPPE: ['Flame Resistant Clothing (FRC)', 'Pressure-rated Face Shield', 'Double Hearing Protection'],
-      violatedRegulations: [
-        {
-          regulation: 'OISD-STD-150 Sec 5.3',
-          act: 'OISD',
-          description: 'Relief valve mechanical assemblies must be pressure-tested and certified every 12 months.',
-          severity: 'Major'
-        }
-      ],
-      immediateActions: [
-        'Isolate feed Segment D-4',
-        'Trigger manual flare header diversion'
-      ],
-      preventiveMeasures: [
-        'Decrease relief valve testing cycles to 6 months in Distillation Area',
-        'Replace relief valve compression spring assembly'
-      ],
-      similarIncidents: [
-        { id: 'inc_old_1', title: 'Flare manifold block overpressure', severity: 'High', similarity: 82, date: '2025-11-12' }
-      ],
-      timeline: [
-        { id: 't_1', title: 'Incident Reported', description: 'Logged by Safety Officer', timestamp: '10:15', status: 'completed' },
-        { id: 't_2', title: 'Containment Action', description: 'Manual venting initiated', timestamp: '10:20', status: 'completed' }
-      ]
-    }
-  }
-];
+const DEFAULT_TELEMETRY = { gasLpgLEL: 0, segmentDPressure: 0, temperature: 0 };
+const DEFAULT_WORKERS: any[] = [];
+const DEFAULT_PERMITS: any[] = [];
+const DEFAULT_ALERTS: SafetyAlert[] = [];
+const DEFAULT_COMPLIANCE: ComplianceRecord[] = [];
+const DEFAULT_INCIDENTS: Incident[] = [];
 
 interface IncidentStore {
   // Raw States
@@ -197,9 +64,9 @@ export const useIncident = create<IncidentStore>((set, get) => ({
   evacuationMessage: '',
   eventLogs: [],
   aiReasoning: {
-    reasoning: 'All operational parameters (sensors, workers, permits) align with safe guidelines. Compound risk: 10%.',
-    recommendations: ['Maintain normal plant safety surveillance rounds.'],
-    detectedHazards: ['None']
+    reasoning: 'Connecting to ZeroHarm safety system server...',
+    recommendations: [],
+    detectedHazards: []
   },
 
   activeIncident: null,
