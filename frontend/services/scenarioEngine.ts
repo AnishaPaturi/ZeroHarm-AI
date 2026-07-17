@@ -91,8 +91,14 @@ class ScenarioEngine {
 
       this.addLogToConsole(`Backend scenario ${type} running.`);
     } catch (error) {
-      console.error('Failed to trigger backend scenario:', error);
-      this.addLogToConsole(`Error triggering backend scenario: ${error instanceof Error ? error.message : String(error)}`);
+      const isOffline = error instanceof Error && (error.message.includes('fetch') || error.message.includes('unreachable'));
+      if (isOffline) {
+        console.warn('ZeroHarm Backend is offline. Operating in client-side preview mode.');
+        this.addLogToConsole('Safety server is offline. Running client-side preview mode.');
+      } else {
+        console.error('Failed to trigger backend scenario:', error);
+        this.addLogToConsole(`Error triggering backend scenario: ${error instanceof Error ? error.message : String(error)}`);
+      }
     }
   }
 
@@ -121,8 +127,13 @@ class ScenarioEngine {
       await this.setNominalState();
       this.addLogToConsole('Plant reset to nominal default parameters successfully.');
     } catch (error) {
-      console.error('Failed to reset backend:', error);
-      this.addLogToConsole('Failed to reset backend state.');
+      const isOffline = error instanceof Error && (error.message.includes('fetch') || error.message.includes('unreachable'));
+      if (isOffline) {
+        console.warn('ZeroHarm Backend is offline. Could not reset backend state.');
+      } else {
+        console.error('Failed to reset backend:', error);
+        this.addLogToConsole('Failed to reset backend state.');
+      }
     }
   }
 
@@ -169,10 +180,14 @@ class ScenarioEngine {
     };
 
     for (const [zone, state] of Object.entries(defaultStates)) {
-      await fetchBackend(`/api/state/update?zone_name=${encodeURIComponent(zone)}`, {
-        method: 'POST',
-        body: JSON.stringify(state)
-      });
+      try {
+        await fetchBackend(`/api/state/update?zone_name=${encodeURIComponent(zone)}`, {
+          method: 'POST',
+          body: JSON.stringify(state)
+        });
+      } catch (err) {
+        throw new Error('Backend server is unreachable.');
+      }
     }
   }
 
