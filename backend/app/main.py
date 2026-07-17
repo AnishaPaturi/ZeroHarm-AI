@@ -98,7 +98,7 @@ def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
         logger.error(f"Failed to fetch RAG analysis for incident report: {e}")
         rag_analysis = "RAG compliance analysis unavailable."
 
-    report = generate_report(zone, risk_assessment, evacuation_record)
+    report = generate_report(zone, risk_assessment, evacuation_record, risk_history)
     report.narrative += f"\n\n--- RAG COMPLIANCE & HISTORICAL PRECEDENTS ANALYSIS ---\n{rag_analysis}"
     logger.warning(f"Preliminary incident report generated with RAG: {report.report_id} for zone '{zone}'")
 
@@ -361,7 +361,10 @@ async def evaluate_risk_score(request: RiskCheckRequest):
             timestamp=datetime.now().isoformat()
         )
 
-        risk_history.append(response.dict())
+        history_payload = response.dict()
+        history_payload["gas_readings"] = gas.dict()
+        history_payload["composite_score"] = composite_score
+        risk_history.append(history_payload)
         if len(risk_history) > MAX_HISTORY_LEN:
             risk_history.pop(0)
 

@@ -70,6 +70,7 @@ class IncidentReport(BaseModel):
     evacuation_status: str
     regulatory_refs: List[str]
     narrative: str
+    evidence_file_path: Optional[str] = None
 
 
 class TriggerAlertRequest(BaseModel):
