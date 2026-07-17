@@ -91,7 +91,7 @@ if __name__ == "__main__":
             
     # 3. Clear CCTV alerts
     section("4. Clear CCTV Alerts")
-    res3 = call_api(f"/api/cctv/clear?zone=Coke Oven%20Battery%201", method="POST")
+    res3 = call_api(f"/api/cctv/clear?zone=Coke%20Oven%20Battery%201", method="POST")
     if res3:
         risk = res3["risk_assessment"]
         print(f"Status: {res3['status']}")
