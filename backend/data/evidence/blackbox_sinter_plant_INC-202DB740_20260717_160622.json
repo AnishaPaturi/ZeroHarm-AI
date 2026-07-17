@@ -1,0 +1,1316 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-202DB740",
+    "zone": "Sinter Plant",
+    "recorded_at": "2026-07-17T16:06:22.789781+00:00",
+    "record_count": 40,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": [
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:33:36.434231",
+      "gas_readings": {
+        "o2": 20.08,
+        "co": 7.8,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.438,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 80.3,
+      "risk_level": "Critical",
+      "rule_score": 80.3,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 65.3,
+          "contribution": 81.3,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 0.74 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 18.7,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:33:36.516432",
+      "gas_readings": {
+        "o2": 20.08,
+        "co": 8.4,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.741,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 80.3
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:00.807625",
+      "gas_readings": {
+        "o2": 20.03,
+        "co": 8.9,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.024,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:00.923584",
+      "gas_readings": {
+        "o2": 19.98,
+        "co": 9.6,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.073,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:01.019599",
+      "gas_readings": {
+        "o2": 19.91,
+        "co": 9.5,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.069,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:19.394399",
+      "gas_readings": {
+        "o2": 19.84,
+        "co": 9.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.016,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:19.486519",
+      "gas_readings": {
+        "o2": 19.85,
+        "co": 9.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.011,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:19.586584",
+      "gas_readings": {
+        "o2": 19.88,
+        "co": 9.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.027,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 74.5,
+      "risk_level": "Warning",
+      "rule_score": 74.5,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 59.500000000000014,
+          "contribution": 79.9,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 18.2% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 20.1,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:19.636036",
+      "gas_readings": {
+        "o2": 18.2,
+        "co": 9.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.021,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 74.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 47.5,
+          "contribution": 29.2,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 19.0% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 61.5,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 1.92 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 9.2,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:19.709372",
+      "gas_readings": {
+        "o2": 19.0,
+        "co": 9.7,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 1.916,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 69.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 85.0,
+          "contribution": 35.4,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 16.5% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Toxicity Risk",
+          "score": 40.0,
+          "contribution": 16.7,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 35.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 41.7,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 1.44 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 6.2,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:37.480950",
+      "gas_readings": {
+        "o2": 16.5,
+        "co": 35.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 1.438,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 69.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 47.5,
+          "contribution": 23.5,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 19.0% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Toxicity Risk",
+          "score": 39.8,
+          "contribution": 19.7,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 34.9 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 49.4,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 1.44 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 7.4,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:37.527335",
+      "gas_readings": {
+        "o2": 19.0,
+        "co": 34.9,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 1.438,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:37.569036",
+      "gas_readings": {
+        "o2": 20.2,
+        "co": 8.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.061,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:37.606911",
+      "gas_readings": {
+        "o2": 20.22,
+        "co": 8.2,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.084,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:37.728558",
+      "gas_readings": {
+        "o2": 20.14,
+        "co": 8.4,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -109.113,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:38.182353",
+      "gas_readings": {
+        "o2": 20.2,
+        "co": 8.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -40.688,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 58.8,
+      "risk_level": "Warning",
+      "rule_score": 76.4,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 61.4,
+          "contribution": 80.4,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 0.69 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 19.6,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:38.294050",
+      "gas_readings": {
+        "o2": 20.24,
+        "co": 8.5,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.692,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 58.8
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:56.932252",
+      "gas_readings": {
+        "o2": 20.19,
+        "co": 9.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.047,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:57.015556",
+      "gas_readings": {
+        "o2": 20.14,
+        "co": 9.7,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.067,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:34:57.098689",
+      "gas_readings": {
+        "o2": 20.14,
+        "co": 10.2,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.1,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:13.204969",
+      "gas_readings": {
+        "o2": 20.21,
+        "co": 10.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.043,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:13.344888",
+      "gas_readings": {
+        "o2": 20.2,
+        "co": 10.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.073,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:13.404705",
+      "gas_readings": {
+        "o2": 20.2,
+        "co": 10.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.024,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 74.5,
+      "risk_level": "Warning",
+      "rule_score": 74.5,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 59.500000000000014,
+          "contribution": 79.9,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 18.2% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 20.1,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:13.437580",
+      "gas_readings": {
+        "o2": 18.2,
+        "co": 10.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.006,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 74.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 47.5,
+          "contribution": 29.2,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 19.0% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 61.5,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 2.12 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 9.2,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:13.581169",
+      "gas_readings": {
+        "o2": 19.0,
+        "co": 10.8,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 2.122,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 69.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 85.0,
+          "contribution": 35.4,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 16.5% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Toxicity Risk",
+          "score": 40.0,
+          "contribution": 16.7,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 35.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 41.7,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 4.62 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 6.2,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:18.687014",
+      "gas_readings": {
+        "o2": 16.5,
+        "co": 35.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 4.615,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 69.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 47.5,
+          "contribution": 23.5,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 19.0% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Toxicity Risk",
+          "score": 39.8,
+          "contribution": 19.7,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 34.9 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 49.4,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 4.56 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 7.4,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:18.835371",
+      "gas_readings": {
+        "o2": 19.0,
+        "co": 34.9,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 4.564,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:18.871166",
+      "gas_readings": {
+        "o2": 20.2,
+        "co": 8.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.386,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:18.897935",
+      "gas_readings": {
+        "o2": 20.18,
+        "co": 8.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.507,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:19.167513",
+      "gas_readings": {
+        "o2": 20.1,
+        "co": 8.4,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -55.842,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:19.250059",
+      "gas_readings": {
+        "o2": 20.01,
+        "co": 8.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -64.661,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 87.0,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 1.87 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 13.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:19.305230",
+      "gas_readings": {
+        "o2": 19.99,
+        "co": 8.8,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 1.866,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:58.379929",
+      "gas_readings": {
+        "o2": 19.93,
+        "co": 8.7,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.015,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:58.456682",
+      "gas_readings": {
+        "o2": 19.85,
+        "co": 9.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.018,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:35:58.538545",
+      "gas_readings": {
+        "o2": 19.84,
+        "co": 9.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.025,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:36:16.828525",
+      "gas_readings": {
+        "o2": 19.79,
+        "co": 9.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.005,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:36:16.902174",
+      "gas_readings": {
+        "o2": 19.74,
+        "co": 8.7,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.022,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 22.0,
+      "risk_level": "Safe",
+      "rule_score": 15.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 100.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:36:17.042438",
+      "gas_readings": {
+        "o2": 19.79,
+        "co": 9.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.016,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 22.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 74.5,
+      "risk_level": "Warning",
+      "rule_score": 74.5,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 59.500000000000014,
+          "contribution": 79.9,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 18.2% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 20.1,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:36:17.088874",
+      "gas_readings": {
+        "o2": 18.2,
+        "co": 9.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.391,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 74.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 47.5,
+          "contribution": 29.2,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 19.0% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 61.5,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 3.48 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 9.2,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-17T21:36:17.159248",
+      "gas_readings": {
+        "o2": 19.0,
+        "co": 9.6,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 3.48,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    }
+  ]
+}
