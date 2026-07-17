@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import logging
@@ -693,6 +693,54 @@ def audit_compliance(request: ComplianceAuditRequest):
 def get_rag_documents():
     """Returns list of indexed regulatory frameworks and historical incidents."""
     return safety_agent.vector_store.documents
+
+
+@app.post("/api/rag/upload-document")
+async def upload_rag_document(file: UploadFile = File(...)):
+    """Upload a .txt or .pdf safety document, chunk it, vectorize it, and append to the RAG store."""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    filename = file.filename.lower()
+    if not (filename.endswith(".txt") or filename.endswith(".pdf")):
+        raise HTTPException(status_code=400, detail="Only .txt and .pdf files are supported")
+
+    content_bytes = await file.read()
+
+    try:
+        if filename.endswith(".txt"):
+            text = content_bytes.decode("utf-8")
+        else:
+            from pypdf import PdfReader
+            from io import BytesIO
+            reader = PdfReader(BytesIO(content_bytes))
+            text = "\n\n".join(page.extract_text() or "" for page in reader.pages)
+    except Exception as e:
+        logger.error(f"Failed to parse uploaded document: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to parse document: {e}")
+
+    if not text.strip():
+        raise HTTPException(status_code=400, detail="Empty document")
+
+    chunks = ZeroHarmVectorStore._chunk_text(text)
+    base_id = file.filename.rsplit(".", 1)[0].lower().replace(" ", "_")
+    docs = []
+    for i, chunk in enumerate(chunks):
+        docs.append({
+            "id": f"uploaded_{base_id}_{i+1}",
+            "title": f"{file.filename} (Part {i+1})",
+            "source": "uploaded_document",
+            "content": chunk,
+        })
+
+    vector_store.add_documents(docs)
+
+    return {
+        "status": "success",
+        "filename": file.filename,
+        "chunks_created": len(docs),
+        "total_documents": len(vector_store.documents),
+    }
 
 
 # ---------------------------------------------------------------------------
