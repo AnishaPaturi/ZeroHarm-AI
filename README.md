@@ -247,14 +247,13 @@ Below is the complete file and directory layout of the ZeroHarm AI project works
 ## 🛠️ Code Reference Links
 
 Easily navigate to key implementation files in the project workspace:
-* Primary Server File: [backend/app/main.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/main.py)
-* Rules Engine Evaluator: [backend/app/engine/rules.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/rules.py)
-* Process Topology Cascading Logic: [backend/app/geospatial/topology.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/geospatial/topology.py)
-* ML Anomaly Detection Model: [backend/app/engine/ml_anomaly.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/ml_anomaly.py)
-* RAG Search Agent: [backend/app/rag/agent.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/agent.py)
-* Permit Intelligence Agent: [backend/app/permits/agent.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/permits/agent.py)
-* Integration Orchestrator Pipeline: [backend/app/integration/pipeline.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/integration/pipeline.py)
-* Actionable Ticket Workflows: [backend/app/orchestrator/workflow.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/orchestrator/workflow.py)
+* Rules Engine Evaluator: [backend/app/engine/rules.py]
+* Process Topology Cascading Logic: [backend/app/geospatial/topology.py]
+* ML Anomaly Detection Model: [backend/app/engine/ml_anomaly.py]
+* RAG Search Agent: [backend/app/rag/agent.py]
+* Permit Intelligence Agent: [backend/app/permits/agent.py]
+* Integration Orchestrator Pipeline: [backend/app/integration/pipeline.py]
+* Actionable Ticket Workflows: [backend/app/orchestrator/workflow.py]
 
 ---
 
