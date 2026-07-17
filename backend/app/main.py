@@ -830,6 +830,7 @@ async def clear_cctv_events(zone: str):
     return {
         "status": "alerts_cleared",
         "zone": zone,
+        "active_cctv_alerts": [],
         "risk_assessment": payload["risk_assessment"]
     }
 
