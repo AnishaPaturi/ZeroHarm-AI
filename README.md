@@ -1,11 +1,11 @@
-# 🛡️ ZeroHarm AI : AI-Powered Industrial Safety Intelligence for Zero-Harm Operations
+# 🛡️ ZeroHarm AI: AI-Powered Industrial Safety Intelligence for Zero-Harm Operations
 
 [![Theme: Industrial Safety & AI](https://img.shields.io/badge/Theme-Industrial%20Safety%20%26%20AI-red.svg)](#)
-[![Tech: React + Vite](https://img.shields.io/badge/Tech-React%20%2B%20Vite-blue.svg)](#)
+[![Tech: React + Next.js App Router](https://img.shields.io/badge/Tech-React%20%2B%20Next.js-blue.svg)](#)
 [![Styling: Vanilla CSS](https://img.shields.io/badge/Styling-Vanilla%20CSS-ff69b4.svg)](#)
 [![Compliance: OISD & Factory Act](https://img.shields.io/badge/Compliance-OISD%20%26%20Factory%20Act-green.svg)](#)
 
-ZeroHarm AI is a next-generation, AI-driven **Industrial Safety Intelligence (ISI) platform** designed to eliminate fatal workplace accidents in heavy industries (steel, chemical, mining, and manufacturing). By bridging the gap between isolated safety tools, ZeroHarm AI fuses real-time IoT sensor telemetry, digital Work Permits (PTW), worker geolocation, and regulatory compliance into a unified intelligence layer that predicts and prevents accidents before they occur.
+ZeroHarm AI is a next-generation, AI-driven **Industrial Safety Intelligence (ISI) platform** designed to eliminate fatal workplace accidents in heavy industries (steel, chemical, mining, and manufacturing). By bridging the gap between isolated safety tools, ZeroHarm AI fuses real-time IoT sensor telemetry, digital Work Permits (PTW), worker geolocation, CCTV computer vision alerts, plant topology, and regulatory compliance into a unified intelligence layer that predicts and prevents accidents before they occur.
 
 ---
 
@@ -21,7 +21,8 @@ A **FICCI survey in 2024** revealed that **over 60% of large industrial faciliti
 1. **IoT / SCADA Telemetry**: Gas concentrations (CO, CH4, O2), temperature, and pressure.
 2. **Digital Permit to Work (PTW)**: Details, locations, and timings of active maintenance, hot work, and confined space entries.
 3. **Geospatial Worker Badges**: Live locations of field workers and maintenance crews.
-4. **Shift Logs & Historical Incident Files**: Regulatory standards (OISD, Factory Act) and past near-miss records.
+4. **CCTV/CV Analytics**: Detections of safety infractions (PPE violations) or physical hazards (smoke, unauthorized access).
+5. **Shift Logs & Historical Incident Files**: Regulatory standards (OISD, Factory Act) and past near-miss records.
 
 By correlating these inputs, the platform's multi-agent risk engine detects **compound risk conditions**—such as active hot work permits in zones experiencing sub-critical gas accumulation—and triggers immediate emergency response protocols or automatic permit suspensions.
 
@@ -36,7 +37,7 @@ graph TD
     %% Inputs
     SubGraph1[IoT & SCADA Telemetry] --> |Gas/Temp/Pressure Feeds| SensorAgent[Sensor Monitoring Agent]
     SubGraph2[Digital PTW Systems] --> |Permit Types & Locations| PermitAgent[Permit Intelligence Agent]
-    SubGraph3[Worker Badges] --> |Real-time Geospatial coordinates| GeoAgent[Geospatial Tracker Agent]
+    SubGraph3[Worker Badges & CCTV] --> |Geospatial & Vision Events| GeoAgent[Geospatial Tracker Agent]
     
     %% Agents & Intelligence Layer
     SensorAgent --> |State updates| CentralOrchestrator[Compound Risk Orchestrator]
@@ -53,7 +54,7 @@ graph TD
     ComplianceDB[(Shift logs, Checklists, Sign-offs)] --> |Continuous Compliance Audit| AuditAgent[Quality & Compliance Audit Agent]
 
     %% Output UI
-    Heatmap --> UI[ZeroHarm AI Premium Control Center Dashboard]
+    Heatmap --> UI[ZeroHarm AI Control Center Dashboard]
     AlertSystem --> UI
     EmergencyOrchestrator --> UI
     ChatAgent --> UI
@@ -62,7 +63,7 @@ graph TD
 
 ---
 
-## 🚀 Core Features
+## 🚀 Core & Advanced Features
 
 ### 1. Compound Risk Detection Engine
 Correlates disparate data points in real time to detect high-risk configurations that single-sensor baselines miss. 
@@ -83,108 +84,244 @@ When a critical compound risk is triggered, this module handles the first 10 min
 ### 6. Quality & Compliance Audit Agent
 Monitors shift changeovers, pre-work safety check logs, and training records. Calculates a real-time compliance score and automatically generates corrective actions for procedural deviations.
 
+### 7. CCTV Computer Vision AI Telemetry
+Integrates physical visual sensors directly into the safety logic. Ingests CCTV analytics event logs (e.g., lack of safety helmets/harnesses, smoke/sparks, or unauthorized entry into dangerous zones) and escalates local hazard indices instantly.
+
+### 8. Plant Process Graph & Topology Cascading Risk
+Uses a directed in-memory process graph (`networkx`) representing pipelines, valves, vents, and units to trace and propagate cascading hazards. Instead of calculating spherical buffers, it models how toxic leaks or fire spreads through process connections.
+
+### 9. Temporal Rate-of-Change Tracking
+Maintains a rolling historical buffer of sensor readings to compute the velocity and acceleration of gas accumulation (e.g., $d[CO]/dt$). This allows the platform to raise early warnings before static thresholds are officially breached.
+
+### 10. Actionable Compliance & Safety Workflows (Ticketing)
+Translates audit gaps and incident findings into trackable safety tickets assigned to specific roles (e.g., "Maintenance Engineer"). Safety officers can update, audit, and sign off on tasks to close the safety loop.
+
+### 11. Black Box Evidence Preservation ("Flight Data Recorder")
+Upon a critical incident trigger, the system automatically captures and seals the preceding 10 minutes of raw telemetry, active permits, worker tracks, and agent deliberations. This is written into a read-only JSON archive file under `backend/data/evidence/` to prevent tampering.
+
+### 12. Dynamic RAG Document Ingestion & Upload
+Enables safety teams to upload new regulatory policies, shift logs, or standard operating procedures directly into the RAG vector search index. Uploaded files are dynamically parsed, chunked, and vectorized on the fly.
+
+### 13. Serialized ML Model Persistence
+Maintains supervised Random Forest and unsupervised Isolation Forest anomaly scoring models. Features automated pickle/joblib serialization to disk, preventing delays and retrains during server reboot cycles.
+
 ---
 
-## 🧠 Backend Implementation & Directory Structure
+## 📂 Complete Workspace Folder Structure
 
-ZeroHarm AI's backend is implemented in Python using FastAPI. It operates as a unified service that fuses Person A's risk detection rules and ML models, Person B's spatial heatmap computations and emergency response orchestrator, and Person C's compliance auditing and RAG safety agent.
+Below is the complete file and directory layout of the ZeroHarm AI project workspace:
 
-### Detailed Directory Structure
 ```
 📂 ET-Hackathon (Workspace Root)
- ├── 📄 ABOUT.md                     # Executive summary & judging criteria alignment
- ├── 📄 README.md                    # Core project documentation & setup instructions
- ├── 📄 ZeroHarm_AI_Team_Roles.docx  # Team structure and roles breakdown
- ├── 📂 backend
- │    ├── 📄 .env                    # Environment variables (OpenRouter key, active model)
- │    ├── 📄 requirements.txt        # Python dependency manifest
- │    ├── 📄 run.py                  # FastAPI server entrypoint (running uvicorn)
- │    ├── 📄 test_api.py             # Test Client A: Core Risk scoring & ML Anomaly patterns
- │    ├── 📄 test_api_b.py           # Test Client B: Spatial heatmap simulation & evacuations
- │    ├── 📄 test_api_c.py           # Test Client C: Incident RAG queries & compliance audits
+ ├── 📄 ABOUT.md                       # Executive summary & judging criteria alignment
+ ├── 📄 README.md                      # Core project documentation & setup instructions
+ ├── 📄 gap.md                         # Product gap analysis & engineering suggestions
+ ├── 📄 backend_testing_methodologies.md # Detailed testing guidelines for backend APIs
+ ├── 📄 openapi_testing_guide.md       # Guide for testing with OpenAPI specs
+ ├── 📄 logo.png                       # ZeroHarm AI logo image
+ ├── 📄 package.json                   # Root package configuration for Next.js app
+ ├── 📄 package-lock.json              # NPM package lock
+ ├── 📂 backend                        # FastAPI backend application
+ │    ├── 📄 .env                      # Environment configurations (API keys, ports)
+ │    ├── 📄 requirements.txt          # Python dependency manifest
+ │    ├── 📄 run.py                    # Server startup script
+ │    ├── 📄 run_all_tests.py          # Unified test execution suite
+ │    ├── 📄 test_api.py               # Test Client A: Core Risk rules & ML anomaly models
+ │    ├── 📄 test_api_b.py             # Test Client B: Heatmap & evacuations
+ │    ├── 📄 test_api_c.py             # Test Client C: RAG & compliance audits
+ │    ├── 📄 test_api_d.py             # Test Client D: Permit intelligence & integration assessments
+ │    ├── 📄 test_cctv.py              # Test: Computer Vision alerts & PPE violations
+ │    ├── 📄 test_temporal.py          # Test: Temporal telemetry trends (rate of change)
+ │    ├── 📄 test_topology.py          # Test: Process network topology risk propagation
+ │    ├── 📄 test_blackbox.py          # Test: Black box flight data logging verification
+ │    ├── 📂 data
+ │    │    └── 📂 evidence             # Incident telemetry archive (tamper-proof black box blocks)
  │    └── 📂 app
- │         ├── 📄 main.py            # Primary FastAPI server, endpoint routers, & websocket feeds
- │         ├── 📄 config.py          # Platform config values (zone definitions, simulator ticks)
- │         ├── 📂 engine             # Person A: Safety Rules Engine & ML Models
- │         │    ├── 📄 rules.py       # Factories Act & OISD guidelines evaluation logic
- │         │    ├── 📄 ml_anomaly.py   # Supervised Random Forest & Unsupervised Isolation Forest
- │         │    └── 📄 models.py       # Pydantic request/response schemas for risk engine
- │         ├── 📂 geospatial         # Person B: Spatial Telemetry & Simulator
- │         │    ├── 📄 plant_layout.py # Plant zone layouts & active structures
- │         │    ├── 📄 heatmap.py     # Hazard index calculations & zone risk scoring
- │         │    ├── 📄 worker_simulator.py # Simulated real-time worker movements
- │         │    └── 📄 models.py       # Geospatial data schemas
- │         ├── 📂 orchestrator       # Person B: Emergency Dispatch & Alerts
- │         │    ├── 📄 evacuation.py  # Evacuation routing, speed trackers, and headcounts
- │         │    ├── 📄 alert_channels.py # Alarm, SMS, and dashboard alert dispatching
- │         │    └── 📄 incident_report.py # Automated, compliant incident report generator
- │         └── 📂 rag                # Person C: Compliance RAG Agent
- │              ├── 📄 agent.py       # OpenRouter RAG analysis & fallback engine
- │              ├── 📄 vector_store.py # Local TF-IDF search index
- │              └── 📄 documents.py   # Statutory safety corpus & historical incident logs
+ │         ├── 📄 __init__.py
+ │         ├── 📄 config.py            # Global configuration (zones, thresholds)
+ │         ├── 📄 main.py              # FastAPI application server entrypoint
+ │         ├── 📂 engine               # Person A: Safety Rules Engine & ML Models
+ │         │    ├── 📄 ml_anomaly.py   # Isolation Forest and Random Forest classifiers
+ │         │    ├── 📄 models.py       # Risk scoring data structures (Pydantic schemas)
+ │         │    ├── 📄 rules.py        # Statutory safety rule calculations (OISD, Factories Act)
+ │         │    ├── 📄 if_model.pkl    # Serialized Isolation Forest model
+ │         │    └── 📄 rf_model.pkl    # Serialized Random Forest model
+ │         ├── 📂 geospatial           # Person B: Plant Layout & Spatial Computation
+ │         │    ├── 📄 heatmap.py      # Spatial risk computation & hazard mapping
+ │         │    ├── 📄 models.py       # Geolocation Pydantic schemas
+ │         │    ├── 📄 plant_layout.py # 2D plant coordinates config
+ │         │    ├── 📄 topology.py     # Process Graph (cascading risk propagation)
+ │         │    └── 📄 worker_simulator.py # Live worker coordinate simulator
+ │         ├── 📂 orchestrator         # Person B: Emergency Dispatch & Actions
+ │         │    ├── 📄 alert_channels.py # Dispatch alerts to dashboards, sirens, SMS
+ │         │    ├── 📄 evacuation.py   # Safe exit route calculations, speed tracking
+ │         │    ├── 📄 incident_report.py # Automated regulatory incident report builder
+ │         │    └── 📄 workflow.py     # Actionable safety task workflows (ticketing system)
+ │         ├── 📂 permits              # Person D: Digital Permit Intelligence Agent
+ │         │    ├── 📄 agent.py        # Permit intelligence compliance checks
+ │         │    ├── 📄 models.py       # Permit schema definitions
+ │         │    └── 📄 rules.py        # Permit conflict checks (SIMOPs detection)
+ │         ├── 📂 rag                  # Person C: Incident RAG Agent
+ │         │    ├── 📄 agent.py        # LLM integration (OpenRouter) & local fallback
+ │         │    ├── 📄 documents.py    # Statutory reference manuals & incident logs database
+ │         │    └── 📄 vector_store.py # Local search index (TF-IDF and dynamic document indexer)
+ │         └── 📂 integration          # Person D: Core Integration Pipeline
+ │              ├── 📄 demo_script.py  # Simulation walk-through demo script
+ │              ├── 📄 models.py       # Unified assessment schemas
+ │              └── 📄 pipeline.py     # Multi-agent orchestrator aggregating Person A/B/C/D states
+ └── 📂 frontend                       # Next.js UI Dashboard
+      ├── 📄 package.json              # Frontend package script configurations
+      ├── 📄 package-lock.json         # Frontend package locks
+      ├── 📄 next.config.ts            # Next.js configurations
+      ├── 📄 postcss.config.js         # CSS compiler settings
+      ├── 📄 tailwind.config.ts        # UI component themes & color layouts
+      ├── 📄 tsconfig.json             # Typescript configurations
+      ├── 📂 public                    # Static media files & logo graphic assets
+      ├── 📂 styles
+      │    └── 📄 globals.css          # CSS styles & glassmorphism/glow custom variables
+      ├── 📂 types
+      │    ├── 📄 analytics.ts         # Chart data type definitions
+      │    ├── 📄 incident.ts          # Incident report type structures
+      │    └── 📄 user.ts              # Authorization type structures
+      ├── 📂 hooks
+      │    ├── 📄 useAuth.ts           # Login verification & cookie session manager
+      │    ├── 📄 useIncident.ts       # Query and submit incidents & workflows
+      │    └── 📄 useNotifications.ts  # WebSockets state notifications hook
+      ├── 📂 services
+      │    ├── 📄 api.ts               # Axios interceptors config
+      │    ├── 📄 agents.ts            # Fetches agent state
+      │    ├── 📄 analytics.ts         # Handles chart data requests
+      │    ├── 📄 auth.ts              # Connects authorization APIs
+      │    ├── 📄 chatbot.ts           # Handles RAG assistant queries
+      │    ├── 📄 decisionEngine.ts    # Risk evaluation & ML endpoint calls
+      │    ├── 📄 incident.ts          # Retrieves and updates incidents & tickets
+      │    └── 📄 scenarioEngine.ts    # Control simulator triggers
+      ├── 📂 component
+      │    ├── 📄 AIChat.tsx           # RAG chatbot prompt input interface
+      │    ├── 📄 AIResultCard.tsx     # Chat output container displaying source citations
+      │    ├── 📄 AnalyticsChart.tsx   # Visualizes sensor trends with threshold limits
+      │    ├── 📄 Button.tsx           # Custom styled buttons
+      │    ├── 📄 ComplianceCard.tsx   # Displays audit violations with rule citations
+      │    ├── 📄 DashboardCard.tsx    # Unified card container
+      │    ├── 📄 Footer.tsx           # Dashboard footer bar
+      │    ├── 📄 IncidentForm.tsx     # Custom permit requests & manual reporting console
+      │    ├── 📄 IncidentTable.tsx    # List of generated incidents & black box downloads
+      │    ├── 📄 Loader.tsx           # Animated page loaders & loaders
+      │    ├── 📄 Modal.tsx            # Overlay popups
+      │    ├── 📄 Navbar.tsx           # Navigation bar with active alarm sirens
+      │    ├── 📄 NotificationPanel.tsx # Notifications dropdown showing active alerts
+      │    ├── 📄 RiskGauge.tsx        # Gauge dial visualizing composite risk score
+      │    ├── 📄 ScenarioConsole.tsx  # Dynamic dashboard console to trigger simulator ticks
+      │    ├── 📄 Sidebar.tsx          # Sidebar menu
+      │    ├── 📄 StatCard.tsx         # Real-time indicators of single sensors (green/amber/red)
+      │    ├── 📄 Timeline.tsx         # Evacuation path steps
+      │    └── 📄 UploadBox.tsx        # File drag-and-drop document upload block
+      └── 📂 app
+           ├── 📄 layout.tsx           # Next.js global layout & styling setup
+           ├── 📄 page.tsx             # Landing overview page
+           ├── 📄 not-found.tsx        # Standard 404 page
+           ├── 📂 login
+           │    └── 📄 page.tsx        # Sign-in portal page
+           ├── 📂 dashboard
+           │    └── 📄 page.tsx        # Core control center dashboard
+           ├── 📂 analysis
+           │    └── 📄 page.tsx        # Detailed risk indicators & ML scoring
+           ├── 📂 analytics
+           │    └── 📄 page.tsx        # Time-series telemetry tracking dashboard
+           ├── 📂 chatbot
+           │    └── 📄 page.tsx        # Incident Pattern Intelligence chat portal
+           ├── 📂 compliance
+           │    └── 📄 page.tsx        # Real-time OISD/Factories Act compliance audit console
+           ├── 📂 incidents
+           │    └── 📄 page.tsx        # Incident logger page with flight recorder exports
+           ├── 📂 reports
+           │    └── 📄 page.tsx        # Regulatory report compiler
+           ├── 📂 settings
+           │    └── 📄 page.tsx        # Camera config, simulated ticks, & model configuration
+           └── 📂 profile
+                └── 📄 page.tsx        # Operational profile page
 ```
-
-### Module Descriptions
-* [backend/app/main.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/main.py): Primary FastAPI server, state management, websockets, and simulation.
-* [backend/app/engine/rules.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/rules.py): Safety rules evaluation matching compliance standards.
-* [backend/app/engine/ml_anomaly.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/ml_anomaly.py): Isolation Forest and Random Forest anomaly scoring models.
-* [backend/app/engine/models.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/models.py): Pydantic input/output schemas for the risk scoring engine.
-* [backend/app/rag/agent.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/agent.py): RAG safety agent handling OpenRouter model inference and local rule fallback.
-* [backend/app/rag/documents.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/documents.py): Curated safety document corpus (OISD standards, Factories Act, incident history).
 
 ---
 
-## 🛡️ ZeroHarm AI Backend Run & Test Guide
+## 🛠️ Code Reference Links
 
-This guide outlines how to run, test, and validate the **ZeroHarm AI Industrial Safety Intelligence Platform** backend.
+Easily navigate to key implementation files in the project workspace:
+* Primary Server File: [backend/app/main.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/main.py)
+* Rules Engine Evaluator: [backend/app/engine/rules.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/rules.py)
+* Process Topology Cascading Logic: [backend/app/geospatial/topology.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/geospatial/topology.py)
+* ML Anomaly Detection Model: [backend/app/engine/ml_anomaly.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/ml_anomaly.py)
+* RAG Search Agent: [backend/app/rag/agent.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/agent.py)
+* Permit Intelligence Agent: [backend/app/permits/agent.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/permits/agent.py)
+* Integration Orchestrator Pipeline: [backend/app/integration/pipeline.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/integration/pipeline.py)
+* Actionable Ticket Workflows: [backend/app/orchestrator/workflow.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/orchestrator/workflow.py)
 
-### 🚀 1. How to Run the Server
+---
 
-#### Prerequisites & Virtual Environment Setup
-Ensure you have activated the virtual environment and have all dependencies installed.
+## 🛡️ ZeroHarm AI Execution Guide
 
-**For PowerShell:**
+### 🚀 1. Running the Backend Server
+
+#### virtualenv Activation
+Ensure your Python virtual environment is activated and dependencies are installed.
+
+**PowerShell:**
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-**For CMD:**
+**Command Prompt / CMD:**
 ```cmd
 .venv\Scripts\activate.bat
 ```
 
-#### Start the FastAPI Server
-From the root workspace directory, run:
+#### Run FastAPI
+From the workspace root directory:
 ```bash
 python backend/run.py
 ```
-This launches the server at **`http://127.0.0.1:8000`** with auto-reload enabled.
-* The interactive API docs (Swagger UI) will be accessible at: [http://localhost:8000/docs](http://localhost:8000/docs).
+This runs the API server on **`http://127.0.0.1:8000`**. The interactive Swagger UI documentation is accessible at [http://localhost:8000/docs](http://localhost:8000/docs).
 
 ---
 
-### 🧪 2. How to Run the Automated Tests
+### 💻 2. Running the Frontend Dashboard
 
-Open a new terminal (with the virtual environment activated) and run the three test scripts:
+From the workspace root or the `frontend/` directory, execute:
+```bash
+npm run dev
+```
+This opens the control panel web application on **`http://localhost:3000`** (or the next available port).
 
-| Test Script | Target Module | Command |
+---
+
+### 🧪 3. Executing the Test Suites
+
+ZeroHarm AI includes a comprehensive, automated testing suite covering rules engines, evacuations, RAG, and advanced telemetry integrations:
+
+| Script | Purpose / Testing Area | Command |
 | :--- | :--- | :--- |
-| **Test Client A** | Compound Risk & ML Detection Engine | `python backend/test_api.py` |
-| **Test Client B** | Geospatial Heatmap & Emergency Orchestrator | `python backend/test_api_b.py` |
-| **Test Client C** | Incident RAG & Compliance Audit Agent | `python backend/test_api_c.py` |
+| **All Tests Runner** | Run all tests in sequence | `python backend/run_all_tests.py` |
+| **Test Client A** | Risk engine calculations & Random Forest/Isolation Forest anomalies | `python backend/test_api.py` |
+| **Test Client B** | SVG heatmaps, live worker logs, and evacuation dispatching | `python backend/test_api_b.py` |
+| **Test Client C** | OpenRouter/Local Fallback RAG questions and compliance audits | `python backend/test_api_c.py` |
+| **Test Client D** | Permit overlaps, SIMOPs calculations, and multi-agent aggregate state | `python backend/test_api_d.py` |
+| **CCTV Test** | Video analytics event ingestion (PPE violations) & safety scoring | `python backend/test_cctv.py` |
+| **Temporal Test** | Roll buffer gas concentration speed ($d[CO]/dt$) and warnings | `python backend/test_temporal.py` |
+| **Topology Test** | Network adjacency process loops cascading risk calculation | `python backend/test_topology.py` |
+| **Black Box Test** | Automatic telemetry flight logs serialization check | `python backend/test_blackbox.py` |
 
 ---
 
-### 📊 3. Scenario Inputs & Expected Outputs
+## 📊 Scenario Inputs & Expected Outputs
 
 Here are the precise inputs submitted to the backend and what the safety engine outputs for each scenario.
 
-#### Scenario 1: Clean/Normal Operations
+### Scenario 1: Clean/Normal Operations
 * **Zone**: `Blast Furnace A`
 * **Telemetry**: Standard atmospheric readings (20.8% O2, low CO, 0% Methane).
 * **Permits**: None.
 
-##### Input Data (`POST /risk-score`)
+#### Input Data (`POST /risk-score`)
 ```json
 {
   "zone": "Blast Furnace A",
@@ -203,7 +340,7 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 }
 ```
 
-##### Expected Output
+#### Expected Output
 ```json
 {
   "zone": "Blast Furnace A",
@@ -226,12 +363,12 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 
 ---
 
-#### Scenario 2: Methane Leak during Hot Work (Explosion Hazard)
+### Scenario 2: Methane Leak during Hot Work (Explosion Hazard)
 * **Zone**: `Coke Oven Battery 1`
 * **Telemetry**: Methane is elevated at **6.8% LFL** (above the 4% safety limit for spark-producing work).
 * **Permits**: Active hot work permit (`PTW-HW-202`).
 
-##### Input Data (`POST /risk-score`)
+#### Input Data (`POST /risk-score`)
 ```json
 {
   "zone": "Coke Oven Battery 1",
@@ -256,7 +393,7 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 }
 ```
 
-##### Expected Output
+#### Expected Output
 ```json
 {
   "zone": "Coke Oven Battery 1",
@@ -285,12 +422,12 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 
 ---
 
-#### Scenario 3: Oxygen Depletion in Confined Space (Asphyxiation Hazard)
+### Scenario 3: Oxygen Depletion in Confined Space (Asphyxiation Hazard)
 * **Zone**: `Sinter Plant`
 * **Telemetry**: Oxygen dropped to **16.2%** (critical asphyxiation range < 19.5% per Factories Act Sec 36) and CO elevated to **28 ppm**.
 * **Permits**: Confined space entry permit active (`PTW-CS-101`).
 
-##### Input Data (`POST /risk-score`)
+#### Input Data (`POST /risk-score`)
 ```json
 {
   "zone": "Sinter Plant",
@@ -315,7 +452,7 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 }
 ```
 
-##### Expected Output
+#### Expected Output
 ```json
 {
   "zone": "Sinter Plant",
@@ -341,12 +478,12 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 
 ---
 
-#### Scenario 4: SIMOPs Permit Clash (Simultaneous Operations Conflict)
+### Scenario 4: SIMOPs Permit Clash (Simultaneous Operations Conflict)
 * **Zone**: `Coke Oven Battery 1`
 * **Telemetry**: Clean gas readings.
 * **Permits**: Both **Hot Work** and **Confined Space** entry are active in the same zone at the same time.
 
-##### Input Data (`POST /risk-score`)
+#### Input Data (`POST /risk-score`)
 ```json
 {
   "zone": "Coke Oven Battery 1",
@@ -368,7 +505,7 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 }
 ```
 
-##### Expected Output
+#### Expected Output
 ```json
 {
   "zone": "Coke Oven Battery 1",
@@ -386,88 +523,16 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 
 ---
 
-#### Scenario 5: Historical & Statutory Query (RAG Agent)
-* **Query**: `"Have we seen a Carbon Monoxide leak during shift changeover before?"`
+## 🏛️ Covered Statutory Frameworks
 
-##### Input Data (`POST /api/rag/query`)
-```json
-{
-  "query": "Have we seen a Carbon Monoxide leak during shift changeover before?"
-}
-```
-
-##### Expected Output
-* **Mode**: `"OpenRouter (openrouter/free) (Active)"` (or `"Rule-Based Engine (Demo Fallback)"` if offline)
-* **Sources**: Lists matches like `Historical Incident: Coke Oven CO Poisoning Case (April 2025)`.
-* **Answer**: Returns a markdown response highlighting the April 2025 Coke Oven accident where a shift handover overlap with maintenance caused a toxic CO leak (85 ppm), violating the Factories Act Section 36.
-
----
-
-#### Scenario 6: Compliance Audit
-* **Zone**: `Sinter Plant`
-* **Telemetry**: low oxygen (16.5% O2) & active confined space permit.
-
-##### Input Data (`POST /api/compliance/audit`)
-```json
-{
-  "zone": "Sinter Plant",
-  "telemetry": {
-    "o2": 16.5,
-    "co": 35.0,
-    "ch4_lfl": 0.1,
-    "h2s": 0.2
-  },
-  "permits": [
-    { "permit_id": "PTW-CS-101", "permit_type": "confined_space", "status": "active" }
-  ],
-  "maintenance_active": true,
-  "shift_changeover_active": false
-}
-```
-
-##### Expected Output
-* A detailed audit report highlighting compliance gaps:
-  - ❌ **Factories Act 1948 - Section 36 Deviation**: Confined space atmosphere is deficient in oxygen (< 19.5%).
-  - ❌ **OISD-GDN-137 Gas Alarm Deviation**: Carbon Monoxide limits exceeded (> 25 ppm).
-  - **Recommendations**: Immediate ventilation, permit suspension, and standby rescue monitors.
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend**: React (Vite), JavaScript (ES6+)
-* **Styling**: Vanilla CSS (Custom properties, grid systems, glassmorphism, responsive grids, and neon-alert glow variables)
-* **Visualization**: Interactive SVG layouts, Recharts for sensor history graphs
-* **Agent Simulation**: Stateful react-context engine simulating collaborative multi-agent decisions (debates, telemetry, location movements)
-* **Icons**: `lucide-react`
-
----
-
-## 📅 5-Day Implementation Timeline
-
-```mermaid
-gantt
-    title ZeroHarm AI 5-Day Development Schedule
-    dateFormat  YYYY-MM-DD
-    section Foundation & Styling
-    Project Init & Vanilla CSS Design Tokens  :active, day1, 2026-07-07, 1d
-    Dynamic Simulation Engine (Telemetry/Workers) :active, day1_sim, 2026-07-07, 1d
-    section Heatmap & PTW
-    Interactive SVG Geospatial Plant Layout   : day2_heat, after day1_sim, 1d
-    Digital Permit Intelligence & SIMOPs Log  : day2_ptw, after day1_sim, 1d
-    section Risk Engine & Logs
-    Compound Risk Formulation & Rules         : day3_risk, after day2_ptw, 1d
-    Agent Collaboration Log Panel             : day3_log, after day2_ptw, 1d
-    section RAG & Emergency
-    Safety Chat (RAG Engine over OISD Docs)   : day4_rag, after day3_log, 1d
-    Emergency Response Orchestrator Workflow  : day4_em, after day3_log, 1d
-    section Audit & Review
-    Quality & Compliance Audit Dashboard      : day5_aud, after day4_em, 1d
-    Polishing Visuals, Testing & Pitch Deck  : day5_pol, after day4_em, 1d
-```
+ZeroHarm AI directly references and audits compliance against:
+* **The Factories Act, 1948 (Section 36)**: Confined space entry checks (ventilation requirements, O2 levels, and rescue gear).
+* **OISD-GDN-137**: Guidelines on hazardous gas monitoring systems and sensor placements.
+* **OISD-STD-105**: Work Permit System standards (Hot work, Cold work, Confined space, and Height work constraints).
+* **DGMS (Directorate General of Mines Safety)**: Heavy equipment and hazardous area safety rules.
 
 ---
 
 ## 🏷️ Tags
 
-`#IndustrialSafety` `#AIAgents` `#GeospatialAnalytics` `#MultiAgentSystems` `#ZeroHarmAI` `#RAG` `#RiskIntelligence` `#FactoriesAct` `#OISD` `#SCADA`
+`#IndustrialSafety` `#AIAgents` `#GeospatialAnalytics` `#MultiAgentSystems` `#ZeroHarmAI` `#RAG` `#RiskIntelligence` `#FactoriesAct` `#OISD` `#SCADA` `#ComputerVision` `#ProcessGraphs`
