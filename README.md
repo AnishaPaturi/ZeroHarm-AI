@@ -5,6 +5,8 @@
 [![Styling: Vanilla CSS](https://img.shields.io/badge/Styling-Vanilla%20CSS-ff69b4.svg)](#)
 [![Compliance: OISD & Factory Act](https://img.shields.io/badge/Compliance-OISD%20%26%20Factory%20Act-green.svg)](#)
 
+`#IndustrialSafety` `#AIAgents` `#GeospatialAnalytics` `#MultiAgentSystems` `#ZeroHarmAI` `#RAG` `#RiskIntelligence` `#FactoriesAct` `#OISD` `#SCADA` `#ComputerVision` `#ProcessGraphs`
+
 ZeroHarm AI is a next-generation, AI-driven **Industrial Safety Intelligence (ISI) platform** designed to eliminate fatal workplace accidents in heavy industries (steel, chemical, mining, and manufacturing). By bridging the gap between isolated safety tools, ZeroHarm AI fuses real-time IoT sensor telemetry, digital Work Permits (PTW), worker geolocation, CCTV computer vision alerts, plant topology, and regulatory compliance into a unified intelligence layer that predicts and prevents accidents before they occur.
 
 ---
@@ -530,8 +532,3 @@ ZeroHarm AI directly references and audits compliance against:
 * **OISD-STD-105**: Work Permit System standards (Hot work, Cold work, Confined space, and Height work constraints).
 * **DGMS (Directorate General of Mines Safety)**: Heavy equipment and hazardous area safety rules.
 
----
-
-## 🏷️ Tags
-
-`#IndustrialSafety` `#AIAgents` `#GeospatialAnalytics` `#MultiAgentSystems` `#ZeroHarmAI` `#RAG` `#RiskIntelligence` `#FactoriesAct` `#OISD` `#SCADA` `#ComputerVision` `#ProcessGraphs`
