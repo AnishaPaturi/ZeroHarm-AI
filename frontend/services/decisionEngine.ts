@@ -1,191 +1,259 @@
-import { eventBus, AppEvent } from '../lib/eventBus';
-import { 
-  TelemetryAgent, 
-  VisionAgent, 
-  PermitAgent, 
-  ComplianceAgent, 
-  IncidentIntelligenceAgent, 
-  EmergencyAgent, 
-  RiskFusionAgent 
-} from './agents';
 import { useIncident } from '../hooks/useIncident';
-import { IncidentSeverity, IncidentStatus } from '../types/incident';
+import { WS_BASE_URL, fetchBackend } from './api';
+import { mapBackendReport } from './incident';
 
-const telemetryAgent = new TelemetryAgent();
-const visionAgent = new VisionAgent();
-const permitAgent = new PermitAgent();
-const complianceAgent = new ComplianceAgent();
-const incidentIntelAgent = new IncidentIntelligenceAgent();
-const emergencyAgent = new EmergencyAgent();
-const riskFusionAgent = new RiskFusionAgent();
+let ws: WebSocket | null = null;
+let reconnectTimeout: NodeJS.Timeout | null = null;
+let workersInterval: NodeJS.Timeout | null = null;
+let listRefreshInterval: NodeJS.Timeout | null = null;
+
+// Helper to check if any zone has Critical risk in the backend state
+function checkEmergencyStatus(state: any): { active: boolean; message: string } {
+  let hasEmergency = false;
+  let message = '';
+  
+  for (const zoneState of Object.values(state) as any[]) {
+    // If the zone has critical risk or has active evacuation
+    if (zoneState.risk_assessment?.risk_level === 'Critical' || zoneState.risk_assessment?.composite_risk_score >= 75) {
+      hasEmergency = true;
+      message = zoneState.risk_assessment.action_required || 'Critical hazard alert in ' + zoneState.zone;
+      break;
+    }
+  }
+  
+  return { active: hasEmergency, message };
+}
+
+// Function to fetch worker locations from the backend and update store
+async function syncWorkers() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  try {
+    const backendWorkers = await fetchBackend<any[]>('/api/workers');
+    const mappedWorkers = backendWorkers.map(w => ({
+      id: w.worker_id,
+      name: w.name,
+      zone: w.zone,
+      ppeOk: w.status !== 'evacuating' // Mark as not PPE OK if they are evacuating to flag highlight
+    }));
+    useIncident.setState({ workers: mappedWorkers });
+  } catch (err) {
+    console.warn('Failed to sync workers from backend:', err);
+  }
+}
+
+// Function to fetch active alerts from the backend and update store
+async function syncAlerts() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  try {
+    const backendAlerts = await fetchBackend<any[]>('/api/alerts');
+    const mappedAlerts = backendAlerts.map((a, idx) => ({
+      id: a.alert_id || `a_${idx}`,
+      message: a.message,
+      severity: a.status === 'critical' ? 'Critical' : 'Warning' as any,
+      timestamp: a.sent_at || new Date().toISOString(),
+      department: a.zone || 'Safety Orchestrator'
+    }));
+    useIncident.setState({ alerts: mappedAlerts });
+  } catch (err) {
+    console.warn('Failed to sync alerts from backend:', err);
+  }
+}
+
+// Function to fetch incidents from the backend and update store
+async function syncIncidents() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  try {
+    const backendReports = await fetchBackend<any[]>('/api/incidents');
+    const mappedIncidents = backendReports.map(mapBackendReport);
+    
+    // Fetch local ones
+    const localStr = typeof window !== 'undefined' ? localStorage.getItem('local_incidents') : null;
+    const localIncidents = localStr ? JSON.parse(localStr) : [];
+    const ids = new Set(mappedIncidents.map(i => i.id));
+    const filteredLocal = localIncidents.filter((i: any) => !ids.has(i.id));
+
+    useIncident.setState({ incidents: [...filteredLocal, ...mappedIncidents] });
+  } catch (err) {
+    console.warn('Failed to sync incidents from backend:', err);
+  }
+}
+
+// Main function to establish WebSocket connection with the backend
+function connectWebSocket() {
+  if (ws) {
+    try {
+      ws.close();
+    } catch (e) {}
+  }
+
+  const wsUrl = `${WS_BASE_URL}/ws/risk-feed`;
+  console.log(`Connecting to ZeroHarm WebSocket: ${wsUrl}`);
+  ws = new WebSocket(wsUrl);
+
+  ws.onopen = () => {
+    console.log('ZeroHarm WebSocket connection established successfully.');
+    // Trigger initial REST sync
+    syncWorkers();
+    syncAlerts();
+    syncIncidents();
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      const store = useIncident.getState();
+
+      if (data.event === 'initial_state') {
+        console.log('Received initial state snapshot from backend.', data);
+        
+        // Sync telemetry values based on active zones
+        const coBatteryState = data.state['Coke Oven Battery 1'];
+        const blastFurnaceState = data.state['Blast Furnace A'];
+        
+        const newTelemetry = {
+          gasLpgLEL: coBatteryState?.gas_readings?.ch4_lfl || 2.1,
+          segmentDPressure: blastFurnaceState?.gas_readings?.pressure || 9.8,
+          temperature: blastFurnaceState?.gas_readings?.temperature || 38.5
+        };
+
+        // Gather all active permits from backend zones
+        const allPermits: any[] = [];
+        Object.values(data.state).forEach((zoneState: any) => {
+          if (zoneState.permits) {
+            zoneState.permits.forEach((p: any) => {
+              allPermits.push({
+                permitId: p.permit_id,
+                description: `${p.permit_type.toUpperCase()} permit active in ${zoneState.zone}`,
+                zone: zoneState.zone,
+                permitType: p.permit_type
+              });
+            });
+          }
+        });
+
+        // Determine emergency state
+        const emergency = checkEmergencyStatus(data.state);
+
+        useIncident.setState({
+          telemetry: newTelemetry,
+          activePermits: allPermits,
+          emergencyMode: emergency.active,
+          evacuationMessage: emergency.message
+        });
+
+        store.logEvent({
+          type: 'SimulationReset',
+          payload: { message: '[BACKEND] Connected to safety server. Initial snapshot loaded.' }
+        });
+
+      } else if (data.event === 'risk_update') {
+        const { zone, state, risk_assessment } = data;
+        
+        // Dynamic telemetry mapping based on updated zone
+        useIncident.setState((s) => {
+          const telemetry = { ...s.telemetry };
+          if (zone === 'Coke Oven Battery 1') {
+            telemetry.gasLpgLEL = state.gas_readings.ch4_lfl;
+          } else if (zone === 'Blast Furnace A') {
+            telemetry.segmentDPressure = state.gas_readings.pressure;
+            telemetry.temperature = state.gas_readings.temperature;
+          }
+          
+          return { telemetry };
+        });
+
+        // Log reasoning metrics
+        useIncident.setState({
+          aiReasoning: {
+            reasoning: risk_assessment.action_required || 'Nominal operating conditions.',
+            recommendations: risk_assessment.factors ? risk_assessment.factors.map((f: any) => f.details) : [],
+            detectedHazards: risk_assessment.factors ? risk_assessment.factors.map((f: any) => f.name) : []
+          }
+        });
+
+        // Check if emergency triggered
+        if (risk_assessment.risk_level === 'Critical') {
+          useIncident.setState({
+            emergencyMode: true,
+            evacuationMessage: risk_assessment.action_required
+          });
+        } else {
+          // Verify if other zones are in emergency
+          fetchBackend<any>('/api/state')
+            .then(allState => {
+              const emergency = checkEmergencyStatus(allState);
+              useIncident.setState({
+                emergencyMode: emergency.active,
+                evacuationMessage: emergency.message
+              });
+            })
+            .catch(() => {});
+        }
+
+        // Log event in simulation console
+        store.logEvent({
+          type: 'EmergencyDeclared',
+          payload: { 
+            message: `[BACKEND] ${zone}: Risk evaluates ${risk_assessment.composite_risk_score} (${risk_assessment.risk_level})` 
+          }
+        });
+
+        // Refresh alerts and incidents lists
+        syncAlerts();
+        syncIncidents();
+        
+      } else if (data.event === 'permit_alert') {
+        const { zone, permit_audit } = data;
+        store.logEvent({
+          type: 'ComplianceViolationDetected',
+          payload: {
+            id: `ptw_audit_${Date.now()}`,
+            standardName: 'Permit Safety Audit',
+            category: 'OISD',
+            description: `Zone ${zone}: Permit conflict detected! ${permit_audit.conflicts?.map((c: any) => c.details).join('; ') || ''}`
+          }
+        });
+        syncAlerts();
+      }
+    } catch (e) {
+      console.warn('Error parsing WebSocket message:', e);
+    }
+  };
+
+  ws.onerror = () => {
+    // Silent error logging to avoid browser console spam when backend is down
+    console.warn('ZeroHarm WebSocket connection offline (backend server not running on port 8000).');
+  };
+
+  ws.onclose = () => {
+    reconnectTimeout = setTimeout(connectWebSocket, 5000);
+  };
+}
 
 export const initDecisionEngine = () => {
-  return eventBus.subscribe((event: AppEvent) => {
-    // Get latest state
-    const store = useIncident.getState();
+  // Start WebSocket client connection
+  if (typeof window !== 'undefined') {
+    connectWebSocket();
+    
+    // Set up continuous synchronization loops
+    workersInterval = setInterval(syncWorkers, 2500);
+    listRefreshInterval = setInterval(() => {
+      syncAlerts();
+      syncIncidents();
+    }, 5000);
+  }
 
-    // 1. Log event in the audit trail
-    store.logEvent(event);
-
-    // 2. Decision Engine updates raw states
-    switch (event.type) {
-      case 'GasReadingUpdated':
-        store.updateTelemetry({ gasLpgLEL: event.payload.lel });
-        break;
-      case 'PressureReadingUpdated':
-        store.updateTelemetry({ segmentDPressure: event.payload.pressure });
-        break;
-      case 'TemperatureUpdated':
-        store.updateTelemetry({ temperature: event.payload.temp });
-        break;
-      case 'WorkerEnteredZone': {
-        const wExists = store.workers.some(w => w.id === event.payload.workerId);
-        if (!wExists) {
-          store.setWorkers([
-            ...store.workers, 
-            { id: event.payload.workerId, name: event.payload.workerName, zone: event.payload.zone, ppeOk: event.payload.ppeOk }
-          ]);
-        }
-        break;
-      }
-      case 'WorkerExitedZone':
-        store.setWorkers(store.workers.filter(w => w.id !== event.payload.workerId));
-        break;
-      case 'PPEViolationDetected':
-        store.setWorkers(store.workers.map(w => {
-          if (w.name === event.payload.workerName) {
-            return { ...w, ppeOk: false };
-          }
-          return w;
-        }));
-        break;
-      case 'PermitIssued': {
-        const pExists = store.activePermits.some(p => p.permitId === event.payload.permitId);
-        if (!pExists) {
-          store.setPermits([
-            ...store.activePermits,
-            { permitId: event.payload.permitId, description: event.payload.description, zone: event.payload.zone, permitType: event.payload.permitType }
-          ]);
-        }
-        break;
-      }
-      case 'PermitRevoked':
-        store.setPermits(store.activePermits.filter(p => p.permitId !== event.payload.permitId));
-        break;
-      case 'IncidentCreated': {
-        const incExists = store.incidents.some(i => i.id === event.payload.id);
-        if (!incExists) {
-          store.addIncident({
-            id: event.payload.id,
-            title: event.payload.title,
-            description: event.payload.description,
-            location: event.payload.location,
-            department: event.payload.department,
-            severity: event.payload.severity as IncidentSeverity,
-            status: 'Reported' as IncidentStatus,
-            reportedAt: new Date().toISOString(),
-            reporterName: event.payload.reporterName || 'AI Agent Core',
-            reporterRole: (event.payload.reporterRole as any) || 'Safety Officer',
-            comments: []
-          });
-        }
-        break;
-      }
-      case 'IncidentResolved':
-        store.updateIncident(event.payload.id, { status: 'Resolved' as IncidentStatus });
-        break;
-      case 'ComplianceViolationDetected':
-        store.setComplianceRecords(store.complianceRecords.map(c => {
-          if (c.standardName.includes(event.payload.standardName) || c.category === event.payload.category) {
-            return { ...c, status: 'Non-Compliant' as any, score: 72, criticalFindingsCount: 1 };
-          }
-          return c;
-        }));
-        break;
-      case 'EmergencyDeclared':
-        store.setEmergency(true, event.payload.message);
-        break;
-      case 'EmergencyCleared':
-        store.setEmergency(false, '');
-        break;
-      case 'AlertAcknowledged':
-        store.removeAlert(event.payload.alertId);
-        break;
-      case 'ComplianceChecklistToggled': {
-        const updatedRecords = store.complianceRecords.map(rec => {
-          if (rec.id === event.payload.recordId) {
-            const list = rec.checklist || [];
-            const updatedChecklist = list.map(item =>
-              item.id === event.payload.itemId ? { ...item, checked: event.payload.checked } : item
-            );
-            const checkedCount = updatedChecklist.filter(c => c.checked).length;
-            const computedScore = updatedChecklist.length > 0 ? Math.round((checkedCount / updatedChecklist.length) * 100) : 0;
-            const nextStatus = computedScore === 100 ? 'Compliant' : computedScore > 50 ? 'Pending Audit' : 'Non-Compliant';
-
-            return {
-              ...rec,
-              score: computedScore,
-              status: nextStatus as any,
-              criticalFindingsCount: computedScore < 50 ? 1 : 0,
-              checklist: updatedChecklist
-            };
-          }
-          return rec;
-        });
-        store.setComplianceRecords(updatedRecords);
-        break;
-      }
-      case 'SimulationReset':
-        store.resetStore();
-        break;
+  // Return unsubscribe cleanup handler
+  return () => {
+    if (ws) {
+      try {
+        ws.close();
+      } catch (e) {}
+      ws = null;
     }
-
-    // 3. Gather updated parameters
-    const currentTelemetry = {
-      gasLpgLEL: store.telemetry.gasLpgLEL,
-      segmentDPressure: store.telemetry.segmentDPressure,
-      temperature: store.telemetry.temperature
-    };
-
-    // 4. Process events through reasoning agents
-    const telemetryResult = telemetryAgent.process(event);
-    const visionResult = visionAgent.process(event);
-    const permitResult = permitAgent.process(event, currentTelemetry);
-    const complianceResult = complianceAgent.process(event);
-    const emergencyResult = emergencyAgent.process(event, currentTelemetry);
-    const incidentIntelResult = incidentIntelAgent.process(event);
-
-    // 5. Execute Risk Fusion coordination
-    const fusion = riskFusionAgent.fuse(
-      telemetryResult,
-      visionResult,
-      permitResult,
-      complianceResult,
-      emergencyResult
-    );
-
-    // 6. Dispatch reasoning text and recommendations to store
-    store.setAIReasoning(fusion.reasoning, fusion.recommendations, fusion.detectedHazards);
-
-    // 7. Auto-escalate status (add alerts/incidents if agent thresholds are breached)
-    if (fusion.compoundRiskScore > 70) {
-      const alertMsg = `Risk Fusion Alert: ${fusion.reasoning.substring(0, 60)}...`;
-      const alertExists = store.alerts.some(a => a.message.substring(0, 30) === alertMsg.substring(0, 30));
-      
-      if (!alertExists) {
-        store.addAlert({
-          id: `a_auto_${Date.now()}`,
-          message: alertMsg,
-          severity: fusion.compoundRiskScore > 90 ? 'Critical' : 'Warning',
-          timestamp: new Date().toISOString(),
-          department: 'Risk Fusion'
-        });
-      }
-    }
-
-    // Handle evacuation alerts
-    if (emergencyResult.evacuationNeeded && !store.emergencyMode) {
-      store.setEmergency(true, emergencyResult.shutdownWarnings.join('; '));
-    }
-  });
+    if (reconnectTimeout) clearTimeout(reconnectTimeout);
+    if (workersInterval) clearInterval(workersInterval);
+    if (listRefreshInterval) clearInterval(listRefreshInterval);
+    console.log('Cleaned up ZeroHarm backend synchronization sync engine loops.');
+  };
 };

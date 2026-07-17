@@ -1,5 +1,4 @@
-import { eventBus } from '../lib/eventBus';
-import { useIncident } from '../hooks/useIncident';
+import { fetchBackend } from './api';
 
 export type ScenarioType = 
   | 'Normal' 
@@ -12,33 +11,99 @@ export type ScenarioType =
 
 class ScenarioEngine {
   private activeInterval: NodeJS.Timeout | null = null;
-  private timelineIndex = 0;
   private activeScenario: ScenarioType = 'Normal';
   private isPaused = false;
 
-  startScenario(type: ScenarioType) {
+  async startScenario(type: ScenarioType) {
     this.stop();
     this.activeScenario = type;
-    this.timelineIndex = 0;
     this.isPaused = false;
 
-    addLogToConsole(`Loading Scenario: ${type}...`);
-    
-    if (type === 'Normal') {
-      this.runNormalOperations();
-    } else {
-      this.runTimelineScenario(type);
+    this.addLogToConsole(`Requesting Backend Scenario: ${type}...`);
+
+    try {
+      if (type === 'Normal') {
+        // Reset and clear any active alerts
+        await this.clearAllBackendAlerts();
+        await this.setNominalState();
+      } else if (type === 'Gas Leak') {
+        // High CH4 gas leak on Coke Oven Battery 1
+        await fetchBackend('/api/state/update?zone_name=Coke Oven Battery 1', {
+          method: 'POST',
+          body: JSON.stringify({
+            gas_readings: { o2: 20.8, co: 5.0, ch4_lfl: 22.4, h2s: 0.1, temperature: 32.5, pressure: 1.02 }
+          })
+        });
+      } else if (type === 'PPE Breach') {
+        // CCTV PPE violation in Coke Oven Battery 1
+        await fetchBackend('/api/cctv/event', {
+          method: 'POST',
+          body: JSON.stringify({
+            zone: 'Coke Oven Battery 1',
+            event_type: 'no_ppe',
+            confidence: 0.94
+          })
+        });
+      } else if (type === 'Machine Overheating') {
+        // Pressure and temp spike in Blast Furnace A
+        await fetchBackend('/api/state/update?zone_name=Blast Furnace A', {
+          method: 'POST',
+          body: JSON.stringify({
+            gas_readings: { o2: 20.9, co: 12.0, ch4_lfl: 0.2, h2s: 0.1, temperature: 88.5, pressure: 1.45 }
+          })
+        });
+      } else if (type === 'Confined Space') {
+        // Oxygen depletion in Sinter Plant (with active confined space permit)
+        await fetchBackend('/api/state/update?zone_name=Sinter Plant', {
+          method: 'POST',
+          body: JSON.stringify({
+            gas_readings: { o2: 15.8, co: 28.0, ch4_lfl: 0.0, h2s: 0.2, temperature: 29.0, pressure: 0.98 }
+          })
+        });
+      } else if (type === 'Compound Risk') {
+        // Flammable gas overlap during active Hot Work permit in Coke Oven Battery 1
+        await fetchBackend('/api/state/update?zone_name=Coke Oven Battery 1', {
+          method: 'POST',
+          body: JSON.stringify({
+            gas_readings: { o2: 20.8, co: 5.0, ch4_lfl: 6.8, h2s: 0.1, temperature: 32.5, pressure: 1.02 }
+          })
+        });
+      } else if (type === 'Emergency Evacuation') {
+        // Critical plant-wide evacuation trigger
+        await fetchBackend('/api/alerts/trigger', {
+          method: 'POST',
+          body: JSON.stringify({
+            zone: 'Coke Oven Battery 1',
+            reason: 'Critical structural manifold rupture and high flammable vapor release.'
+          })
+        });
+      }
+
+      // Start continuous backend ticking to simulate live fluctuations and worker movements
+      this.activeInterval = setInterval(async () => {
+        if (this.isPaused) return;
+        try {
+          await fetchBackend('/api/simulate/tick', { method: 'POST' });
+        } catch (err) {
+          console.warn('Backend simulation tick failed:', err);
+        }
+      }, 3000);
+
+      this.addLogToConsole(`Backend scenario ${type} running.`);
+    } catch (error) {
+      console.error('Failed to trigger backend scenario:', error);
+      this.addLogToConsole(`Error triggering backend scenario: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   pause() {
     this.isPaused = true;
-    addLogToConsole('Scenario execution paused.');
+    this.addLogToConsole('Backend simulation ticks paused.');
   }
 
   resume() {
     this.isPaused = false;
-    addLogToConsole('Scenario execution resumed.');
+    this.addLogToConsole('Backend simulation ticks resumed.');
   }
 
   stop() {
@@ -48,135 +113,81 @@ class ScenarioEngine {
     }
   }
 
-  reset() {
+  async reset() {
     this.stop();
-    eventBus.publish({ type: 'SimulationReset', payload: {} });
-    addLogToConsole('Plant telemetry reset to nominal default parameters.');
+    this.addLogToConsole('Resetting plant parameters to defaults...');
+    try {
+      await this.clearAllBackendAlerts();
+      await this.setNominalState();
+      this.addLogToConsole('Plant reset to nominal default parameters successfully.');
+    } catch (error) {
+      console.error('Failed to reset backend:', error);
+      this.addLogToConsole('Failed to reset backend state.');
+    }
   }
 
-  private runNormalOperations() {
-    // Fluctuates parameters slowly indefinitely
-    this.activeInterval = setInterval(() => {
-      if (this.isPaused) return;
-
-      const randomGas = parseFloat((Math.random() * 0.8 + 1.8).toFixed(2));
-      const randomPressure = parseFloat((Math.random() * 0.6 + 9.5).toFixed(2));
-      const randomTemp = parseFloat((Math.random() * 2 + 37).toFixed(2));
-
-      eventBus.publish({ type: 'GasReadingUpdated', payload: { zone: 'LPG Yard', lel: randomGas } });
-      eventBus.publish({ type: 'PressureReadingUpdated', payload: { line: 'Distillation Unit A', pressure: randomPressure } });
-      eventBus.publish({ type: 'TemperatureUpdated', payload: { area: 'Plant A', temp: randomTemp } });
-
-      // Occasionally cycle a worker
-      if (Math.random() > 0.8) {
-        const id = `w_${Math.floor(Math.random() * 5) + 1}`;
-        const entered = Math.random() > 0.5;
-        if (entered) {
-          eventBus.publish({ 
-            type: 'WorkerEnteredZone', 
-            payload: { workerId: id, workerName: getWorkerName(id), zone: 'LPG Yard', ppeOk: true } 
-          });
-        } else {
-          eventBus.publish({ type: 'WorkerExitedZone', payload: { workerId: id, zone: 'LPG Yard' } });
-        }
+  private async clearAllBackendAlerts() {
+    const zones = ['Coke Oven Battery 1', 'Blast Furnace A', 'Sinter Plant', 'Ammonia Storage Tank'];
+    for (const zone of zones) {
+      try {
+        await fetchBackend('/api/cctv/clear', {
+          method: 'POST',
+          body: JSON.stringify({ zone })
+        });
+      } catch (err) {
+        console.warn(`Failed to clear CCTV alerts for ${zone}:`, err);
       }
-    }, 3000);
+    }
   }
 
-  private runTimelineScenario(type: ScenarioType) {
-    const timelines: Record<Exclude<ScenarioType, 'Normal'>, { time: number; action: () => void }[]> = {
-      'Gas Leak': [
-        { time: 0, action: () => eventBus.publish({ type: 'GasReadingUpdated', payload: { zone: 'LPG Yard', lel: 5.2 } }) },
-        { time: 3, action: () => eventBus.publish({ type: 'GasReadingUpdated', payload: { zone: 'LPG Yard', lel: 12.8 } }) },
-        { time: 6, action: () => eventBus.publish({ type: 'GasReadingUpdated', payload: { zone: 'LPG Yard', lel: 22.4 } }) },
-        { time: 9, action: () => eventBus.publish({ 
-            type: 'IncidentCreated', 
-            payload: { id: 'inc_auto_leak', title: 'LPG Yard Hydrocarbon Vapor Leak', description: 'Sensor HC-104 reports LPG gas levels exceeding 20% LEL. High explosion hazard.', location: 'Unloading Bay 3, LPG Yard', department: 'Plant Operations', severity: 'Critical' } 
-          }) 
-        },
-        { time: 12, action: () => eventBus.publish({ type: 'ComplianceViolationDetected', payload: { id: 'c_viol_leak', standardName: 'DGMS Circular 14 (Gas Telemetry Links)', category: 'DGMS', description: 'Gas leak alarms failed to auto-trip the manifold ESD shutdown loops.' } }) },
-        { time: 15, action: () => eventBus.publish({ type: 'EmergencyDeclared', payload: { message: 'Gas leak breach in LPG enclosure. Evacuate LPG Yard.' } }) }
-      ],
-      'PPE Breach': [
-        { time: 0, action: () => eventBus.publish({ type: 'WorkerEnteredZone', payload: { workerId: 'w_5', workerName: 'Alex Rivera', zone: 'Distillation Unit A', ppeOk: true } }) },
-        { time: 3, action: () => eventBus.publish({ type: 'PPEViolationDetected', payload: { workerId: 'w_5', workerName: 'Alex Rivera', zone: 'Distillation Unit A', missingPPE: ['Hard Hat', 'Safety Goggles'] } }) },
-        { time: 6, action: () => eventBus.publish({
-            type: 'IncidentCreated',
-            payload: { id: 'inc_auto_ppe', title: 'Unsecured Worker Operating in Zone 1 Area', description: 'Visual neural scan detects contractor operating active valves without compliant PPE headwear.', location: 'Distillation Unit A', department: 'Maintenance', severity: 'Medium' }
-          })
-        }
-      ],
-      'Machine Overheating': [
-        { time: 0, action: () => eventBus.publish({ type: 'PressureReadingUpdated', payload: { line: 'Distillation Unit A', pressure: 10.5 } }) },
-        { time: 3, action: () => eventBus.publish({ type: 'PressureReadingUpdated', payload: { line: 'Distillation Unit A', pressure: 12.2 } }) },
-        { time: 6, action: () => eventBus.publish({ type: 'EquipmentFaultDetected', payload: { equipId: 'valve_d4', line: 'Distillation Unit A', fault: 'Pressure relief valve spring seizure' } }) },
-        { time: 9, action: () => eventBus.publish({ type: 'PressureReadingUpdated', payload: { line: 'Distillation Unit A', pressure: 13.8 } }) },
-        { time: 12, action: () => eventBus.publish({
-            type: 'IncidentCreated',
-            payload: { id: 'inc_auto_heat', title: 'Pressure Release Valve overpressure surge', description: 'Distillation pipeline reached 13.8 bar. Safety valve relief spring failed to actuate.', location: 'Segment D-4, Distillation Unit A', department: 'Plant Operations', severity: 'High' }
-          })
-        }
-      ],
-      'Confined Space': [
-        { time: 0, action: () => eventBus.publish({ type: 'WorkerEnteredZone', payload: { workerId: 'w_3', workerName: 'Marcus Brody', zone: 'Confined Vessel Tank 12', ppeOk: true } }) },
-        { time: 3, action: () => eventBus.publish({ type: 'ComplianceViolationDetected', payload: { id: 'c_viol_conf', standardName: 'OISD-STD-105 (Emergency Drill Register)', category: 'OISD', description: 'Confined space entry logged without matching safety standby watcher details.' } }) }
-      ],
-      'Compound Risk': [
-        { time: 0, action: () => eventBus.publish({ type: 'GasReadingUpdated', payload: { zone: 'LPG Yard', lel: 4.8 } }) },
-        { time: 3, action: () => eventBus.publish({ type: 'MaintenanceStarted', payload: { equipId: 'manifold_joint', task: 'Welding and pipe gasket replacement' } }) },
-        { time: 6, action: () => eventBus.publish({ type: 'PermitIssued', payload: { permitId: 'p_hot_90', description: 'Hot Work Welding and joint grinding', zone: 'LPG Yard', permitType: 'Hot Work' } }) },
-        { time: 9, action: () => eventBus.publish({ type: 'GasReadingUpdated', payload: { zone: 'LPG Yard', lel: 12.5 } }) },
-        { time: 12, action: () => eventBus.publish({
-            type: 'IncidentCreated',
-            payload: { id: 'inc_auto_comp', title: 'Critical Hot Work Scheduling Conflict', description: 'Hot Work permit active in LPG transfer bay during hydrocarbon gas elevation (12.5% LEL). High explosive hazard.', location: 'LPG Yard', department: 'Plant Operations', severity: 'Critical' }
-          })
-        }
-      ],
-      'Emergency Evacuation': [
-        { time: 0, action: () => eventBus.publish({ type: 'GasReadingUpdated', payload: { zone: 'LPG Yard', lel: 35.0 } }) },
-        { time: 3, action: () => eventBus.publish({ type: 'PressureReadingUpdated', payload: { line: 'Distillation Unit A', pressure: 14.2 } }) },
-        { time: 6, action: () => eventBus.publish({ type: 'EmergencyDeclared', payload: { message: 'Critical plant-wide pressure and gas containment failure. Evacuate sectors.' } }) }
-      ]
+  private async setNominalState() {
+    const defaultStates = {
+      "Coke Oven Battery 1": {
+        gas_readings: { o2: 20.8, co: 2.5, ch4_lfl: 0.1, h2s: 0.2, temperature: 29.5, pressure: 1.01 },
+        permits: [{ permit_id: "PTW-2026-001", permit_type: "hot_work", status: "active", zone: "Coke Oven Battery 1", workers_count: 3 }],
+        maintenance_active: false,
+        shift_changeover_active: false
+      },
+      "Blast Furnace A": {
+        gas_readings: { o2: 20.9, co: 5.0, ch4_lfl: 0.2, h2s: 0.1, temperature: 32.0, pressure: 1.05 },
+        permits: [{ permit_id: "PTW-2026-004", permit_type: "cold_work", status: "active", zone: "Blast Furnace A", workers_count: 2 }],
+        maintenance_active: false,
+        shift_changeover_active: false
+      },
+      "Sinter Plant": {
+        gas_readings: { o2: 20.8, co: 1.0, ch4_lfl: 0.0, h2s: 0.0, temperature: 27.0, pressure: 0.99 },
+        permits: [{ permit_id: "PTW-2026-002", permit_type: "confined_space", status: "active", zone: "Sinter Plant", workers_count: 2 }],
+        maintenance_active: true,
+        shift_changeover_active: false
+      },
+      "Ammonia Storage Tank": {
+        gas_readings: { o2: 20.8, co: 0.5, ch4_lfl: 0.0, h2s: 1.5, temperature: 25.0, pressure: 1.10 },
+        permits: [{ permit_id: "PTW-2026-003", permit_type: "height_work", status: "active", zone: "Ammonia Storage Tank", workers_count: 4 }],
+        maintenance_active: false,
+        shift_changeover_active: false
+      }
     };
 
-    const timeline = timelines[type as Exclude<ScenarioType, 'Normal'>];
+    for (const [zone, state] of Object.entries(defaultStates)) {
+      await fetchBackend(`/api/state/update?zone_name=${encodeURIComponent(zone)}`, {
+        method: 'POST',
+        body: JSON.stringify(state)
+      });
+    }
+  }
 
-    this.activeInterval = setInterval(() => {
-      if (this.isPaused) return;
-
-      const currentEvent = timeline.find((t: any) => t.time === this.timelineIndex);
-      if (currentEvent) {
-        currentEvent.action();
-      }
-
-      this.timelineIndex++;
-      
-      // Stop when timeline completes
-      if (this.timelineIndex > timeline[timeline.length - 1].time + 2) {
-        this.stop();
-        addLogToConsole(`Scenario ${type} completed execution.`);
-      }
-    }, 1000);
+  private addLogToConsole(text: string) {
+    const store = typeof window !== 'undefined' 
+      ? require('../hooks/useIncident').useIncident.getState()
+      : null;
+    if (store) {
+      store.logEvent({
+        type: 'EmergencyDeclared',
+        payload: { message: `[SYSTEM LOG] ${text}` }
+      });
+    }
   }
 }
 
-const getWorkerName = (id: string) => {
-  const names: Record<string, string> = {
-    w_1: 'Sarah Jenkins',
-    w_2: 'David Vance',
-    w_3: 'Marcus Brody',
-    w_4: 'John Doe',
-    w_5: 'Alex Rivera'
-  };
-  return names[id] || 'Contractor Crew';
-};
-
-const addLogToConsole = (text: string) => {
-  const store = useIncident.getState();
-  store.logEvent({
-    type: 'EmergencyDeclared',
-    payload: { message: `[SYSTEM LOG] ${text}` }
-  });
-};
-
 export const scenarioEngine = new ScenarioEngine();
+export type { ScenarioEngine };
