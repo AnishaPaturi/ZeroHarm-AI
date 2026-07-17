@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
 from ..geospatial.models import IncidentReport
+from .workflow import SafetyWorkflow, create_workflows_for_incident
 
 _reports: List[IncidentReport] = []
 
@@ -108,7 +109,7 @@ def preserve_black_box_evidence(zone: str, report_id: str, history: List[Dict[st
     return filepath
 
 
-def generate_report(zone: str, risk_assessment: dict, evacuation_record, risk_history_list: List[Dict[str, Any]] = None) -> IncidentReport:
+def generate_report(zone: str, risk_assessment: dict, evacuation_record, risk_history_list: List[Dict[str, Any]] = None, rag_answer: str = None) -> IncidentReport:
     report_id = f"INC-{str(uuid.uuid4())[:8].upper()}"
 
     evidence_path = None
@@ -117,6 +118,23 @@ def generate_report(zone: str, risk_assessment: dict, evacuation_record, risk_hi
             evidence_path = preserve_black_box_evidence(zone, report_id, risk_history_list)
         except Exception as e:
             evidence_path = f"Error preserving evidence: {str(e)}"
+
+    narrative = _build_narrative(zone, risk_assessment, evacuation_record, evidence_path)
+
+    workflows: List[SafetyWorkflow] = []
+    if rag_answer:
+        try:
+            workflows = create_workflows_for_incident(report_id, rag_answer, risk_assessment.get("factors", []))
+            if workflows:
+                wf_summary = "\n\n--- AUTO-GENERATED ACTIONABLE WORKFLOWS ---\n"
+                for wf in workflows:
+                    wf_summary += (
+                        f"- [{wf.workflow_id}] {wf.task_description} "
+                        f"(Assigned: {wf.assigned_role} | Sign-off: {wf.required_signoff_role} | Status: {wf.status})\n"
+                    )
+                narrative += wf_summary
+        except Exception as e:
+            logger.warning(f"Failed to create workflows for report {report_id}: {e}")
 
     report = IncidentReport(
         report_id=report_id,
@@ -129,7 +147,7 @@ def generate_report(zone: str, risk_assessment: dict, evacuation_record, risk_hi
         workers_present=evacuation_record.workers_evacuated if evacuation_record else 0,
         evacuation_status=evacuation_record.status if evacuation_record else "none",
         regulatory_refs=_REGULATORY_REFS,
-        narrative=_build_narrative(zone, risk_assessment, evacuation_record, evidence_path),
+        narrative=narrative,
         evidence_file_path=evidence_path,
     )
     _reports.append(report)

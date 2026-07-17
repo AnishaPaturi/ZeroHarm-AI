@@ -36,6 +36,7 @@ from .geospatial.worker_simulator import WorkerSimulator
 from .geospatial.plant_layout import get_layout
 from .orchestrator.evacuation import EvacuationManager
 from .orchestrator.incident_report import generate_report, get_reports
+from .orchestrator.workflow import get_workflows as get_safety_workflows, update_workflow_status
 from .orchestrator.alert_channels import get_alert_log
 
 # ---------------------------------------------------------------------------
@@ -98,8 +99,7 @@ def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
         logger.error(f"Failed to fetch RAG analysis for incident report: {e}")
         rag_analysis = "RAG compliance analysis unavailable."
 
-    report = generate_report(zone, risk_assessment, evacuation_record, risk_history)
-    report.narrative += f"\n\n--- RAG COMPLIANCE & HISTORICAL PRECEDENTS ANALYSIS ---\n{rag_analysis}"
+    report = generate_report(zone, risk_assessment, evacuation_record, risk_history, rag_answer=rag_analysis)
     logger.warning(f"Preliminary incident report generated with RAG: {report.report_id} for zone '{zone}'")
 
 
@@ -741,6 +741,28 @@ async def upload_rag_document(file: UploadFile = File(...)):
         "chunks_created": len(docs),
         "total_documents": len(vector_store.documents),
     }
+
+
+# ---------------------------------------------------------------------------
+# PERSON C & D — Safety Workflow Tickets
+# ---------------------------------------------------------------------------
+class WorkflowUpdateRequest(BaseModel):
+    status: str = Field(..., description="New status: Pending, In Progress, Completed")
+
+@app.get("/api/workflows")
+def get_workflows(incident_id: str = None):
+    """Fetch safety workflow tickets, optionally filtered by incident report ID."""
+    workflows = get_safety_workflows(incident_id)
+    return [w.dict() for w in workflows]
+
+
+@app.patch("/api/workflows/{workflow_id}")
+def patch_workflow(workflow_id: str, request: WorkflowUpdateRequest):
+    """Update the status of a safety workflow ticket."""
+    updated = update_workflow_status(workflow_id, request.status)
+    if not updated:
+        raise HTTPException(status_code=404, detail=f"Workflow '{workflow_id}' not found")
+    return updated.dict()
 
 
 # ---------------------------------------------------------------------------
