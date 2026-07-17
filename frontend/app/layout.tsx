@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Sidebar />
 
         {/* Viewport Workspace */}
-        <main className="flex-1 pt-24 px-4 sm:px-6 md:pl-32 md:pr-10 pb-28 md:pb-12 max-w-7xl mx-auto w-full">
+        <main className="flex-1 pt-24 px-4 sm:px-6 md:px-10 pb-28 md:pb-12 max-w-7xl mx-auto w-full">
           {children}
         </main>
 

@@ -1,18 +1,44 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Shield, Bell, AlertTriangle, User, LogOut } from 'lucide-react';
+import { 
+  Shield, 
+  Bell, 
+  AlertTriangle, 
+  User, 
+  LogOut,
+  LayoutDashboard, 
+  FileText, 
+  BrainCircuit, 
+  MessageSquare, 
+  BarChart3, 
+  BookOpen
+} from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import { useIncident, selectActiveAlertCount } from '../hooks/useIncident';
 import NotificationPanel from './NotificationPanel';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '../lib/utils';
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const { toasts } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const unreadCount = useIncident(selectActiveAlertCount);
+  const pathname = usePathname();
+
+  const showNavLinks = isAuthenticated && user && pathname !== '/' && pathname !== '/login';
+
+  const NAV_ITEMS = [
+    { label: 'Operations Center', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Incident Register', path: '/incidents', icon: FileText },
+    { label: 'AI Workspace', path: '/analysis', icon: BrainCircuit },
+    { label: 'Safety Assistant', path: '/chatbot', icon: MessageSquare },
+    { label: 'Data Storytelling', path: '/analytics', icon: BarChart3 },
+    { label: 'Compliance Audits', path: '/compliance', icon: BookOpen },
+  ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
@@ -32,6 +58,40 @@ export default function Navbar() {
             </span>
           </div>
         </Link>
+
+        {/* Nav Links (Desktop hovering top bar integrated) */}
+        {showNavLinks && (
+          <div className="hidden md:flex items-center gap-1.5 bg-white/[0.03] border border-white/5 rounded-xl p-1.5 backdrop-blur-md">
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname.startsWith(item.path);
+
+              return (
+                <Link key={item.path} href={item.path} title={item.label}>
+                  <div
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer transition-all select-none text-xs font-semibold relative group",
+                      isActive
+                        ? "bg-white/10 text-white font-semibold shadow-md shadow-black/10 border-b border-safety-orange"
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <Icon className={cn("w-3.5 h-3.5 flex-shrink-0 transition-transform", isActive ? "scale-110 text-safety-orange" : "group-hover:scale-105")} />
+                    <span className="hidden xl:inline">{item.label}</span>
+                    <span className="hidden md:inline xl:hidden">
+                      {item.label === 'Operations Center' ? 'Operations' :
+                       item.label === 'Incident Register' ? 'Incidents' :
+                       item.label === 'AI Workspace' ? 'AI Hub' :
+                       item.label === 'Safety Assistant' ? 'Assistant' :
+                       item.label === 'Data Storytelling' ? 'Analytics' :
+                       'Compliance'}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
