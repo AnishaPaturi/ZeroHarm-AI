@@ -34,7 +34,7 @@ export default function AnalysisPage() {
   const safetyRating = useIncident(selectPlantSafetyRating);
   const overallRisk = useIncident(selectOverallRisk);
 
-  const [activeTab, setActiveTab] = useState<'rca' | 'compliance' | 'recommendations' | 'history'>('rca');
+  const [activeTab, setActiveTab] = useState<'rca' | 'compliance' | 'recommendations' | 'history' | 'debate'>('rca');
 
   const handleStartAnalysis = async () => {
     if (!activeIncident) return;
@@ -261,6 +261,7 @@ export default function AnalysisPage() {
                 <div className="flex border-b border-white/5">
                   {[
                     { id: 'rca', label: 'RCA Diagnosis' },
+                    { id: 'debate', label: 'Collaborative Debate' },
                     { id: 'compliance', label: 'Code Violations' },
                     { id: 'recommendations', label: 'Directives / PPE' },
                     { id: 'history', label: 'Similar Incidents' }
@@ -302,6 +303,113 @@ export default function AnalysisPage() {
                           ))}
                         </div>
                       </div>
+                    </motion.div>
+                  )}
+
+                  {/* Tab: Collaborative Debate */}
+                  {activeTab === 'debate' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-6">
+                      
+                      {/* Top Summary Banner */}
+                      <div className="bg-black/35 border border-white/5 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-l-4 border-l-safety-orange relative overflow-hidden">
+                        <div className="z-10">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider">COLLABORATIVE SAFETY PREDICTION:</span>
+                            <span className="text-[10px] font-mono text-safety-orange font-bold uppercase tracking-wider bg-safety-orange/15 border border-safety-orange/30 px-2 py-0.5 rounded">
+                              {activeIncident.aiAnalysis.collaborativeDebate?.prediction || "Safe operations predicted."}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-300 mt-2 font-mono leading-relaxed max-w-xl">
+                            <span className="text-slate-500 mr-1.5">[COMPOUNDED]:</span>
+                            {activeIncident.aiAnalysis.collaborativeDebate?.compound_factors?.join(' + ') || "Nominal parameters verified."}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0 self-end sm:self-auto z-10">
+                          <span className="text-[9px] text-slate-500 font-mono block">DEBATE RISK INDEX</span>
+                          <span className={`text-3xl font-heading font-extrabold block mt-0.5 ${
+                            (activeIncident.aiAnalysis.collaborativeDebate?.risk_probability || 0) >= 75 ? 'text-red-500' :
+                            (activeIncident.aiAnalysis.collaborativeDebate?.risk_probability || 0) >= 40 ? 'text-safety-orange' :
+                            'text-green-400'
+                          }`}>
+                            {activeIncident.aiAnalysis.collaborativeDebate?.risk_probability || 4}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Environmental Microclimate Info */}
+                      {activeIncident.aiAnalysis.collaborativeDebate?.weather_info && (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white/[0.01] border border-white/5 p-4 rounded-xl">
+                          <div>
+                            <span className="text-[9px] text-slate-500 font-mono block mb-1">LOCAL WIND SPEED</span>
+                            <span className="text-xs font-semibold text-slate-200 font-mono">
+                              {activeIncident.aiAnalysis.collaborativeDebate.weather_info.wind_speed_m_s} m/s
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-500 font-mono block mb-1">WIND DIRECTION</span>
+                            <span className="text-xs font-semibold text-slate-200 font-mono">
+                              {activeIncident.aiAnalysis.collaborativeDebate.weather_info.wind_direction}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-500 font-mono block mb-1">DISPERSION RATE</span>
+                            <span className={`text-xs font-bold font-mono ${
+                              activeIncident.aiAnalysis.collaborativeDebate.weather_info.wind_speed_m_s <= 3.0 ? 'text-red-400' : 'text-green-400'
+                            }`}>
+                              {activeIncident.aiAnalysis.collaborativeDebate.weather_info.ventilation_status}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-500 font-mono block mb-1">AMBIENT HEAT</span>
+                            <span className="text-xs font-semibold text-slate-200 font-mono">
+                              {activeIncident.aiAnalysis.collaborativeDebate.weather_info.ambient_temp_c}°C
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Committee transcript dialogue */}
+                      <div className="flex flex-col gap-3">
+                        <span className="text-[9px] text-slate-400 font-mono uppercase tracking-wider block">
+                          ROUND-BY-ROUND SAFETY COMMITTEE TRANSCRIPT ({activeIncident.aiAnalysis.collaborativeDebate?.mode || "Simulation Mode"})
+                        </span>
+
+                        <div className="flex flex-col gap-3.5 max-h-[40vh] overflow-y-auto pr-1">
+                          {activeIncident.aiAnalysis.collaborativeDebate?.debate_transcript ? (
+                            activeIncident.aiAnalysis.collaborativeDebate.debate_transcript.map((msg: any, idx: number) => {
+                              const isCoordinator = msg.agent_id === 'coordinator_agent';
+                              const isCritical = msg.sentiment === 'critical';
+                              const isWarning = msg.sentiment === 'warning';
+                              
+                              let borderCol = 'border-white/5 bg-white/[0.01]';
+                              if (isCoordinator) borderCol = 'border-safety-orange/30 bg-safety-orange/10 border-l-4 border-l-safety-orange';
+                              else if (isCritical) borderCol = 'border-red-500/25 bg-red-500/5 border-l-4 border-l-red-500';
+                              else if (isWarning) borderCol = 'border-amber-500/25 bg-amber-500/5 border-l-4 border-l-amber-500';
+
+                              return (
+                                <div key={idx} className={`p-4 rounded-xl border flex flex-col gap-1.5 transition-all hover:bg-white/[0.02] ${borderCol}`}>
+                                  <div className="flex justify-between items-center text-[10px] font-mono">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-bold text-white uppercase">{msg.agent_name}</span>
+                                      <span className="text-slate-600">•</span>
+                                      <span className="text-slate-400 font-medium italic">{msg.role}</span>
+                                    </div>
+                                    <span className="text-slate-500 font-bold">ROUND {msg.round}</span>
+                                  </div>
+                                  <p className="text-xs text-slate-300 leading-relaxed font-sans font-medium mt-1">
+                                    {msg.message}
+                                  </p>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <span className="text-slate-500 italic p-4 text-center border border-dashed border-white/5 rounded-xl">
+                              No debate logs recorded for this analysis. Click "Execute Analysis Pipeline" to start the safety debate.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
                     </motion.div>
                   )}
 

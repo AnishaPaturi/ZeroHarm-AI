@@ -273,6 +273,18 @@ function connectWebSocket() {
         syncAlerts();
         syncIncidents();
         
+      } else if (data.event === 'collaborative_debate') {
+        const { zone, debate } = data;
+        useIncident.setState({ activeDebate: debate });
+        store.logEvent({
+          type: 'ComplianceViolationDetected',
+          payload: {
+            id: `debate_audit_${Date.now()}`,
+            standardName: 'Collaborative Agentic Debate',
+            category: 'OISD',
+            description: `[DEBATE] Zone ${zone}: safety agents completed reasoning. Prediction: ${debate.prediction}`
+          }
+        });
       } else if (data.event === 'permit_alert') {
         const { zone, permit_audit } = data;
         store.logEvent({

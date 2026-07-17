@@ -34,6 +34,9 @@ class FullAssessmentResponse(BaseModel):
     
     # Adjacency Topology
     topology_cascade: Optional[Dict[str, Any]] = Field(None, description="Cascading risk calculations for this zone from the Plant Topology Graph")
+    
+    # Collaborative Reasoning Debate
+    collaborative_debate: Optional[Dict[str, Any]] = Field(None, description="Multi-agent debate log and consensus predictions")
 
 
 class DemoStep(BaseModel):

@@ -17,6 +17,8 @@ import {
   selectPlantBStats,
   selectPlantCStats
 } from '../../hooks/useIncident';
+import Modal from '../../component/Modal';
+import { fetchBackend } from '../../services/api';
 import { 
   Users, 
   FileWarning, 
@@ -26,7 +28,8 @@ import {
   ShieldAlert, 
   CheckSquare, 
   Shield,
-  Gauge
+  Gauge,
+  BrainCircuit
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -53,6 +56,113 @@ export default function Dashboard() {
   const plantAStats = useIncident(selectPlantAStats);
   const plantBStats = useIncident(selectPlantBStats);
   const plantCStats = useIncident(selectPlantCStats);
+
+  const [isDebateModalOpen, setIsDebateModalOpen] = useState(false);
+  const [isDebating, setIsDebating] = useState(false);
+  const [debateResult, setDebateResult] = useState<any>(null);
+
+  const generateLocalDashboardDebate = (zone: string) => {
+    const isCoke = zone.toLowerCase().includes('coke') || zone.toLowerCase().includes('battery');
+    const isSinter = zone.toLowerCase().includes('sinter');
+    
+    let riskProbability = 8;
+    let prediction = "No immediate safety threats predicted. Plant operations nominal.";
+    let factors = ["All Sensors Reporting Green", "Permits Audited & Compliant"];
+    let finalConsensus = "All agents agree that parameters are currently within normal compliance thresholds.";
+    let recommendations = ["Maintain standard safety patrol rounds."];
+    let debateTranscript: any[] = [];
+
+    if (isCoke) {
+      riskProbability = 96;
+      prediction = "Explosion possible within 18 minutes.";
+      factors = ["Methane Leakage Accumulation", "Active Spark-Producing Hot Work", "Atmospheric Ventilation Stagnation"];
+      finalConsensus = "CRITICAL HAZARD DECLARED: Positive flammability slope overlaps with active Hot Work (welding) and valve maintenance under stagnant wind conditions. Immediate explosion risk.";
+      recommendations = [
+        "ENGAGE SIRENS: Evacuate Coke Oven Battery 1 immediately.",
+        "HALT PERMITS: Revoke Hot Work permit PTW-HW-202 immediately.",
+        "ISOLATE PROCESS: Close ESD valves upstream of maintenance segment."
+      ];
+      debateTranscript = [
+        { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 1, message: 'Methane LFL has increased to 6.8%. The accumulation rate is positive. High flammability slope detected.', sentiment: 'critical' },
+        { agent_id: 'maintenance_agent', agent_name: 'Maintenance Intelligence Agent', role: 'Valve/Asset Operations', round: 1, message: 'Maintenance is active on the valve line. Seals are currently unseated.', sentiment: 'warning' },
+        { agent_id: 'permit_agent', agent_name: 'Permit Compliance Agent', role: 'Work Permit Auditor', round: 1, message: 'Permit PTW-HW-202 (Hot Work) is active for welding near the manifold deck. Spark hazard present.', sentiment: 'warning' },
+        { agent_id: 'weather_agent', agent_name: 'Environmental Weather Agent', role: 'Micro-climate Monitor', round: 1, message: 'Wind speed has decreased to 1.8 m/s. Stagnant air pocket. Gas will not disperse naturally.', sentiment: 'warning' },
+        { agent_id: 'cctv_agent', agent_name: 'CCTV Computer Vision Agent', role: 'Visual Security Analytics', round: 1, message: 'CCTV confirms two workers are on the manifold deck holding welding gear.', sentiment: 'warning' },
+        { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 2, message: 'The methane leak is accelerating. Sparks from welding will exceed the Lower Flammable Limit ignition threshold.', sentiment: 'critical' },
+        { agent_id: 'permit_agent', agent_name: 'Permit Compliance Agent', role: 'Work Permit Auditor', round: 2, message: 'Under OISD-STD-105 standards, hot work is strictly banned above 4% LFL. Critical breach!', sentiment: 'critical' },
+        { agent_id: 'coordinator_agent', agent_name: 'Safety Coordinator Agent', role: 'Orchestration & Consensus', round: 3, message: 'Consensus: Methane rising + Active Welding + Stagnant Air. Risk Probability = 96%. Prediction: Explosion possible within 18 minutes. Triggering evacuation.', sentiment: 'critical' }
+      ];
+    } else if (isSinter) {
+      riskProbability = 92;
+      prediction = "Asphyxiation / unconsciousness possible within 6 minutes.";
+      factors = ["Oxygen Depletion (<16%)", "Active Confined Space Permit", "Poor Ventilation"];
+      finalConsensus = "CRITICAL HEALTH THREAT: Oxygen level has dropped to 15.8% inside the confined space. Standby watchperson is outside, but workers are inside without positive-pressure air hoses.";
+      recommendations = [
+        "RESCUE MISSION: Dispatch standby rescue team with breathing apparatus and lifeline harness.",
+        "VENTILATE: Activate forced-draft ventilation fans immediately."
+      ];
+      debateTranscript = [
+        { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 1, message: 'Oxygen concentration is down to 15.8% inside the Sinter Plant hopper.', sentiment: 'critical' },
+        { agent_id: 'permit_agent', agent_name: 'Permit Compliance Agent', role: 'Work Permit Auditor', round: 1, message: 'Confined space permit PTW-CS-101 is active. Two engineers are inside for cleaning.', sentiment: 'warning' },
+        { agent_id: 'cctv_agent', agent_name: 'CCTV Computer Vision Agent', role: 'Visual Security Analytics', round: 1, message: 'Workers are inside without positive-pressure air hoses.', sentiment: 'warning' },
+        { agent_id: 'coordinator_agent', agent_name: 'Safety Coordinator Agent', role: 'Orchestration & Consensus', round: 3, message: 'Consensus: Oxygen is at 15.8%, workers trapped in confined space. Risk Probability = 92%. Prediction: Asphyxiation within 6 minutes.', sentiment: 'critical' }
+      ];
+    } else {
+      riskProbability = 45;
+      prediction = "Blast Furnace pressure surge possible within 30 minutes.";
+      factors = ["Pressure Transients Up 8%", "Cooling Water Temp Elevated"];
+      finalConsensus = "ELEVATED ALERT: Furnace top pressure shows minor positive fluctuations. Hot metal tapping permit active. Monitor cooling stave temperature.";
+      recommendations = [
+        "MONITOR: Check stave thermometer arrays every 10 minutes.",
+        "VENT: Open bleed valve slightly if top pressure exceeds 2.8 bar."
+      ];
+      debateTranscript = [
+        { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 1, message: 'Furnace top pressure is 2.55 bar, showing 8% positive slope.', sentiment: 'warning' },
+        { agent_id: 'maintenance_agent', agent_name: 'Maintenance Intelligence Agent', role: 'Valve/Asset Operations', round: 1, message: 'Bleeder valves were inspected last week. Full mechanical travel verified.', sentiment: 'nominal' },
+        { agent_id: 'coordinator_agent', agent_name: 'Safety Coordinator Agent', role: 'Orchestration & Consensus', round: 2, message: 'Consensus: Pressure rising but controllable. Risk Probability = 45%. Monitoring active.', sentiment: 'warning' }
+      ];
+    }
+
+    return {
+      zone,
+      timestamp: new Date().toISOString(),
+      risk_probability: riskProbability,
+      prediction,
+      compound_factors: factors,
+      debate_transcript: debateTranscript,
+      final_consensus: finalConsensus,
+      recommendations,
+      weather_info: { wind_speed_m_s: 2.1, wind_direction: 'SSE', humidity: 75, ambient_temp_c: 32, ventilation_status: 'Stagnant' },
+      mode: 'Local Simulation Preview'
+    };
+  };
+
+  const handleRunDebate = async () => {
+    setIsDebating(true);
+    let zone = 'Blast Furnace A';
+    if (selectedPlant === 'B') zone = 'Coke Oven Battery 1';
+    else if (selectedPlant === 'C') zone = 'Sinter Plant';
+
+    try {
+      const response = await fetchBackend<any>('/api/collaborative-reasoning/debate', {
+        method: 'POST',
+        body: JSON.stringify({ zone })
+      });
+      if (response) {
+        setDebateResult(response);
+        setIsDebateModalOpen(true);
+        addToast(`Debate completed for ${zone}! Risk index: ${response.risk_probability}%`, 'success');
+      }
+    } catch (error) {
+      console.warn('Backend offline, running local debate simulation.', error);
+      const localDebate = generateLocalDashboardDebate(zone);
+      setDebateResult(localDebate);
+      setIsDebateModalOpen(true);
+      addToast(`Simulation: Debate completed for ${zone}! Risk index: ${localDebate.risk_probability}%`, 'info');
+    } finally {
+      setIsDebating(false);
+    }
+  };
 
   const plantStats = {
     A: plantAStats,
@@ -216,11 +326,21 @@ export default function Dashboard() {
 
           {/* AI Explainable Fusion Reasoning */}
           <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Shield className="w-5 h-5 text-safety-orange" />
-              <h3 className="font-heading text-base font-bold text-white tracking-wide">
-                Agentic Risk Fusion Diagnosis
-              </h3>
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-safety-orange" />
+                <h3 className="font-heading text-base font-bold text-white tracking-wide">
+                  Agentic Risk Fusion Diagnosis
+                </h3>
+              </div>
+              <button
+                onClick={handleRunDebate}
+                disabled={isDebating}
+                className="px-3 py-1.5 bg-safety-orange/20 border border-safety-orange/30 text-safety-orange hover:bg-safety-orange hover:text-white rounded-xl text-[10px] font-bold font-mono flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+              >
+                <BrainCircuit className="w-3.5 h-3.5" />
+                <span>{isDebating ? 'DEBATING...' : 'AGENT DEBATE'}</span>
+              </button>
             </div>
             
             <div className="flex flex-col gap-4 text-xs text-slate-300">
@@ -296,6 +416,106 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      {/* Collaborative Safety Debate Modal */}
+      <Modal isOpen={isDebateModalOpen} onClose={() => setIsDebateModalOpen(false)} title={`Collaborative Agentic Debate — ${debateResult?.zone}`}>
+        <div className="flex flex-col gap-5 text-xs text-slate-300">
+          
+          {/* Top Summary Banner */}
+          <div className="bg-black/35 border border-white/5 p-4 rounded-xl flex flex-col justify-between gap-4 border-l-4 border-l-safety-orange">
+            <div>
+              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block">CONSENSUS VERDICT:</span>
+              <span className="text-xs font-mono text-safety-orange font-bold uppercase tracking-wider block mt-1">
+                {debateResult?.prediction}
+              </span>
+            </div>
+            <div className="flex justify-between items-center border-t border-white/5 pt-3">
+              <div>
+                <span className="text-[9px] text-slate-500 font-mono block">RISK INDEX</span>
+                <span className={`text-2xl font-extrabold block mt-0.5 ${
+                  (debateResult?.risk_probability || 0) >= 75 ? 'text-red-500' :
+                  (debateResult?.risk_probability || 0) >= 40 ? 'text-safety-orange' :
+                  'text-green-400'
+                }`}>
+                  {debateResult?.risk_probability}%
+                </span>
+              </div>
+              {debateResult?.weather_info && (
+                <div className="text-right">
+                  <span className="text-[9px] text-slate-500 font-mono block">VENTILATION / WIND</span>
+                  <span className="text-xs font-semibold text-slate-200 block mt-0.5">
+                    {debateResult.weather_info.ventilation_status} ({debateResult.weather_info.wind_speed_m_s} m/s)
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Compound Factors */}
+          <div>
+            <span className="text-[9px] text-slate-500 font-mono uppercase tracking-wider block mb-2">COMPOUND DANGER FACTORS</span>
+            <div className="flex flex-wrap gap-2">
+              {debateResult?.compound_factors?.map((f: any, idx: number) => (
+                <span key={idx} className="bg-white/5 border border-white/5 rounded-lg px-2.5 py-1 text-slate-300 font-mono text-[10px]">
+                  {f}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Chat History */}
+          <div>
+            <span className="text-[9px] text-slate-500 font-mono uppercase tracking-wider block mb-3">COMMITTEE DISCUSSION FEED</span>
+            <div className="flex flex-col gap-3 max-h-[30vh] overflow-y-auto pr-1">
+              {debateResult?.debate_transcript?.map((msg: any, idx: number) => {
+                const isCoordinator = msg.agent_id === 'coordinator_agent';
+                const isCritical = msg.sentiment === 'critical';
+                const isWarning = msg.sentiment === 'warning';
+                
+                let borderCol = 'border-white/5 bg-white/[0.01]';
+                if (isCoordinator) borderCol = 'border-safety-orange/30 bg-safety-orange/10 border-l-4 border-l-safety-orange';
+                else if (isCritical) borderCol = 'border-red-500/25 bg-red-500/5 border-l-4 border-l-red-500';
+                else if (isWarning) borderCol = 'border-amber-500/25 bg-amber-500/5 border-l-4 border-l-amber-500';
+
+                return (
+                  <div key={idx} className={`p-3.5 rounded-xl border flex flex-col gap-1.5 ${borderCol}`}>
+                    <div className="flex justify-between items-center text-[9px] font-mono">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-white uppercase">{msg.agent_name}</span>
+                        <span className="text-slate-600">•</span>
+                        <span className="text-slate-400 font-medium italic">{msg.role}</span>
+                      </div>
+                      <span className="text-slate-500 font-bold">R{msg.round}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed font-sans mt-0.5">{msg.message}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Recommendations */}
+          <div>
+            <span className="text-[9px] text-slate-500 font-mono uppercase tracking-wider block mb-2">RESOLVING DIRECTIVES</span>
+            <div className="flex flex-col gap-2">
+              {debateResult?.recommendations?.map((r: any, idx: number) => (
+                <div key={idx} className="bg-white/5 border border-white/5 p-3 rounded-lg flex items-center justify-between">
+                  <span className="font-sans text-[11px] text-slate-300 font-medium">{r}</span>
+                  <button
+                    onClick={() => {
+                      handleResolveAction(r);
+                      setIsDebateModalOpen(false);
+                    }}
+                    className="text-[10px] text-safety-orange hover:underline font-semibold font-mono"
+                  >
+                    DISPATCH
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Modal>
 
     </div>
   );

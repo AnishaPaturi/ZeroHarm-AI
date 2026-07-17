@@ -45,6 +45,7 @@ export interface IncidentAIAnalysis {
   preventiveMeasures: string[];
   similarIncidents: SimilarIncident[];
   timeline: IncidentTimelineEvent[];
+  collaborativeDebate?: any;
 }
 
 export interface Incident {

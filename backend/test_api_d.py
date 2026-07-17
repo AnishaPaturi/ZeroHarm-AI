@@ -94,6 +94,22 @@ def test_full_assessment():
     print(f"\n  unified_risk_score = {data.get('unified_risk_score')}")
     print(f"  unified_action     = {data.get('unified_action')}")
     print(f"  all_flagged_permits = {data.get('all_flagged_permits')}")
+    check("Contains collaborative_debate", data.get("collaborative_debate") is not None)
+    if data.get("collaborative_debate"):
+        print(f"  Collaborative risk probability: {data['collaborative_debate'].get('risk_probability')}%")
+
+
+def test_collaborative_debate():
+    section("6.5. Collaborative Reasoning Multi-Agent Debate")
+    r = requests.post(f"{BASE_URL}/api/collaborative-reasoning/debate", json={"zone": "Coke Oven Battery 1"})
+    data = r.json()
+    check("Collaborative debate endpoint success", r.status_code == 200)
+    check("Contains risk_probability", "risk_probability" in data)
+    check("Contains prediction", len(data.get("prediction", "")) > 0)
+    check("Contains debate_transcript", len(data.get("debate_transcript", [])) > 0)
+    print(f"  Risk Probability = {data.get('risk_probability')}%")
+    print(f"  Prediction       = {data.get('prediction')}")
+    print(f"  First statement  = [{data['debate_transcript'][0]['agent_name']}]: {data['debate_transcript'][0]['message']}")
 
 
 def test_demo_scenario():
@@ -114,5 +130,6 @@ if __name__ == "__main__":
     test_compound_hazard_escalation()
     test_permit_conflicts_dashboard()
     test_full_assessment()
+    test_collaborative_debate()
     test_demo_scenario()
     section("Person D test suite complete.")

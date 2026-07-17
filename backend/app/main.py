@@ -19,6 +19,7 @@ except ImportError:
 from .engine.models import RiskCheckRequest, RiskCheckResponse, GasReadings, PermitInfo, FactorRisk, CCTVAlert
 from .engine.rules import evaluate_rules
 from .engine.ml_anomaly import CompoundRiskMLModel
+from .engine.collaborative_reasoning import MultiAgentCollaborativeReasoning, CollaborativeReasoningResponse
 
 # ---------------------------------------------------------------------------
 # PART C — Incident Pattern Intelligence & Compliance Audit Agent
@@ -86,6 +87,7 @@ safety_agent = ZeroHarmSafetyAgent(vector_store=vector_store)
 # --- Person D globals ---
 permit_agent = DigitalPermitIntelligenceAgent()
 topology_engine = PlantTopology()
+collaborative_engine = MultiAgentCollaborativeReasoning()
 
 
 def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
@@ -943,6 +945,36 @@ async def full_assessment(request: PermitAuditRequest):
         raise
     except Exception as e:
         logger.error(f"Error running full assessment for zone '{zone}': {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+class CollaborativeReasoningRequest(BaseModel):
+    zone: str
+
+
+@app.post("/api/collaborative-reasoning/debate", response_model=CollaborativeReasoningResponse)
+async def run_collaborative_debate(request: CollaborativeReasoningRequest):
+    """
+    Innovation 1: Multi-Agent Collaborative Reasoning.
+    Executes a structured debate session between Gas Sensor, Maintenance,
+    Permit, Weather, and CCTV agents, and returns a unified risk probability
+    and safety prediction.
+    """
+    zone = request.zone
+    if zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Unknown zone '{zone}'. Known zones: {config.KNOWN_ZONES}")
+    
+    zone_state = plant_state[zone]
+    try:
+        debate_result = collaborative_engine.run_debate(zone, zone_state, plant_state)
+        # Broadcast the debate notification event so the front-end can log it in the console
+        await manager.broadcast({
+            "event": "collaborative_debate",
+            "zone": zone,
+            "debate": debate_result.dict()
+        })
+        return debate_result
+    except Exception as e:
+        logger.error(f"Error running collaborative debate for zone '{zone}': {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
