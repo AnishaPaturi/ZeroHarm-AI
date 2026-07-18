@@ -12,7 +12,8 @@ import {
   BrainCircuit, 
   MessageSquare, 
   BarChart3, 
-  BookOpen
+  BookOpen,
+  Scan
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
@@ -33,6 +34,7 @@ export default function Navbar() {
 
   const NAV_ITEMS = [
     { label: 'Operations', fullLabel: 'Operations Center', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Digital Twin', fullLabel: 'Digital Twin', path: '/digital-twin', icon: Scan },
     { label: 'Incidents', fullLabel: 'Incident Register', path: '/incidents', icon: FileText },
     { label: 'AI Workspace', fullLabel: 'AI Workspace', path: '/analysis', icon: BrainCircuit },
     { label: 'Safety AI', fullLabel: 'Safety Assistant', path: '/chatbot', icon: MessageSquare },

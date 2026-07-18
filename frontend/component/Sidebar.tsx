@@ -9,7 +9,8 @@ import {
   BrainCircuit, 
   MessageSquare, 
   BarChart3, 
-  BookOpen
+  BookOpen,
+  Scan
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
@@ -22,6 +23,7 @@ export default function Sidebar() {
 
   const NAV_ITEMS = [
     { label: 'Operations Center', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Digital Twin', path: '/digital-twin', icon: Scan },
     { label: 'Incident Register', path: '/incidents', icon: FileText },
     { label: 'AI Workspace', path: '/analysis', icon: BrainCircuit },
     { label: 'Safety Assistant', path: '/chatbot', icon: MessageSquare },
