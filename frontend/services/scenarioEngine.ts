@@ -141,9 +141,8 @@ class ScenarioEngine {
     const zones = ['Coke Oven Battery 1', 'Blast Furnace A', 'Sinter Plant', 'Ammonia Storage Tank'];
     for (const zone of zones) {
       try {
-        await fetchBackend('/api/cctv/clear', {
-          method: 'POST',
-          body: JSON.stringify({ zone })
+        await fetchBackend(`/api/cctv/clear?zone=${encodeURIComponent(zone)}`, {
+          method: 'POST'
         });
       } catch (err) {
         console.warn(`Failed to clear CCTV alerts for ${zone}:`, err);

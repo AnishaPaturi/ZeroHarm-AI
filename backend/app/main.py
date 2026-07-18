@@ -822,18 +822,25 @@ async def trigger_cctv_event(request: CCTVAlertRequest):
     }
 
 @app.post("/api/cctv/clear")
-async def clear_cctv_events(zone: str):
+async def clear_cctv_events(zone: str = None, payload: Dict[str, Any] = None):
     """Clears all active CCTV alerts for the specified zone."""
-    if zone not in plant_state:
-        raise HTTPException(status_code=404, detail=f"Zone '{zone}' not found.")
+    target_zone = zone
+    if not target_zone and payload:
+        target_zone = payload.get("zone")
         
-    plant_state[zone]["cctv_alerts"] = []
-    payload = await update_zone_state(zone, {"cctv_alerts": []})
+    if not target_zone:
+        raise HTTPException(status_code=400, detail="Missing 'zone' parameter (either as query param or in JSON body).")
+        
+    if target_zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Zone '{target_zone}' not found.")
+        
+    plant_state[target_zone]["cctv_alerts"] = []
+    payload_response = await update_zone_state(target_zone, {"cctv_alerts": []})
     return {
         "status": "alerts_cleared",
-        "zone": zone,
+        "zone": target_zone,
         "active_cctv_alerts": [],
-        "risk_assessment": payload["risk_assessment"]
+        "risk_assessment": payload_response["risk_assessment"]
     }
 
 
