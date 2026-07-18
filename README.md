@@ -11,6 +11,15 @@ ZeroHarm AI is a next-generation, AI-driven **Industrial Safety Intelligence (IS
 
 ---
 
+## 👥 Collaborators
+
+- [Parinamika-13](https://github.com/Parinamika-13)
+- [SSJ-08](https://github.com/SSJ-08)
+- [vahinichilukamarri](https://github.com/vahinichilukamarri)
+- [AnishaPaturi](https://github.com/AnishaPaturi)
+
+---
+
 ## 📌 About the Project
 
 ### The Problem Context
