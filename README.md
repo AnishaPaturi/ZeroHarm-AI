@@ -285,13 +285,31 @@ This runs the API server on **`http://127.0.0.1:8000`**. The interactive Swagger
 
 ---
 
-### 💻 2. Running the Frontend Dashboard
+### 🚀 2. Running the Full Stack (Frontend + Backend)
 
-From the workspace root or the `frontend/` directory, execute:
+From the workspace root, you can start both the Next.js frontend and FastAPI backend with a single command:
+
+```bash
+npm run dev:full
+```
+
+This uses `concurrently` to run:
+- **Frontend**: Next.js dev server on `http://localhost:3000`
+- **Backend**: FastAPI server on `http://localhost:8000`
+
+Alternatively, run them in separate terminals:
+
+**Terminal 1 (Backend):**
+```bash
+npm run backend
+# or: python backend/run.py
+```
+
+**Terminal 2 (Frontend):**
 ```bash
 npm run dev
+# or: cd frontend && npm run dev
 ```
-This opens the control panel web application on **`http://localhost:3000`** (or the next available port).
 
 ---
 
