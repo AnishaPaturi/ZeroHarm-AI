@@ -257,27 +257,32 @@ export default function DigitalTwin() {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.event === 'risk_update') {
-            const updated = data.state;
-            const newZones = Object.values(updated).map((zs: any) => {
-              const existing = zones.find(z => z.zone === zs.zone);
-              const riskLevel = zs.risk_assessment?.risk_level || existing?.risk_level || 'Unknown';
-              const riskScore = zs.risk_assessment?.composite_risk_score || existing?.risk_score || 0;
-              return {
-                zone: zs.zone,
-                polygon: existing?.polygon || [],
-                centroid: existing?.centroid || [0, 0],
-                hazard_classification: existing?.hazard_classification || '',
-                risk_score: riskScore,
-                risk_level: riskLevel,
-                color: getRiskLevelColor(riskLevel).glow,
-                worker_count: zs.permits?.[0]?.workers_count || existing?.worker_count || 0,
-                action_required: zs.risk_assessment?.action_required || existing?.action_required,
-                last_updated: new Date().toISOString(),
-              } as HeatmapZone;
+          if (data.event === 'risk_update' || data.event === 'heatmap_update') {
+            const updatedZoneName = data.zone;
+            if (!updatedZoneName) return;
+
+            const riskLevel = data.risk_assessment?.risk_level || 'Unknown';
+            const riskScore = data.risk_assessment?.composite_risk_score || 0;
+            const actionRequired = data.risk_assessment?.action_required || '';
+
+            setZones((prevZones) => {
+              const newZones = prevZones.map((z) => {
+                if (z.zone === updatedZoneName) {
+                  return {
+                    ...z,
+                    risk_score: riskScore,
+                    risk_level: riskLevel,
+                    color: getRiskLevelColor(riskLevel).glow,
+                    worker_count: data.state?.permits?.[0]?.workers_count ?? z.worker_count ?? 0,
+                    action_required: actionRequired || z.action_required,
+                    last_updated: new Date().toISOString(),
+                  } as HeatmapZone;
+                }
+                return z;
+              });
+              setGasClouds(generateGasClouds(newZones));
+              return newZones;
             });
-            setZones(newZones);
-            setGasClouds(generateGasClouds(newZones));
           }
         } catch (e) {
           console.warn('[DigitalTwin] WS parse error', e);
