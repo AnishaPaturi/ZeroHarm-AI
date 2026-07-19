@@ -99,11 +99,19 @@ if __name__ == "__main__":
         print(f"Found {len(predictions)} near miss predictions:")
         for p in predictions:
             print(f" - Zone: {p['zone']}")
-            print(f"   Entries Count: {p['unauthorized_entries_count']}")
-            print(f"   Prediction: {p['prediction']}")
-            print(f"   Probability: {p['predicted_incident_probability']}%")
-            print(f"   Recommendation: {p['recommendation']}")
-            print(f"   Worker Name: {p['last_worker_name']} (ID: {p['last_worker_id']})")
+            print(f"   Entries Count: {p.get('entry_count', p.get('unauthorized_entries_count', 0))}")
+            print(f"   Prediction: {p.get('prediction')}")
+            print(f"   Probability: {p.get('predicted_incident_probability')}%")
+            
+            recs = p.get('recommendations', [])
+            rec_str = recs[0] if recs else p.get('recommendation', 'N/A')
+            print(f"   Recommendation: {rec_str}")
+            
+            history = p.get('history', [])
+            last_worker = history[-1] if history else {}
+            worker_name = last_worker.get('worker_name', p.get('last_worker_name', 'Unknown'))
+            worker_id = last_worker.get('worker_id', p.get('last_worker_id', 'Unknown'))
+            print(f"   Worker Name: {worker_name} (ID: {worker_id})")
             
     # 5. Clear alerts and check reset
     section("5. Clear CCTV alerts and verify reset")
