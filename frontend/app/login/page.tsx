@@ -71,6 +71,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-black/35 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-safety-orange focus:ring-1 focus:ring-safety-orange/40 transition-all font-mono"
                 placeholder="officer@zeroharm.ai"
+                suppressHydrationWarning
               />
             </div>
           </div>
@@ -90,6 +91,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-black/35 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-safety-orange focus:ring-1 focus:ring-safety-orange/40 transition-all font-mono"
                 placeholder="••••••••"
+                suppressHydrationWarning
               />
             </div>
           </div>
@@ -104,6 +106,7 @@ export default function LoginPage() {
             type="submit"
             disabled={isLoading}
             className="w-full mt-2 bg-gradient-to-r from-safety-orange to-amber-600 hover:from-safety-orange hover:to-amber-500 disabled:opacity-50 text-white font-semibold text-sm py-3 px-5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 border border-white/5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-safety-orange/50"
+            suppressHydrationWarning
           >
             {isLoading ? (
               <>

@@ -128,6 +128,7 @@ export default function ScenarioConsole() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/90 text-slate-200 border border-white/10 hover:text-white hover:bg-slate-800 transition-all shadow-xl shadow-black/30 font-mono text-xs focus:outline-none cursor-pointer"
+        suppressHydrationWarning
       >
         <Sliders className="w-4 h-4 text-safety-orange" />
         <span>Scenario Console</span>
@@ -175,6 +176,7 @@ export default function ScenarioConsole() {
                           ? 'bg-safety-orange border-safety-orange text-white' 
                           : 'bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10'
                       }`}
+                      suppressHydrationWarning
                     >
                       {sc}
                     </button>
@@ -187,6 +189,7 @@ export default function ScenarioConsole() {
                 <button
                   onClick={handlePauseToggle}
                   className="flex-1 py-2 rounded-lg bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all font-mono text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                  suppressHydrationWarning
                 >
                   {isPaused ? <Play className="w-3.5 h-3.5 text-green-400" /> : <Pause className="w-3.5 h-3.5 text-amber-400" />}
                   <span>{isPaused ? 'RESUME' : 'PAUSE'}</span>
@@ -194,6 +197,7 @@ export default function ScenarioConsole() {
                 <button
                   onClick={handleReset}
                   className="flex-1 py-2 rounded-lg bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all font-mono text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                  suppressHydrationWarning
                 >
                   <RefreshCw className="w-3.5 h-3.5 text-safety-orange" />
                   <span>RESET PLANT</span>

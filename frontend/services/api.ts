@@ -16,7 +16,12 @@ export async function fetchBackend<T>(endpoint: string, options?: RequestInit): 
     },
   });
   if (!res.ok) {
-    throw new Error(`API call failed: ${options?.method || 'GET'} ${endpoint} returned ${res.status}`);
+    let errorDetail = '';
+    try {
+      const errJson = await res.json();
+      errorDetail = errJson?.detail || errJson?.message || '';
+    } catch (e) {}
+    throw new Error(errorDetail || `API call failed: ${options?.method || 'GET'} ${endpoint} returned ${res.status}`);
   }
   return res.json() as Promise<T>;
 }
