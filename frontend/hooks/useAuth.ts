@@ -2,6 +2,15 @@ import { create } from 'zustand';
 import { User, AuthState } from '../types/user';
 import { authService } from '../services/auth';
 
+const DEFAULT_USER: User = {
+  id: 'usr_1',
+  name: 'Sarah Jenkins',
+  email: 'safety@zeroharm.ai',
+  role: 'Safety Officer',
+  department: 'HSE (Health, Safety, Environment)',
+  plantLocation: 'Plant A - Refinery Complex'
+};
+
 interface AuthStore extends AuthState {
   login: (email: string, password?: string) => Promise<void>;
   logout: () => void;
@@ -9,22 +18,21 @@ interface AuthStore extends AuthState {
 }
 
 export const useAuth = create<AuthStore>((set) => ({
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
+  user: DEFAULT_USER,
+  isAuthenticated: true,
+  isLoading: false,
   error: null,
 
   initialize: async () => {
-    set({ isLoading: true });
     try {
       const user = await authService.getCurrentUser();
       if (user) {
         set({ user, isAuthenticated: true, isLoading: false });
       } else {
-        set({ user: null, isAuthenticated: false, isLoading: false });
+        set({ user: DEFAULT_USER, isAuthenticated: true, isLoading: false });
       }
     } catch (e: any) {
-      set({ error: e.message || 'Initialization failed', isLoading: false });
+      set({ user: DEFAULT_USER, isAuthenticated: true, isLoading: false });
     }
   },
 

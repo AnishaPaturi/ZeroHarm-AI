@@ -131,7 +131,7 @@ export default function Navbar() {
                 <button
                   onClick={() => {
                     logout();
-                    router.push('/dashboard');
+                    router.push('/');
                   }}
                   className="p-1 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors ml-1"
                   title="Logout"
