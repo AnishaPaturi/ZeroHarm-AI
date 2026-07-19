@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { fetchBackend } from '../../services/api';
+import { fetchBackend, WS_BASE_URL } from '../../services/api';
 import { useIncident } from '../../hooks/useIncident';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -244,16 +244,34 @@ export default function DigitalTwin() {
 
   // WebSocket connection
   useEffect(() => {
-    const wsProto = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProto}//${typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1'}:8000/ws/risk-feed`;
     let ws: WebSocket | null = null;
+    let pollInterval: NodeJS.Timeout | null = null;
+
+    const startPolling = () => {
+      if (!pollInterval) {
+        console.log('[DigitalTwin] Starting fallback polling');
+        pollInterval = setInterval(fetchData, 3000);
+      }
+    };
+
+    const stopPolling = () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    };
+
     try {
+      const wsUrl = `${WS_BASE_URL}/ws/risk-feed`;
       ws = new WebSocket(wsUrl);
       wsRef.current = ws;
+
       ws.onopen = () => {
         console.log('[DigitalTwin] WebSocket connected');
+        stopPolling();
         fetchData();
       };
+
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
@@ -288,22 +306,28 @@ export default function DigitalTwin() {
           console.warn('[DigitalTwin] WS parse error', e);
         }
       };
+
       ws.onerror = () => {
         console.warn('[DigitalTwin] WS offline, fallback to polling');
-        fetchData();
+        startPolling();
       };
+
       ws.onclose = () => {
-        // Poll fallback
-        const interval = setInterval(fetchData, 3000);
-        return () => clearInterval(interval);
+        console.log('[DigitalTwin] WebSocket closed, falling back to polling');
+        startPolling();
       };
     } catch (e) {
-      fetchData();
+      console.warn('[DigitalTwin] WS connection error, falling back to polling', e);
+      startPolling();
     }
+
     return () => {
-      if (ws) ws.close();
+      if (ws) {
+        ws.close();
+      }
+      stopPolling();
     };
-  }, [fetchData, runDemoMode]);
+  }, [fetchData]);
 
   // Periodic worker fetch
   useEffect(() => {
