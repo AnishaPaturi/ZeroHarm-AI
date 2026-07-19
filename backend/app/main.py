@@ -5,7 +5,7 @@ import logging
 import os
 import numpy as np
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from pydantic import BaseModel, Field
 
 # Load environment variables from backend/.env before any component reads them.
@@ -158,6 +158,8 @@ plant_state: Dict[str, Dict[str, Any]] = {
         "maintenance_active": False,
         "shift_changeover_active": False,
         "cctv_alerts": [],
+        "restricted_entry_count": 0,
+        "restricted_entry_history": [],
         "timestamp": datetime.now().isoformat()
     },
     "Blast Furnace A": {
@@ -168,6 +170,8 @@ plant_state: Dict[str, Dict[str, Any]] = {
         "maintenance_active": False,
         "shift_changeover_active": False,
         "cctv_alerts": [],
+        "restricted_entry_count": 0,
+        "restricted_entry_history": [],
         "timestamp": datetime.now().isoformat()
     },
     "Sinter Plant": {
@@ -178,6 +182,8 @@ plant_state: Dict[str, Dict[str, Any]] = {
         "maintenance_active": True,
         "shift_changeover_active": False,
         "cctv_alerts": [],
+        "restricted_entry_count": 0,
+        "restricted_entry_history": [],
         "timestamp": datetime.now().isoformat()
     },
     "Ammonia Storage Tank": {
@@ -188,6 +194,8 @@ plant_state: Dict[str, Dict[str, Any]] = {
         "maintenance_active": False,
         "shift_changeover_active": False,
         "cctv_alerts": [],
+        "restricted_entry_count": 0,
+        "restricted_entry_history": [],
         "timestamp": datetime.now().isoformat()
     }
 }
@@ -410,6 +418,10 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any]):
         zone_state["shift_changeover_active"] = update["shift_changeover_active"]
     if "cctv_alerts" in update:
         zone_state["cctv_alerts"] = update["cctv_alerts"]
+    if "restricted_entry_count" in update:
+        zone_state["restricted_entry_count"] = update["restricted_entry_count"]
+    if "restricted_entry_history" in update:
+        zone_state["restricted_entry_history"] = update["restricted_entry_history"]
 
     zone_state["timestamp"] = datetime.now().isoformat()
 
@@ -421,6 +433,7 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any]):
             maintenance_active=zone_state["maintenance_active"],
             shift_changeover_active=zone_state["shift_changeover_active"],
             cctv_alerts=[CCTVAlert(**c) for c in zone_state.get("cctv_alerts", [])],
+            restricted_entry_count=zone_state.get("restricted_entry_count", 0),
             timestamp=zone_state["timestamp"]
         )
 
@@ -774,6 +787,8 @@ class CCTVAlertRequest(BaseModel):
     zone: str = Field(..., description="Zone where the CCTV alert was triggered")
     event_type: str = Field(..., description="Type of event: no_ppe, smoke_detected, unauthorized_entry, fire_detected")
     confidence: float = Field(..., description="Detection confidence score between 0.0 and 1.0")
+    worker_id: Optional[str] = Field(None, description="Optional ID of the worker")
+    worker_name: Optional[str] = Field(None, description="Optional name of the worker")
 
 @app.post("/api/cctv/event")
 async def trigger_cctv_event(request: CCTVAlertRequest):
@@ -782,6 +797,7 @@ async def trigger_cctv_event(request: CCTVAlertRequest):
     Saves the alert into the zone state, triggers a risk re-evaluation,
     and broadcasts the updated risk metrics.
     """
+    import random
     zone_name = request.zone
     if zone_name not in plant_state:
         raise HTTPException(status_code=404, detail=f"Zone '{zone_name}' not found.")
@@ -791,13 +807,19 @@ async def trigger_cctv_event(request: CCTVAlertRequest):
     # Initialize cctv_alerts list if not present
     if "cctv_alerts" not in zone_state:
         zone_state["cctv_alerts"] = []
+    if "restricted_entry_count" not in zone_state:
+        zone_state["restricted_entry_count"] = 0
+    if "restricted_entry_history" not in zone_state:
+        zone_state["restricted_entry_history"] = []
         
     # Append the new CCTV alert
     alert_payload = {
         "zone": request.zone,
         "event_type": request.event_type,
         "confidence": request.confidence,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
+        "worker_id": request.worker_id,
+        "worker_name": request.worker_name
     }
     
     # Check if a similar alert type is already active in this zone, if so, replace it
@@ -812,12 +834,26 @@ async def trigger_cctv_event(request: CCTVAlertRequest):
     if not replaced:
         zone_state["cctv_alerts"].append(alert_payload)
         
+    if request.event_type == "unauthorized_entry":
+        zone_state["restricted_entry_count"] += 1
+        zone_state["restricted_entry_history"].append({
+            "timestamp": alert_payload["timestamp"],
+            "worker_id": request.worker_id or f"W-{random.randint(10,99)}",
+            "worker_name": request.worker_name or random.choice(["Arjun", "Ravi", "Anil", "Suresh"])
+        })
+        
     # Trigger risk update using the state update flow
-    payload = await update_zone_state(zone_name, {"cctv_alerts": zone_state["cctv_alerts"]})
+    payload = await update_zone_state(zone_name, {
+        "cctv_alerts": zone_state["cctv_alerts"],
+        "restricted_entry_count": zone_state["restricted_entry_count"],
+        "restricted_entry_history": zone_state["restricted_entry_history"]
+    })
     return {
         "status": "alert_processed",
         "zone": zone_name,
         "active_cctv_alerts": zone_state["cctv_alerts"],
+        "restricted_entry_count": zone_state["restricted_entry_count"],
+        "restricted_entry_history": zone_state["restricted_entry_history"],
         "risk_assessment": payload["risk_assessment"]
     }
 
@@ -835,11 +871,20 @@ async def clear_cctv_events(zone: str = None, payload: Dict[str, Any] = None):
         raise HTTPException(status_code=404, detail=f"Zone '{target_zone}' not found.")
         
     plant_state[target_zone]["cctv_alerts"] = []
-    payload_response = await update_zone_state(target_zone, {"cctv_alerts": []})
+    plant_state[target_zone]["restricted_entry_count"] = 0
+    plant_state[target_zone]["restricted_entry_history"] = []
+    
+    payload_response = await update_zone_state(target_zone, {
+        "cctv_alerts": [],
+        "restricted_entry_count": 0,
+        "restricted_entry_history": []
+    })
     return {
         "status": "alerts_cleared",
         "zone": target_zone,
         "active_cctv_alerts": [],
+        "restricted_entry_count": 0,
+        "restricted_entry_history": [],
         "risk_assessment": payload_response["risk_assessment"]
     }
 
@@ -1144,6 +1189,31 @@ async def auth_login(request: LoginRequest):
         return approved_users[email_lower]
         
     raise HTTPException(status_code=404, detail="Email is not registered. Please complete the Gateway Signup Request.")
+
+
+@app.get("/api/near-misses")
+def get_near_misses():
+    """
+    Returns zones with active near miss warning predictions based on repeated restricted zone entries.
+    """
+    results = []
+    for zone_name, zone_state in plant_state.items():
+        count = zone_state.get("restricted_entry_count", 0)
+        history = zone_state.get("restricted_entry_history", [])
+        if count >= 2:
+            last_entry = history[-1] if history else {}
+            results.append({
+                "zone": zone_name,
+                "unauthorized_entries_count": count,
+                "last_entry_timestamp": last_entry.get("timestamp", datetime.now().isoformat()),
+                "last_worker_id": last_entry.get("worker_id", "Unknown"),
+                "last_worker_name": last_entry.get("worker_name", "Unknown"),
+                "predicted_incident_probability": 75.0 if count == 2 else 85.0,
+                "prediction": "High probability of incident within next shift.",
+                "recommendation": "Enforce gatehouse access control, assign supervisor safety walkthrough, execute mandatory PPE and compliance audit.",
+                "history": history
+            })
+    return results
 
 
 @app.get("/api/health")

@@ -7,7 +7,8 @@ export type ScenarioType =
   | 'Machine Overheating' 
   | 'Confined Space' 
   | 'Compound Risk' 
-  | 'Emergency Evacuation';
+  | 'Emergency Evacuation'
+  | 'Near Miss';
 
 class ScenarioEngine {
   private activeInterval: NodeJS.Timeout | null = null;
@@ -77,6 +78,42 @@ class ScenarioEngine {
             reason: 'Critical structural manifold rupture and high flammable vapor release.'
           })
         });
+      } else if (type === 'Near Miss') {
+        // Clear previous state first
+        await fetchBackend('/api/cctv/clear?zone=Coke%20Oven%20Battery%201', { method: 'POST' });
+        
+        // Trigger first unauthorized entry
+        this.addLogToConsole('Near Miss Simulation: Worker Arjun detected entering Coke Oven Battery 1 restricted area...');
+        await fetchBackend('/api/cctv/event', {
+          method: 'POST',
+          body: JSON.stringify({
+            zone: 'Coke Oven Battery 1',
+            event_type: 'unauthorized_entry',
+            confidence: 0.91,
+            worker_id: 'W-001',
+            worker_name: 'Arjun'
+          })
+        });
+
+        // Trigger second unauthorized entry after 1.5 seconds to build near-miss prediction
+        setTimeout(async () => {
+          this.addLogToConsole('Near Miss Simulation: Worker Arjun repeatedly entering Coke Oven Battery 1 restricted area...');
+          try {
+            await fetchBackend('/api/cctv/event', {
+              method: 'POST',
+              body: JSON.stringify({
+                zone: 'Coke Oven Battery 1',
+                event_type: 'unauthorized_entry',
+                confidence: 0.88,
+                worker_id: 'W-001',
+                worker_name: 'Arjun'
+              })
+            });
+            this.addLogToConsole('Near Miss Simulation: System has generated a Near-Miss Prediction for Coke Oven Battery 1.');
+          } catch (err) {
+            console.warn('Failed to send second CCTV alert for near miss:', err);
+          }
+        }, 1500);
       }
 
       // Start continuous backend ticking to simulate live fluctuations and worker movements

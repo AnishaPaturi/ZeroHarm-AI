@@ -321,6 +321,32 @@ def evaluate_rules(req: RiskCheckRequest) -> Tuple[float, str, List[FactorRisk],
                 ))
                 composite_score += cv_risk
 
+    # 8. Near Miss Prediction: Repeated Restricted Area Entries
+    restricted_entry_count = getattr(req, "restricted_entry_count", 0) or 0
+    if restricted_entry_count >= 2:
+        nm_score = 75.0 if restricted_entry_count == 2 else 85.0
+        # If gas or other hazard is active, this is even more critical
+        if gas_score > 40.0:
+            nm_score = max(nm_score, 95.0)
+            
+        composite_score = max(composite_score, nm_score)
+        
+        worker_details = ""
+        unauthorized_alerts = [a for a in getattr(req, "cctv_alerts", []) if a.event_type == "unauthorized_entry"]
+        if unauthorized_alerts and unauthorized_alerts[0].worker_name:
+            worker_details = f" by worker {unauthorized_alerts[0].worker_name}"
+            
+        factors.append(FactorRisk(
+            name="Near Miss: Repeated Restricted Area Entry",
+            score=nm_score,
+            contribution=0.0,
+            details=(
+                f"NEAR MISS PREDICTION: Worker repeatedly entering restricted area '{req.zone}'{worker_details} "
+                f"({restricted_entry_count} entries logged). Current shift telemetry is nominal, "
+                f"but system predicts a High Probability of incident within the next shift if patterns continue."
+            )
+        ))
+
     # Clamp composite score to 100
     composite_score = min(composite_score, 100.0)
     

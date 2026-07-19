@@ -29,6 +29,8 @@ class CCTVAlert(BaseModel):
     event_type: str = Field(..., description="Type of event: no_ppe, smoke_detected, unauthorized_entry, fire_detected")
     confidence: float = Field(..., description="Detection confidence score between 0.0 and 1.0")
     timestamp: str = Field(..., description="Timestamp of the event in ISO format")
+    worker_id: Optional[str] = Field(None, description="Optional ID of the worker")
+    worker_name: Optional[str] = Field(None, description="Optional name of the worker")
 
 class RiskCheckRequest(BaseModel):
     zone: str = Field(..., description="Zone being checked (e.g., Coke Oven Battery 1)")
@@ -37,6 +39,7 @@ class RiskCheckRequest(BaseModel):
     maintenance_active: bool = Field(False, description="Is general maintenance active in this zone")
     shift_changeover_active: bool = Field(False, description="Is a shift changeover currently in progress")
     cctv_alerts: List[CCTVAlert] = Field([], description="List of active CCTV alerts in this zone")
+    restricted_entry_count: int = Field(0, description="Number of unauthorized entries in this zone")
     timestamp: str = Field(..., description="Timestamp of the reading in ISO format")
 
 class RiskCheckResponse(BaseModel):

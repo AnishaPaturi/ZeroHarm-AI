@@ -13,14 +13,16 @@ TEST_SCRIPTS = [
     ("CCTV / Computer Vision Analytics", "backend/test_cctv.py"),
     ("Temporal Rate-of-Change Tracking", "backend/test_temporal.py"),
     ("Plant Topology cascading risk", "backend/test_topology.py"),
-    ("Black Box Evidence Preservation", "backend/test_blackbox.py")
+    ("Black Box Evidence Preservation", "backend/test_blackbox.py"),
+    ("Near Miss Prediction Engine", "backend/test_near_miss.py")
 ]
 
 def check_server_running():
     try:
         response = requests.get(f"{BASE_URL}/api/health", timeout=3)
         return response.status_code == 200
-    except Exception:
+    except Exception as e:
+        print(f"DEBUG: check_server_running failed with exception: {type(e).__name__}: {e}")
         return False
 
 def run_script(name, path):

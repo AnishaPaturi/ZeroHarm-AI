@@ -11,11 +11,17 @@ Make sure the FastAPI server is running on http://127.0.0.1:8000 before running:
     python backend/test_blackbox.py
 """
 
+import sys
 import urllib.request
 import json
 import time
 import os
 import stat
+
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except AttributeError:
+    pass
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -110,7 +116,10 @@ if __name__ == "__main__":
     print(f"Composite Risk Score: {latest_report['composite_risk_score']}")
     print(f"Evacuation Status: {latest_report['evacuation_status']}")
     print(f"Evidence Sealed File Path: {latest_report.get('evidence_file_path')}")
-    print(f"Narrative Summary: {latest_report['narrative']}")
+    try:
+        print(f"Narrative Summary: {latest_report['narrative']}")
+    except UnicodeEncodeError:
+        print(f"Narrative Summary: {latest_report['narrative'].encode('ascii', errors='replace').decode('ascii')}")
 
     # 4. Verify Black Box File on Filesystem
     section("4. Verifying Flight Data Recorder Block File")

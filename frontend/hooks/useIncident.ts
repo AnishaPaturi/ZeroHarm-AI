@@ -25,6 +25,7 @@ interface IncidentStore {
   eventLogs: AppEvent[];
   aiReasoning: { reasoning: string; recommendations: string[]; detectedHazards: string[] };
   activeDebate: any | null;
+  nearMisses: any[];
 
   // Diagnostic states
   activeIncident: Incident | null;
@@ -45,6 +46,7 @@ interface IncidentStore {
   setEmergency: (active: boolean, msg?: string) => void;
   setAIReasoning: (reasoning: string, recommendations: string[], hazards: string[]) => void;
   setActiveDebate: (debate: any) => void;
+  setNearMisses: (nearMisses: any[]) => void;
   logEvent: (event: AppEvent) => void;
   resetStore: () => void;
 
@@ -72,6 +74,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
     detectedHazards: []
   },
   activeDebate: null,
+  nearMisses: [],
 
   activeIncident: null,
   isLoading: false,
@@ -95,6 +98,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
   setEmergency: (active, msg) => set({ emergencyMode: active, evacuationMessage: msg || '' }),
   setAIReasoning: (reasoning, recommendations, detectedHazards) => set({ aiReasoning: { reasoning, recommendations, detectedHazards } }),
   setActiveDebate: (debate) => set({ activeDebate: debate }),
+  setNearMisses: (nearMisses) => set({ nearMisses }),
   logEvent: (event) => set((s) => ({ eventLogs: [event, ...s.eventLogs].slice(0, 100) })), // limit audit log count
 
   resetStore: () => set({
@@ -112,6 +116,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
       detectedHazards: ['None']
     },
     activeDebate: null,
+    nearMisses: [],
     activeIncident: null,
     isAnalyzing: false
   }),

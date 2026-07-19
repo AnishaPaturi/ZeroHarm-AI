@@ -76,6 +76,16 @@ async function syncCompliance() {
     console.warn('Failed to sync compliance records from backend:', err);
   }
 }
+
+// Function to fetch near miss predictions from the backend and update store
+async function syncNearMisses() {
+  try {
+    const nearMisses = await fetchBackend<any[]>('/api/near-misses');
+    useIncident.setState({ nearMisses });
+  } catch (err) {
+    console.warn('Failed to sync near-miss predictions from backend:', err);
+  }
+}
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let workersInterval: NodeJS.Timeout | null = null;
 let listRefreshInterval: NodeJS.Timeout | null = null;
@@ -167,6 +177,7 @@ function connectWebSocket() {
     syncAlerts();
     syncIncidents();
     syncCompliance();
+    syncNearMisses();
   };
 
   ws.onmessage = (event) => {
@@ -272,6 +283,7 @@ function connectWebSocket() {
         // Refresh alerts and incidents lists
         syncAlerts();
         syncIncidents();
+        syncNearMisses();
         
       } else if (data.event === 'collaborative_debate') {
         const { zone, debate } = data;
@@ -323,6 +335,7 @@ export const initDecisionEngine = () => {
     syncAlerts();
     syncIncidents();
     syncCompliance();
+    syncNearMisses();
     
     // Set up continuous synchronization loops
     workersInterval = setInterval(syncWorkers, 2500);
@@ -330,6 +343,7 @@ export const initDecisionEngine = () => {
       syncAlerts();
       syncIncidents();
       syncCompliance();
+      syncNearMisses();
     }, 5000);
   }
 

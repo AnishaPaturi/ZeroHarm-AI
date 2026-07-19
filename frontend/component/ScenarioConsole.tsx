@@ -166,7 +166,8 @@ export default function ScenarioConsole() {
                     'PPE Breach', 
                     'Machine Overheating', 
                     'Confined Space', 
-                    'Compound Risk'
+                    'Compound Risk',
+                    'Near Miss'
                   ].map((sc) => (
                     <button
                       key={sc}

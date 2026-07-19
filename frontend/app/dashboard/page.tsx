@@ -44,6 +44,7 @@ export default function Dashboard() {
   const aiReasoning = useIncident(state => state.aiReasoning);
   const emergencyMode = useIncident(state => state.emergencyMode);
   const evacuationMessage = useIncident(state => state.evacuationMessage);
+  const nearMisses = useIncident(state => state.nearMisses);
 
   // computed derived selectors
   const safetyRating = useIncident(selectPlantSafetyRating);
@@ -373,6 +374,63 @@ export default function Dashboard() {
 
         {/* Real-time Alert Ticker (Right Column) */}
         <div className="flex flex-col gap-6">
+          
+          {/* AI Safety Forecast & Near-Miss Predictions */}
+          <div className="glass-panel border border-white/10 rounded-3xl p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="font-heading text-base font-bold text-white tracking-wide flex items-center gap-2">
+                  <BrainCircuit className="w-5 h-5 text-safety-orange animate-pulse" />
+                  <span>AI Near-Miss Incident Forecast</span>
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">Shift probability predictions and root causes</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {nearMisses.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-6 text-center bg-black/25 border border-dashed border-white/5 rounded-2xl p-4 text-xs text-slate-500">
+                  <Shield className="w-8 h-8 text-slate-600 mb-2" />
+                  <p className="italic">No active near-miss risks predicted. Shift forecast nominal.</p>
+                </div>
+              ) : (
+                nearMisses.map((nm, idx) => (
+                  <div 
+                    key={idx} 
+                    className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 flex flex-col gap-2.5 text-left border-l-4 border-l-red-500"
+                  >
+                    <div className="flex justify-between items-start gap-4">
+                      <div>
+                        <span className="text-[9px] font-bold font-mono text-red-400 uppercase bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded">
+                          Incident Predictor
+                        </span>
+                        <h4 className="text-xs font-bold text-white mt-1.5">{nm.zone}</h4>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[9px] text-slate-400 font-mono block">PROBABILITY</span>
+                        <span className="text-base font-extrabold text-red-400 font-mono">{nm.predicted_incident_probability}%</span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-300 font-medium leading-relaxed bg-black/20 p-2.5 rounded-lg border border-white/5 font-mono text-[11px]">
+                      <span className="text-red-400 font-bold block mb-1 text-[9px]">PREDICTION:</span>
+                      {nm.prediction}
+                    </p>
+
+                    <div className="text-[10px] text-slate-400 leading-relaxed font-sans">
+                      <span className="text-slate-500 font-semibold block uppercase text-[9px] tracking-wider mb-1">Root Cause Indicators:</span>
+                      Worker repeatedly entering restricted area ({nm.unauthorized_entries_count} entries logged). Last worker: <span className="text-slate-200 font-semibold">{nm.last_worker_name} ({nm.last_worker_id})</span>.
+                    </div>
+
+                    <div className="bg-white/5 p-3 rounded-lg border border-white/5 mt-1 text-[11px]">
+                      <span className="text-safety-orange font-bold font-mono text-[9px] block uppercase mb-1">Recommended Directives:</span>
+                      <p className="text-slate-300 leading-relaxed">{nm.recommendation}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
           <div className="glass-panel border border-white/10 rounded-3xl p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
