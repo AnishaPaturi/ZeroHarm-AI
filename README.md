@@ -116,6 +116,9 @@ Enables safety teams to upload new regulatory policies, shift logs, or standard 
 ### 13. Serialized ML Model Persistence
 Maintains supervised Random Forest and unsupervised Isolation Forest anomaly scoring models. Features automated pickle/joblib serialization to disk, preventing delays and retrains during server reboot cycles.
 
+### 14. Gatehouse Onboarding System (Tiered Trust Model)
+Enforces a secure, multi-stage trust clearance system for safety personnel in compliance with Factories Act Sec. 87. Prevents public domain signups (gmail/yahoo/etc.), collects statutory safety certificates, and routes registration requests to a "pending sponsorship" queue visible to verified plant administrators.
+
 ---
 
 ## 💡 Innovation Pipeline (20x AI Features)
@@ -430,6 +433,10 @@ Below is the complete file and directory layout of the ZeroHarm AI project works
            ├── 📄 not-found.tsx        # Standard 404 page
            ├── 📂 login
            │    └── 📄 page.tsx        # Sign-in portal page
+           ├── 📂 signup
+           │    └── 📄 page.tsx        # Multi-step safety officer onboarding request wizard
+           ├── 📂 admin
+           │    └── 📄 page.tsx        # Gatehouse onboarding & sponsorship approval queue
            ├── 📂 dashboard
            │    └── 📄 page.tsx        # Core control center dashboard
            ├── 📂 analysis
