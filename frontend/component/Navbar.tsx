@@ -20,7 +20,7 @@ import { useNotifications } from '../hooks/useNotifications';
 import { useIncident, selectActiveAlertCount } from '../hooks/useIncident';
 import NotificationPanel from './NotificationPanel';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '../lib/utils';
 
 export default function Navbar() {
@@ -29,6 +29,7 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const unreadCount = useIncident(selectActiveAlertCount);
   const pathname = usePathname();
+  const router = useRouter();
 
   const showNavLinks = isAuthenticated && user && pathname !== '/' && pathname !== '/login';
 
@@ -123,7 +124,10 @@ export default function Navbar() {
                   {user.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    router.push('/dashboard');
+                  }}
                   className="p-1 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors ml-1"
                   title="Logout"
                 >
