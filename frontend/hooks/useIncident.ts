@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Incident, IncidentAIAnalysis, Comment, IncidentStatus, IncidentSeverity } from '../types/incident';
-import { ComplianceRecord, SafetyAlert } from '../types/analytics';
+import { ComplianceRecord, SafetyAlert, NearMissPrediction } from '../types/analytics';
 import { AppEvent } from '../lib/eventBus';
 import { fetchBackend } from '../services/api';
 
@@ -25,7 +25,7 @@ interface IncidentStore {
   eventLogs: AppEvent[];
   aiReasoning: { reasoning: string; recommendations: string[]; detectedHazards: string[] };
   activeDebate: any | null;
-  nearMisses: any[];
+  nearMisses: NearMissPrediction[];
 
   // Diagnostic states
   activeIncident: Incident | null;
@@ -74,7 +74,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
     detectedHazards: []
   },
   activeDebate: null,
-  nearMisses: [],
+  nearMisses: [] as NearMissPrediction[],
 
   activeIncident: null,
   isLoading: false,
@@ -116,7 +116,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
       detectedHazards: ['None']
     },
     activeDebate: null,
-    nearMisses: [],
+    nearMisses: [] as NearMissPrediction[],
     activeIncident: null,
     isAnalyzing: false
   }),

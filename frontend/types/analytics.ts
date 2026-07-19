@@ -36,6 +36,30 @@ export interface ComplianceRecord {
   checklist?: { id: string; text: string; checked: boolean }[];
 }
 
+export interface NearMissPrediction {
+  zone: string;
+  prediction_timestamp: string;
+  predicted_incident_probability: number;
+  severity: 'Critical' | 'High' | 'Medium' | 'Low';
+  prediction_horizon: string;
+  prediction: string;
+  root_causes: string[];
+  recommendations: string[];
+  confidence_score: number;
+  trend: 'escalating' | 'stable' | 'nominal';
+  entry_count: number;
+  unique_workers_identified: number;
+  recent_workers: string[];
+  history: any[];
+  factors: {
+    frequency_score: number;
+    acceleration_score: number;
+    environmental_score: number;
+    worker_pattern_score: number;
+    time_risk_score: number;
+  };
+}
+
 export interface SafetyAlert {
   id: string;
   message: string;

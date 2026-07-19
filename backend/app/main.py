@@ -20,6 +20,7 @@ from .engine.models import RiskCheckRequest, RiskCheckResponse, GasReadings, Per
 from .engine.rules import evaluate_rules
 from .engine.ml_anomaly import CompoundRiskMLModel
 from .engine.collaborative_reasoning import MultiAgentCollaborativeReasoning, CollaborativeReasoningResponse
+from .engine.near_miss_predictor import NearMissPredictionEngine
 
 # ---------------------------------------------------------------------------
 # PART C — Incident Pattern Intelligence & Compliance Audit Agent
@@ -73,6 +74,7 @@ app.add_middleware(
 
 # --- Person A globals ---
 ml_model = CompoundRiskMLModel()
+near_miss_engine = NearMissPredictionEngine()
 risk_history: List[Dict[str, Any]] = []
 MAX_HISTORY_LEN = 100
 
@@ -1194,26 +1196,47 @@ async def auth_login(request: LoginRequest):
 @app.get("/api/near-misses")
 def get_near_misses():
     """
-    Returns zones with active near miss warning predictions based on repeated restricted zone entries.
+    Innovation 5: Near Miss Prediction
+    Returns zones with active near-miss warning predictions based on behavioral pattern analysis.
+    Uses multi-factor scoring (frequency, acceleration, environmental, worker pattern, time-risk).
     """
     results = []
     for zone_name, zone_state in plant_state.items():
-        count = zone_state.get("restricted_entry_count", 0)
-        history = zone_state.get("restricted_entry_history", [])
-        if count >= 2:
-            last_entry = history[-1] if history else {}
-            results.append({
-                "zone": zone_name,
-                "unauthorized_entries_count": count,
-                "last_entry_timestamp": last_entry.get("timestamp", datetime.now().isoformat()),
-                "last_worker_id": last_entry.get("worker_id", "Unknown"),
-                "last_worker_name": last_entry.get("worker_name", "Unknown"),
-                "predicted_incident_probability": 75.0 if count == 2 else 85.0,
-                "prediction": "High probability of incident within next shift.",
-                "recommendation": "Enforce gatehouse access control, assign supervisor safety walkthrough, execute mandatory PPE and compliance audit.",
-                "history": history
-            })
+        prediction = near_miss_engine.predict(zone_name, zone_state)
+        if prediction:
+            results.append(prediction)
+    results.sort(key=lambda x: x["predicted_incident_probability"], reverse=True)
     return results
+
+
+@app.get("/api/near-miss/predict")
+def predict_near_miss(zone: str):
+    """
+    Innovation 5: Detailed near-miss prediction for a specific zone.
+    Returns full prediction object including factor breakdown, confidence, and trend.
+    """
+    if zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Zone '{zone}' not found.")
+    prediction = near_miss_engine.predict(zone, plant_state[zone])
+    if not prediction:
+        return {
+            "zone": zone,
+            "prediction_timestamp": datetime.now().isoformat(),
+            "predicted_incident_probability": 0.0,
+            "severity": "Low",
+            "prediction_horizon": "next_shift",
+            "prediction": "No near-miss patterns detected. Standard monitoring applies.",
+            "root_causes": [],
+            "recommendations": ["Maintain normal surveillance protocols."],
+            "confidence_score": 90.0,
+            "trend": "nominal",
+            "entry_count": 0,
+            "unique_workers_identified": 0,
+            "recent_workers": [],
+            "history": [],
+            "factors": {},
+        }
+    return prediction
 
 
 @app.get("/api/health")

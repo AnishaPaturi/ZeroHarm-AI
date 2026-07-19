@@ -1,0 +1,228 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-89C0EE81",
+    "zone": "Coke Oven Battery 1",
+    "recorded_at": "2026-07-19T06:21:16.061438+00:00",
+    "record_count": 6,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": [
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.7,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T11:50:50.166362",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.7
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 33.4,
+      "risk_level": "Safe",
+      "rule_score": 47.8,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 52.3,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        },
+        {
+          "name": "CCTV: Unauthorized Zone Entry",
+          "score": 22.8,
+          "contribution": 47.7,
+          "details": "CCTV Alert: Unauthorized personnel detected in restricted zone 'Coke Oven Battery 1' (91% confidence)."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T11:50:50.186448",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 33.4
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 49.7,
+      "risk_level": "Warning",
+      "rule_score": 75.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 20.5,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        },
+        {
+          "name": "CCTV: Unauthorized Zone Entry",
+          "score": 22.0,
+          "contribution": 18.0,
+          "details": "CCTV Alert: Unauthorized personnel detected in restricted zone 'Coke Oven Battery 1' (88% confidence)."
+        },
+        {
+          "name": "Near Miss: Repeated Restricted Area Entry",
+          "score": 75.0,
+          "contribution": 61.5,
+          "details": "NEAR MISS PREDICTION: Worker repeatedly entering restricted area 'Coke Oven Battery 1' by worker Arjun (2 entries logged). Current shift telemetry is nominal, but system predicts a High Probability of incident within the next shift if patterns continue."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T11:50:50.206769",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 49.7
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 85.0,
+      "risk_level": "Critical",
+      "rule_score": 85.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 18.8,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        },
+        {
+          "name": "CCTV: Unauthorized Zone Entry",
+          "score": 23.0,
+          "contribution": 17.3,
+          "details": "CCTV Alert: Unauthorized personnel detected in restricted zone 'Coke Oven Battery 1' (92% confidence)."
+        },
+        {
+          "name": "Near Miss: Repeated Restricted Area Entry",
+          "score": 85.0,
+          "contribution": 63.9,
+          "details": "NEAR MISS PREDICTION: Worker repeatedly entering restricted area 'Coke Oven Battery 1' by worker Ravi (3 entries logged). Current shift telemetry is nominal, but system predicts a High Probability of incident within the next shift if patterns continue."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T11:50:50.236188",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 85.0
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.7,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T11:50:56.640694",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.7
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 52.0,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 17.2,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 66.2,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 1.28 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 16.6,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T11:51:10.116751",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 1.28,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    }
+  ]
+}

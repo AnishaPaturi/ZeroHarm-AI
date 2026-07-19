@@ -1,6 +1,7 @@
 import { useIncident } from '../hooks/useIncident';
 import { WS_BASE_URL, fetchBackend } from './api';
 import { mapBackendReport } from './incident';
+import { NearMissPrediction } from '../types/analytics';
 
 let ws: WebSocket | null = null;
 
@@ -80,10 +81,20 @@ async function syncCompliance() {
 // Function to fetch near miss predictions from the backend and update store
 async function syncNearMisses() {
   try {
-    const nearMisses = await fetchBackend<any[]>('/api/near-misses');
+    const nearMisses = await fetchBackend<NearMissPrediction[]>('/api/near-misses');
     useIncident.setState({ nearMisses });
   } catch (err) {
     console.warn('Failed to sync near-miss predictions from backend:', err);
+  }
+}
+
+// Function to fetch detailed near-miss prediction for a specific zone
+export async function fetchNearMissPrediction(zone: string): Promise<NearMissPrediction | null> {
+  try {
+    return await fetchBackend<NearMissPrediction>(`/api/near-miss/predict?zone=${encodeURIComponent(zone)}`);
+  } catch (err) {
+    console.warn('Failed to fetch near-miss prediction:', err);
+    return null;
   }
 }
 let reconnectTimeout: NodeJS.Timeout | null = null;
