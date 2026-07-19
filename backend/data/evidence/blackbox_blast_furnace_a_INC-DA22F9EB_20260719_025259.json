@@ -1,0 +1,479 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-DA22F9EB",
+    "zone": "Blast Furnace A",
+    "recorded_at": "2026-07-19T02:52:59.065296+00:00",
+    "record_count": 13,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": [
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 7.3,
+      "risk_level": "Safe",
+      "rule_score": 5.0,
+      "ml_score": 10.8,
+      "factors": [
+        {
+          "name": "Normal Operations (Clean Telemetry)",
+          "score": 5.0,
+          "contribution": 100.0,
+          "details": "No active hazardous permits, no maintenance, and all sensors reporting green."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:21:45.537907",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 4.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.04,
+        "d_co_dt": -0.834,
+        "d_pressure_dt": -0.0092
+      },
+      "composite_score": 7.3
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 34.0,
+      "risk_level": "Safe",
+      "rule_score": 35.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 42.9,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 57.1,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:21:45.717468",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 4.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.04,
+        "d_co_dt": -0.834,
+        "d_pressure_dt": -0.0092
+      },
+      "composite_score": 34.0
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 74.0,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 72.5,
+          "contribution": 67.4,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 55.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 14.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 18.6,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:21:51.697884",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 55.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.6,
+        "d_co_dt": -1.188,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 74.0,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 100.0,
+          "contribution": 42.6,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 110.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 42.6,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 2.01 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 6.4,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 8.5,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:21:57.795092",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 110.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.6,
+        "d_co_dt": 2.014,
+        "d_pressure_dt": 0.0105
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 24.9,
+      "risk_level": "Safe",
+      "rule_score": 31.9,
+      "ml_score": 14.4,
+      "factors": [
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 31.9,
+          "contribution": 100.0,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 0.32 ppm/s. Indication of a process gas leak."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:21:57.869398",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 8.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 29.5,
+        "pressure": 1.02,
+        "d_co_dt": 0.324,
+        "d_pressure_dt": -0.0016
+      },
+      "composite_score": 24.9
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 7.3,
+      "risk_level": "Safe",
+      "rule_score": 5.0,
+      "ml_score": 10.8,
+      "factors": [
+        {
+          "name": "Normal Operations (Clean Telemetry)",
+          "score": 5.0,
+          "contribution": 100.0,
+          "details": "No active hazardous permits, no maintenance, and all sensors reporting green."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:20.718947",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 4.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.04,
+        "d_co_dt": -1.757,
+        "d_pressure_dt": -0.0193
+      },
+      "composite_score": 7.3
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 34.0,
+      "risk_level": "Safe",
+      "rule_score": 35.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 42.9,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 57.1,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:20.916224",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 4.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.04,
+        "d_co_dt": -1.757,
+        "d_pressure_dt": -0.0193
+      },
+      "composite_score": 34.0
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 74.0,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 72.5,
+          "contribution": 67.4,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 55.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 14.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 18.6,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:33.190349",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 55.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.6,
+        "d_co_dt": -1.554,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 74.0,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 100.0,
+          "contribution": 42.6,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 110.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 42.6,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 2.54 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 6.4,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 8.5,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:38.011406",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 110.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.6,
+        "d_co_dt": 2.541,
+        "d_pressure_dt": 0.0144
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 8.8,
+      "risk_level": "Safe",
+      "rule_score": 5.0,
+      "ml_score": 14.4,
+      "factors": [
+        {
+          "name": "Normal Operations (Clean Telemetry)",
+          "score": 5.0,
+          "contribution": 100.0,
+          "details": "No active hazardous permits, no maintenance, and all sensors reporting green."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:38.087613",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 8.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 29.5,
+        "pressure": 1.02,
+        "d_co_dt": 0.23,
+        "d_pressure_dt": -0.0012
+      },
+      "composite_score": 8.8
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 7.3,
+      "risk_level": "Safe",
+      "rule_score": 5.0,
+      "ml_score": 10.8,
+      "factors": [
+        {
+          "name": "Normal Operations (Clean Telemetry)",
+          "score": 5.0,
+          "contribution": 100.0,
+          "details": "No active hazardous permits, no maintenance, and all sensors reporting green."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:48.213864",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 4.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.04,
+        "d_co_dt": -3.394,
+        "d_pressure_dt": -0.0373
+      },
+      "composite_score": 7.3
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 34.0,
+      "risk_level": "Safe",
+      "rule_score": 35.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 42.9,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 57.1,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:48.368860",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 4.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.04,
+        "d_co_dt": -3.394,
+        "d_pressure_dt": -0.0373
+      },
+      "composite_score": 34.0
+    },
+    {
+      "zone": "Blast Furnace A",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 74.0,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 72.5,
+          "contribution": 67.4,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 55.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 14.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Shift Changeover Risk",
+          "score": 20.0,
+          "contribution": 18.6,
+          "details": "Shift changeover in progress. Historical data shows heighted risk due to handoff communication gaps. Critical: Handover is occurring during active equipment maintenance."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-19T08:22:54.015646",
+      "gas_readings": {
+        "o2": 20.9,
+        "co": 55.0,
+        "ch4_lfl": 0.1,
+        "h2s": 0.0,
+        "temperature": 31.0,
+        "pressure": 1.6,
+        "d_co_dt": -3.436,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    }
+  ]
+}

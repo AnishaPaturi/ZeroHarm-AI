@@ -1,4 +1,5 @@
 import { User } from '../types/user';
+import { fetchBackend } from './api';
 
 const MOCK_USERS: Record<string, User> = {
   'safety@zeroharm.ai': {
@@ -29,29 +30,18 @@ const MOCK_USERS: Record<string, User> = {
 
 export const authService = {
   login: async (email: string, password?: string): Promise<User> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const user = MOCK_USERS[email.toLowerCase().trim()];
-        let loggedInUser: User;
-        if (user) {
-          loggedInUser = user;
-        } else {
-          // Allow login for custom emails
-          loggedInUser = {
-            id: 'usr_custom',
-            name: email.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()),
-            email: email,
-            role: 'Site Engineer',
-            department: 'Production Operations',
-            plantLocation: 'Plant A - Refinery Complex'
-          };
-        }
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('zeroharm_user', JSON.stringify(loggedInUser));
-        }
-        resolve(loggedInUser);
-      }, 800);
-    });
+    try {
+      const user = await fetchBackend<User>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('zeroharm_user', JSON.stringify(user));
+      }
+      return user;
+    } catch (e: any) {
+      throw new Error(e.message || 'Authentication failed');
+    }
   },
 
   getCurrentUser: async (): Promise<User | null> => {
@@ -75,5 +65,30 @@ export const authService = {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('zeroharm_user');
     }
+  },
+
+  signup: async (signupData: any): Promise<any> => {
+    return fetchBackend('/api/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify(signupData)
+    });
+  },
+
+  getPendingUsers: async (): Promise<any[]> => {
+    return fetchBackend<any[]>('/api/auth/pending');
+  },
+
+  approveUser: async (email: string): Promise<any> => {
+    return fetchBackend('/api/auth/approve', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+  },
+
+  rejectUser: async (email: string): Promise<any> => {
+    return fetchBackend('/api/auth/reject', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
   }
 };

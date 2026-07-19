@@ -6,6 +6,7 @@ import {
   Bell, 
   AlertTriangle, 
   User, 
+  Users,
   LogOut,
   LayoutDashboard, 
   FileText, 
@@ -42,6 +43,10 @@ export default function Navbar() {
     { label: 'Analytics', fullLabel: 'Data Storytelling', path: '/analytics', icon: BarChart3 },
     { label: 'Compliance', fullLabel: 'Compliance Audits', path: '/compliance', icon: BookOpen },
   ];
+
+  if (user && (user.role === 'Safety Officer' || user.role === 'Plant Manager')) {
+    NAV_ITEMS.push({ label: 'Gatehouse', fullLabel: 'Gatehouse Approvals', path: '/admin', icon: Users });
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">

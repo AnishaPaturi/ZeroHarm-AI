@@ -991,6 +991,161 @@ def demo_scenario():
     return get_demo_scenario()
 
 
+# --- Onboarding & Sponsorship Queue (Gatehouse) ---
+class SafetyOfficerSignupRequest(BaseModel):
+    fullName: str
+    email: str
+    employeeId: str
+    mobile: str
+    govId: str = None
+    companyName: str
+    plantLocation: str
+    department: str
+    designation: str
+    reportingManagerName: str
+    reportingManagerEmail: str
+    certNumber: str = None
+    certAuthority: str = None
+    certExpiry: str = None
+    certFileName: str = None
+    requestedScopes: List[str]
+
+# Global databases
+pending_users: Dict[str, Dict[str, Any]] = {}
+approved_users: Dict[str, Dict[str, Any]] = {}
+
+# Pre-populate with default mock users
+MOCK_ACCOUNTS = {
+    "safety@zeroharm.ai": {
+        "id": "usr_1",
+        "name": "Sarah Jenkins",
+        "email": "safety@zeroharm.ai",
+        "role": "Safety Officer",
+        "department": "HSE (Health, Safety, Environment)",
+        "plantLocation": "Plant A - Refinery Complex"
+    },
+    "manager@zeroharm.ai": {
+        "id": "usr_2",
+        "name": "David Vance",
+        "email": "manager@zeroharm.ai",
+        "role": "Plant Manager",
+        "department": "Plant Operations",
+        "plantLocation": "Plant A - Refinery Complex"
+    },
+    "inspector@zeroharm.ai": {
+        "id": "usr_3",
+        "name": "Marcus Brody",
+        "email": "inspector@zeroharm.ai",
+        "role": "Industrial Inspector",
+        "department": "Compliance Auditing",
+        "plantLocation": "Plant B - Chemical Storage"
+    }
+}
+approved_users.update(MOCK_ACCOUNTS)
+
+@app.post("/api/auth/signup")
+async def auth_signup(request: SafetyOfficerSignupRequest):
+    email_lower = request.email.strip().lower()
+    
+    if email_lower in approved_users:
+        raise HTTPException(status_code=400, detail="An account with this email is already registered and approved.")
+    if email_lower in pending_users:
+        raise HTTPException(status_code=400, detail="A registration request for this email is already pending approval.")
+        
+    # Domain validation
+    public_domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "aol.com", "icloud.com", "mail.com", "zoho.com"]
+    domain = email_lower.split("@")[-1] if "@" in email_lower else ""
+    if not domain or domain in public_domains:
+        raise HTTPException(status_code=400, detail=f"Public domain '@{domain}' is rejected. Please sign up using your company's official corporate email.")
+        
+    pending_users[email_lower] = {
+        "fullName": request.fullName,
+        "email": email_lower,
+        "employeeId": request.employeeId,
+        "mobile": request.mobile,
+        "govId": request.govId,
+        "companyName": request.companyName,
+        "plantLocation": request.plantLocation,
+        "department": request.department,
+        "designation": request.designation,
+        "reportingManagerName": request.reportingManagerName,
+        "reportingManagerEmail": request.reportingManagerEmail,
+        "certNumber": request.certNumber,
+        "certAuthority": request.certAuthority,
+        "certExpiry": request.certExpiry,
+        "certFileName": request.certFileName,
+        "requestedScopes": request.requestedScopes,
+        "submittedAt": datetime.now().isoformat(),
+        "status": "pending"
+    }
+    return {"status": "pending_approval", "message": "Access request submitted to your plant safety administrator."}
+
+@app.get("/api/auth/pending")
+async def get_pending_users():
+    return list(pending_users.values())
+
+class ApprovalRequest(BaseModel):
+    email: str
+
+@app.post("/api/auth/approve")
+async def approve_user(request: ApprovalRequest):
+    email_lower = request.email.strip().lower()
+    if email_lower not in pending_users:
+        raise HTTPException(status_code=404, detail="Access request not found.")
+        
+    user_data = pending_users.pop(email_lower)
+    
+    role_map = {
+        "safety officer": "Safety Officer",
+        "plant safety head": "Safety Officer",
+        "plant manager": "Plant Manager",
+        "compliance manager": "Compliance Officer",
+        "compliance officer": "Compliance Officer",
+        "inspector": "Industrial Inspector",
+        "industrial inspector": "Industrial Inspector",
+    }
+    designation_key = user_data["designation"].lower().strip()
+    role = "Site Engineer"
+    for k, v in role_map.items():
+        if k in designation_key:
+            role = v
+            break
+            
+    approved_users[email_lower] = {
+        "id": f"usr_{len(approved_users) + 1}",
+        "name": user_data["fullName"],
+        "email": email_lower,
+        "role": role,
+        "department": user_data["department"],
+        "plantLocation": user_data["plantLocation"]
+    }
+    return {"status": "approved", "user": approved_users[email_lower]}
+
+@app.post("/api/auth/reject")
+async def reject_user(request: ApprovalRequest):
+    email_lower = request.email.strip().lower()
+    if email_lower not in pending_users:
+        raise HTTPException(status_code=404, detail="Access request not found.")
+        
+    pending_users.pop(email_lower)
+    return {"status": "rejected"}
+
+class LoginRequest(BaseModel):
+    email: str
+
+@app.post("/api/auth/login")
+async def auth_login(request: LoginRequest):
+    email_lower = request.email.strip().lower()
+    
+    if email_lower in pending_users:
+        raise HTTPException(status_code=403, detail="Your safety access request is pending organizational sponsorship approval.")
+        
+    if email_lower in approved_users:
+        return approved_users[email_lower]
+        
+    raise HTTPException(status_code=404, detail="Email is not registered. Please complete the Gateway Signup Request.")
+
+
 @app.get("/api/health")
 def health():
     return {"status": "ok", "zones": list(plant_state.keys()), "rag_mode": safety_agent.vector_store.mode}

@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
 import { Shield, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -118,8 +119,15 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <div className="mt-5 text-center text-xs">
+          <span className="text-slate-400">New Safety Officer or Manager? </span>
+          <Link href="/signup" className="text-safety-orange hover:underline font-semibold">
+            Request Gatehouse Access
+          </Link>
+        </div>
+
         {/* Demo Hint */}
-        <div className="mt-8 border-t border-white/5 pt-4 text-center">
+        <div className="mt-6 border-t border-white/5 pt-4 text-center">
           <span className="text-[10px] text-slate-500 font-mono block">
             DEFAULT DEMO CREDENTIALS:
           </span>
