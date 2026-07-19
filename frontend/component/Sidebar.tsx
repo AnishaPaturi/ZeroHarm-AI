@@ -11,7 +11,8 @@ import {
   BarChart3, 
   BookOpen,
   Scan,
-  ShieldAlert
+  ShieldAlert,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
@@ -25,6 +26,7 @@ export default function Sidebar() {
   const NAV_ITEMS = [
     { label: 'Operations Center', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Near-Miss Forecast', path: '/near-misses', icon: ShieldAlert },
+    { label: 'AI Safety Coach', path: '/safety-coach', icon: UserCheck },
     { label: 'Digital Twin', path: '/digital-twin', icon: Scan },
     { label: 'Incident Register', path: '/incidents', icon: FileText },
     { label: 'AI Workspace', path: '/analysis', icon: BrainCircuit },

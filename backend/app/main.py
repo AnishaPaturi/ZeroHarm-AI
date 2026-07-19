@@ -21,6 +21,7 @@ from .engine.rules import evaluate_rules
 from .engine.ml_anomaly import CompoundRiskMLModel
 from .engine.collaborative_reasoning import MultiAgentCollaborativeReasoning, CollaborativeReasoningResponse
 from .engine.near_miss_predictor import NearMissPredictionEngine
+from .engine.safety_coach import SafetyCoachEngine, WorkerSafetyProfile
 
 # ---------------------------------------------------------------------------
 # PART C — Incident Pattern Intelligence & Compliance Audit Agent
@@ -75,6 +76,7 @@ app.add_middleware(
 # --- Person A globals ---
 ml_model = CompoundRiskMLModel()
 near_miss_engine = NearMissPredictionEngine()
+safety_coach_engine = SafetyCoachEngine()
 risk_history: List[Dict[str, Any]] = []
 MAX_HISTORY_LEN = 100
 
@@ -218,6 +220,14 @@ async def startup_event():
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, ml_model.train)
     asyncio.create_task(worker_tick_loop())
+    
+    safety_coach_engine.seed_from_plant_state(plant_state)
+    for zone_name, zstate in plant_state.items():
+        for worker in worker_sim.get_workers(zone_name):
+            wid = worker.worker_id
+            if wid not in safety_coach_engine.profiles:
+                safety_coach_engine.profiles[wid] = WorkerSafetyProfile(wid, worker.name, zone_name)
+    logger.info(f"Safety Coach Engine initialized with {len(safety_coach_engine.profiles)} worker profiles.")
     logger.info("Startup complete. Person A + Person B running as one service.")
 
 
@@ -843,6 +853,18 @@ async def trigger_cctv_event(request: CCTVAlertRequest):
             "worker_id": request.worker_id or f"W-{random.randint(10,99)}",
             "worker_name": request.worker_name or random.choice(["Arjun", "Ravi", "Anil", "Suresh"])
         })
+        wid = request.worker_id or zone_state["restricted_entry_history"][-1]["worker_id"]
+        safety_coach_engine.ingest_event(wid, "zone_violation", {
+            "worker_name": request.worker_name,
+            "zone": request.zone,
+        })
+    elif request.event_type == "no_ppe":
+        wid = request.worker_id or f"W-{random.randint(10,99)}"
+        wname = request.worker_name or random.choice(["Arjun", "Ravi", "Anil", "Suresh"])
+        safety_coach_engine.ingest_event(wid, "ppe_violation", {
+            "worker_name": wname,
+            "zone": request.zone,
+        })
         
     # Trigger risk update using the state update flow
     payload = await update_zone_state(zone_name, {
@@ -1237,6 +1259,53 @@ def predict_near_miss(zone: str):
             "factors": {},
         }
     return prediction
+
+
+# ---------------------------------------------------------------------------
+# Innovation 6 — AI Safety Coach
+# ---------------------------------------------------------------------------
+class CoachEventRequest(BaseModel):
+    worker_id: str = Field(..., description="ID of the worker")
+    event_type: str = Field(..., description="ppe_violation, zone_violation, alert_ignored, alert_acknowledged, hazard_exposure, shift_start, shift_end")
+    worker_name: Optional[str] = Field(None, description="Worker name")
+    zone: Optional[str] = Field(None, description="Zone where event occurred")
+
+@app.get("/api/safety-coach/workers")
+def get_safety_coach_workers():
+    """Returns all worker safety profiles sorted by safety score ascending."""
+    return safety_coach_engine.get_all_profiles()
+
+
+@app.get("/api/safety-coach/worker/{worker_id}")
+def get_safety_coach_worker(worker_id: str):
+    """Returns detailed safety profile for a specific worker."""
+    profile = safety_coach_engine.get_profile(worker_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f"Worker '{worker_id}' not found in safety coach.")
+    return profile
+
+
+@app.post("/api/safety-coach/event")
+def ingest_safety_coach_event(request: CoachEventRequest):
+    """Ingests a behavioral safety event for a worker and updates their profile."""
+    metadata = {
+        "worker_name": request.worker_name,
+        "zone": request.zone,
+    }
+    profile = safety_coach_engine.ingest_event(request.worker_id, request.event_type, metadata)
+    return {
+        "status": "updated",
+        "worker_id": request.worker_id,
+        "event_type": request.event_type,
+        "new_safety_score": profile.safety_score,
+        "trend": profile.trend,
+    }
+
+
+@app.get("/api/safety-coach/leaderboard")
+def get_safety_coach_leaderboard(limit: int = 10):
+    """Returns most at-risk and safest workers."""
+    return safety_coach_engine.get_leaderboard(limit=limit)
 
 
 @app.get("/api/health")

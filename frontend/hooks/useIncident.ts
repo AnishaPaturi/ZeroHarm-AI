@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Incident, IncidentAIAnalysis, Comment, IncidentStatus, IncidentSeverity } from '../types/incident';
-import { ComplianceRecord, SafetyAlert, NearMissPrediction } from '../types/analytics';
+import { ComplianceRecord, SafetyAlert, NearMissPrediction, WorkerSafetyProfile } from '../types/analytics';
 import { AppEvent } from '../lib/eventBus';
 import { fetchBackend } from '../services/api';
 
@@ -26,6 +26,7 @@ interface IncidentStore {
   aiReasoning: { reasoning: string; recommendations: string[]; detectedHazards: string[] };
   activeDebate: any | null;
   nearMisses: NearMissPrediction[];
+  workerSafetyProfiles: WorkerSafetyProfile[];
 
   // Diagnostic states
   activeIncident: Incident | null;
@@ -46,7 +47,8 @@ interface IncidentStore {
   setEmergency: (active: boolean, msg?: string) => void;
   setAIReasoning: (reasoning: string, recommendations: string[], hazards: string[]) => void;
   setActiveDebate: (debate: any) => void;
-  setNearMisses: (nearMisses: any[]) => void;
+  setNearMisses: (nearMisses: NearMissPrediction[]) => void;
+  setWorkerSafetyProfiles: (profiles: WorkerSafetyProfile[]) => void;
   logEvent: (event: AppEvent) => void;
   resetStore: () => void;
 
@@ -75,6 +77,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
   },
   activeDebate: null,
   nearMisses: [] as NearMissPrediction[],
+  workerSafetyProfiles: [] as WorkerSafetyProfile[],
 
   activeIncident: null,
   isLoading: false,
@@ -99,6 +102,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
   setAIReasoning: (reasoning, recommendations, detectedHazards) => set({ aiReasoning: { reasoning, recommendations, detectedHazards } }),
   setActiveDebate: (debate) => set({ activeDebate: debate }),
   setNearMisses: (nearMisses) => set({ nearMisses }),
+  setWorkerSafetyProfiles: (profiles) => set({ workerSafetyProfiles: profiles }),
   logEvent: (event) => set((s) => ({ eventLogs: [event, ...s.eventLogs].slice(0, 100) })), // limit audit log count
 
   resetStore: () => set({
@@ -117,6 +121,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
     },
     activeDebate: null,
     nearMisses: [] as NearMissPrediction[],
+    workerSafetyProfiles: [] as WorkerSafetyProfile[],
     activeIncident: null,
     isAnalyzing: false
   }),

@@ -67,3 +67,21 @@ export interface SafetyAlert {
   timestamp: string;
   department: string;
 }
+
+export interface WorkerSafetyProfile {
+  worker_id: string;
+  name: string;
+  zone: string;
+  safety_score: number;
+  ppe_violations: number;
+  zone_violations: number;
+  ignored_alerts: number;
+  fatigue_score: number;
+  risk_exposure_score: number;
+  shift_start: string | null;
+  last_event_at: string | null;
+  event_history: any[];
+  recommendations: string[];
+  trend: 'escalating' | 'improving' | 'stable';
+  last_updated: string;
+}

@@ -1,7 +1,7 @@
 import { useIncident } from '../hooks/useIncident';
 import { WS_BASE_URL, fetchBackend } from './api';
 import { mapBackendReport } from './incident';
-import { NearMissPrediction } from '../types/analytics';
+import { NearMissPrediction, WorkerSafetyProfile } from '../types/analytics';
 
 let ws: WebSocket | null = null;
 
@@ -95,6 +95,16 @@ export async function fetchNearMissPrediction(zone: string): Promise<NearMissPre
   } catch (err) {
     console.warn('Failed to fetch near-miss prediction:', err);
     return null;
+  }
+}
+
+// Function to fetch worker safety profiles from the backend and update store
+async function syncSafetyCoach() {
+  try {
+    const profiles = await fetchBackend<WorkerSafetyProfile[]>('/api/safety-coach/workers');
+    useIncident.setState({ workerSafetyProfiles: profiles });
+  } catch (err) {
+    console.warn('Failed to sync safety coach profiles from backend:', err);
   }
 }
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -347,6 +357,7 @@ export const initDecisionEngine = () => {
     syncIncidents();
     syncCompliance();
     syncNearMisses();
+    syncSafetyCoach();
     
     // Set up continuous synchronization loops
     workersInterval = setInterval(syncWorkers, 2500);
@@ -355,6 +366,7 @@ export const initDecisionEngine = () => {
       syncIncidents();
       syncCompliance();
       syncNearMisses();
+      syncSafetyCoach();
     }, 5000);
   }
 
