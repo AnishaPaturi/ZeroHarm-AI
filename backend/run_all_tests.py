@@ -1,6 +1,6 @@
 import subprocess
 import sys
-import urllib.request
+import requests
 import time
 
 BASE_URL = "http://127.0.0.1:8000"
@@ -18,8 +18,8 @@ TEST_SCRIPTS = [
 
 def check_server_running():
     try:
-        with urllib.request.urlopen(f"{BASE_URL}/api/health", timeout=2) as response:
-            return response.status == 200
+        response = requests.get(f"{BASE_URL}/api/health", timeout=3)
+        return response.status_code == 200
     except Exception:
         return False
 
