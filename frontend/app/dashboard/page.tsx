@@ -64,10 +64,8 @@ export default function Dashboard() {
   const compliancePercentage = useIncident(selectCompliancePercentage);
   const activeWorkersCount = useIncident(selectActiveWorkers);
 
-  const [selectedPlant, setSelectedPlant] = useState<'A' | 'B' | 'C'>('A');
+  const [selectedPlant, setSelectedPlant] = useState<'A'>('A');
   const plantAStats = useIncident(selectPlantAStats);
-  const plantBStats = useIncident(selectPlantBStats);
-  const plantCStats = useIncident(selectPlantCStats);
 
   const [isDebateModalOpen, setIsDebateModalOpen] = useState(false);
   const [isDebating, setIsDebating] = useState(false);
@@ -176,9 +174,7 @@ export default function Dashboard() {
   };
 
   const plantStats = {
-    A: plantAStats,
-    B: plantBStats,
-    C: plantCStats
+    A: plantAStats
   };
 
   const handleResolveAction = async (title: string) => {
@@ -358,21 +354,8 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Plant Switchers */}
+              {/* Plant Switchers Removed (Plant A only) */}
               <div className="flex gap-2">
-                {(['A', 'B', 'C'] as const).map((seg) => (
-                  <button
-                    key={seg}
-                    onClick={() => setSelectedPlant(seg)}
-                    className={`px-3 py-1 text-xs font-mono font-semibold rounded-lg border transition-all ${
-                      selectedPlant === seg 
-                        ? 'bg-safety-orange border-safety-orange text-white' 
-                        : 'bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Plant {seg}
-                  </button>
-                ))}
               </div>
             </div>
 
