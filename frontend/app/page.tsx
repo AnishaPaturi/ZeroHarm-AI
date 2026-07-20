@@ -410,6 +410,12 @@ export default function LandingPage() {
               title: 'Incident Pattern Intelligence (RAG)',
               desc: 'Queries thousands of pages of safety regulations and manuals instantly to map proper protocols to active anomaly logs.',
               sub: 'Sub-second search queries'
+            },
+            {
+              icon: Network,
+              title: 'Dynamic Risk Graph (Knowledge Graph)',
+              desc: 'Connects workers, machines, zones, sensors, permits, supervisors, and historical accidents into a reasoning graph that AI can traverse.',
+              sub: 'Far smarter than SQL joins'
             }
           ].map((feat, index) => {
             const Icon = feat.icon;
