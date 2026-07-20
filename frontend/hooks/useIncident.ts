@@ -209,73 +209,52 @@ export const useIncident = create<IncidentStore>((set, get) => ({
         }
       }
     } catch (e) {
-      console.warn('Backend full assessment failed or server offline, using local mock.', e);
+      console.error('Backend full assessment failed or server offline', e);
+      set({ isAnalyzing: false });
+      throw e;
     }
 
-    let aiAnalysis: IncidentAIAnalysis;
-
-    if (backendAnalysis) {
-      const risk = backendAnalysis.risk_assessment || {};
-      const permit = backendAnalysis.permit_audit || {};
-      
-      const hazards = Array.isArray(risk.factors) 
-        ? risk.factors.map((f: any) => f.name) 
-        : ['Uncontrolled energy discharge'];
-      
-      const actions = Array.isArray(risk.factors) 
-        ? risk.factors.map((f: any) => f.details) 
-        : [backendAnalysis.unified_action];
-
-      aiAnalysis = {
-        riskLevel: target.severity,
-        confidenceScore: debateData ? Math.round(debateData.risk_probability) : (risk.composite_risk_score || 85),
-        detectedHazards: hazards,
-        rootCause: backendAnalysis.compliance_narrative || 'Precedent search completed. Compound safety boundaries compromised.',
-        recommendedPPE: ['Flame Resistant Coveralls (FRC)', 'Atmosphere Sniffer Probe', 'Class A Safety Helmet'],
-        violatedRegulations: Array.isArray(permit.conflicts) 
-          ? permit.conflicts.map((c: any) => ({
-              regulation: c.conflict_type || 'OISD Standard Variance',
-              act: 'OISD' as const,
-              description: c.details,
-              severity: 'Major' as const
-            }))
-          : [],
-        immediateActions: actions,
-        preventiveMeasures: ['Deploy mobile exhaust fan units', 'Calibrate gas sniffers'],
-        similarIncidents: [
-          { id: 'inc_prev_1', title: 'Historical Pipeline Leakage Case Log', severity: 'High', similarity: 82, date: '2026-07-16' }
-        ],
-        timeline: [
-          { id: 't_1', title: 'Incident Registered', description: 'Logged into desk', timestamp: 'Just now', status: 'completed' },
-          { id: 't_2', title: 'AI Diagnostics', description: 'RAG search completed', timestamp: 'Just now', status: 'completed' }
-        ],
-        collaborativeDebate: debateData
-      };
-    } else {
-      const localDebate = generateMockDebate(target.location, target.severity);
-      debateData = localDebate;
-      
-      aiAnalysis = {
-        riskLevel: target.severity,
-        confidenceScore: Math.round(localDebate.risk_probability),
-        detectedHazards: localDebate.compound_factors,
-        rootCause: localDebate.final_consensus,
-        recommendedPPE: ['Flame Resistant Coveralls (FRC)', 'Atmosphere Sniffer Probe', 'Class A Safety Helmet'],
-        violatedRegulations: [
-          { regulation: 'OISD-STD-105 Sec 4.1', act: 'OISD' as const, description: 'Safety permit audit variance in zone boundary.', severity: 'Major' as const }
-        ],
-        immediateActions: localDebate.recommendations,
-        preventiveMeasures: ['Replace mechanical relief spring', 'Recalibrate sensor transducer nodes'],
-        similarIncidents: [
-          { id: 'inc_prev_1', title: 'Overlapping Operational Risk Precedent', severity: 'High', similarity: 85, date: '2026-07-16' }
-        ],
-        timeline: [
-          { id: 't_1', title: 'Incident Registered', description: 'Logged into desk', timestamp: 'Just now', status: 'completed' },
-          { id: 't_2', title: 'AI Diagnostics', description: 'RAG search completed', timestamp: 'Just now', status: 'completed' }
-        ],
-        collaborativeDebate: localDebate
-      };
+    if (!backendAnalysis) {
+      set({ isAnalyzing: false });
+      throw new Error('RAG Audit failed: No analysis response received from backend.');
     }
+
+    const risk = backendAnalysis.risk_assessment || {};
+    const permit = backendAnalysis.permit_audit || {};
+    
+    const hazards = Array.isArray(risk.factors) 
+      ? risk.factors.map((f: any) => f.name) 
+      : ['Uncontrolled energy discharge'];
+    
+    const actions = Array.isArray(risk.factors) 
+      ? risk.factors.map((f: any) => f.details) 
+      : [backendAnalysis.unified_action];
+
+    const aiAnalysis: IncidentAIAnalysis = {
+      riskLevel: target.severity,
+      confidenceScore: debateData ? Math.round(debateData.risk_probability) : (risk.composite_risk_score || 85),
+      detectedHazards: hazards,
+      rootCause: backendAnalysis.compliance_narrative || 'Precedent search completed. Compound safety boundaries compromised.',
+      recommendedPPE: ['Flame Resistant Coveralls (FRC)', 'Atmosphere Sniffer Probe', 'Class A Safety Helmet'],
+      violatedRegulations: Array.isArray(permit.conflicts) 
+        ? permit.conflicts.map((c: any) => ({
+            regulation: c.conflict_type || 'OISD Standard Variance',
+            act: 'OISD' as const,
+            description: c.details,
+            severity: 'Major' as const
+          }))
+        : [],
+      immediateActions: actions,
+      preventiveMeasures: ['Deploy mobile exhaust fan units', 'Calibrate gas sniffers'],
+      similarIncidents: [
+        { id: 'inc_prev_1', title: 'Historical Pipeline Leakage Case Log', severity: 'High', similarity: 82, date: '2026-07-16' }
+      ],
+      timeline: [
+        { id: 't_1', title: 'Incident Registered', description: 'Logged into desk', timestamp: 'Just now', status: 'completed' },
+        { id: 't_2', title: 'AI Diagnostics', description: 'RAG search completed', timestamp: 'Just now', status: 'completed' }
+      ],
+      collaborativeDebate: debateData
+    };
 
     set((s) => {
       const updated = s.incidents.map(inc => inc.id === incidentId ? { ...inc, status: 'RCA Complete' as IncidentStatus, aiAnalysis: aiAnalysis } : inc);
@@ -689,71 +668,4 @@ export const selectIncidentFreeDays = (state: IncidentStore): { val: string; sub
   return result;
 };
 
-function generateMockDebate(location: string, severity: string) {
-  const zone = location || 'Coke Oven Battery 1';
-  const isExplosion = zone.toLowerCase().includes('coke') || zone.toLowerCase().includes('oven') || severity === 'Critical';
-  const isAsphyxiation = zone.toLowerCase().includes('sinter') || severity === 'High';
-  
-  let riskProbability = 8;
-  let prediction = "No immediate safety threats predicted. Plant operations nominal.";
-  let factors = ["All Sensors Reporting Green", "Permits Audited & Compliant"];
-  let debateTranscript: any[] = [];
-  let finalConsensus = "All agents agree that parameters are currently within normal compliance thresholds.";
-  let recommendations = ["Maintain standard safety patrol rounds."];
 
-  if (isExplosion) {
-    riskProbability = 96;
-    prediction = "Explosion possible within 18 minutes.";
-    factors = ["Methane Leakage Accumulation", "Active Spark-Producing Hot Work", "Atmospheric Ventilation Stagnation"];
-    finalConsensus = "CRITICAL HAZARD DECLARED: Positive flammability slope overlaps with active Hot Work (welding) and valve maintenance under stagnant wind conditions. Immediate explosion risk.";
-    recommendations = [
-      "ENGAGE SIRENS: Evacuate Coke Oven Battery 1 immediately.",
-      "HALT PERMITS: Revoke Hot Work permit PTW-HW-202 immediately.",
-      "ISOLATE PROCESS: Close ESD valves upstream of maintenance segment."
-    ];
-    debateTranscript = [
-      { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 1, message: 'Methane LFL has increased to 6.8%. The accumulation rate is positive. High flammability slope detected.', sentiment: 'critical' },
-      { agent_id: 'maintenance_agent', agent_name: 'Maintenance Intelligence Agent', role: 'Valve/Asset Operations', round: 1, message: 'Maintenance is active on the valve line. Seals are currently unseated.', sentiment: 'warning' },
-      { agent_id: 'permit_agent', agent_name: 'Permit Compliance Agent', role: 'Work Permit Auditor', round: 1, message: 'Permit PTW-HW-202 (Hot Work) is active for welding near the manifold deck. Spark hazard present.', sentiment: 'warning' },
-      { agent_id: 'weather_agent', agent_name: 'Environmental Weather Agent', role: 'Micro-climate Monitor', round: 1, message: 'Wind speed has decreased to 1.8 m/s. Stagnant air pocket. Gas will not disperse naturally.', sentiment: 'warning' },
-      { agent_id: 'cctv_agent', agent_name: 'CCTV Computer Vision Agent', role: 'Visual Security Analytics', round: 1, message: 'CCTV confirms two workers are on the manifold deck holding welding gear.', sentiment: 'warning' },
-      { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 2, message: 'The methane leak is accelerating. Sparks from welding will exceed the Lower Flammable Limit ignition threshold.', sentiment: 'critical' },
-      { agent_id: 'permit_agent', agent_name: 'Permit Compliance Agent', role: 'Work Permit Auditor', round: 2, message: 'Under OISD-STD-105 standards, hot work is strictly banned above 4% LFL. Critical breach!', sentiment: 'critical' },
-      { agent_id: 'coordinator_agent', agent_name: 'Safety Coordinator Agent', role: 'Orchestration & Consensus', round: 3, message: 'Consensus: Methane rising + Active Welding + Stagnant Air. Risk Probability = 96%. Prediction: Explosion possible within 18 minutes. Triggering evacuation.', sentiment: 'critical' }
-    ];
-  } else if (isAsphyxiation) {
-    riskProbability = 92;
-    prediction = "Asphyxiation / unconsciousness possible within 6 minutes.";
-    factors = ["Oxygen Depletion (<16%)", "Active Confined Space Permit", "Poor Ventilation"];
-    finalConsensus = "CRITICAL HEALTH THREAT: Oxygen level has dropped to 15.8% inside the confined space. Standby watchperson is outside, but workers are inside without positive-pressure air hoses.";
-    recommendations = [
-      "RESCUE MISSION: Dispatch standby rescue team with breathing apparatus and lifeline harness.",
-      "VENTILATE: Activate forced-draft ventilation fans immediately."
-    ];
-    debateTranscript = [
-      { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 1, message: 'Oxygen concentration is down to 15.8% inside the Sinter Plant hopper.', sentiment: 'critical' },
-      { agent_id: 'permit_agent', agent_name: 'Permit Compliance Agent', role: 'Work Permit Auditor', round: 1, message: 'Confined space permit PTW-CS-101 is active. Two engineers are inside for cleaning.', sentiment: 'warning' },
-      { agent_id: 'cctv_agent', agent_name: 'CCTV Computer Vision Agent', role: 'Visual Security Analytics', round: 1, message: 'Workers are inside without positive-pressure air hoses.', sentiment: 'warning' },
-      { agent_id: 'coordinator_agent', agent_name: 'Safety Coordinator Agent', role: 'Orchestration & Consensus', round: 3, message: 'Consensus: Oxygen is at 15.8%, workers trapped in confined space. Risk Probability = 92%. Prediction: Asphyxiation within 6 minutes.', sentiment: 'critical' }
-    ];
-  } else {
-    debateTranscript = [
-      { agent_id: 'gas_agent', agent_name: 'Gas Sensor Monitoring Agent', role: 'IoT Telemetry Analysis', round: 1, message: 'All gas parameters within statutory limits.', sentiment: 'nominal' },
-      { agent_id: 'permit_agent', agent_name: 'Permit Compliance Agent', role: 'Work Permit Auditor', round: 1, message: 'No SIMOPs or scheduling conflicts.', sentiment: 'nominal' },
-      { agent_id: 'coordinator_agent', agent_name: 'Safety Coordinator Agent', role: 'Orchestration & Consensus', round: 2, message: 'Consensus: Plant safe. Risk Probability = 4%.', sentiment: 'nominal' }
-    ];
-  }
-
-  return {
-    zone,
-    timestamp: new Date().toISOString(),
-    risk_probability: riskProbability,
-    prediction,
-    compound_factors: factors,
-    debate_transcript: debateTranscript,
-    final_consensus: finalConsensus,
-    recommendations,
-    weather_info: { wind_speed_m_s: 2.1, wind_direction: 'SSE', humidity: 75, ambient_temp_c: 32, ventilation_status: 'Stagnant' },
-    mode: 'Local Simulation Preview'
-  };
-}

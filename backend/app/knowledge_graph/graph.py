@@ -71,7 +71,7 @@ class RiskKnowledgeGraph:
         self._seed_plant_data()
 
     def _seed_plant_data(self) -> None:
-        """Seed the graph with mock plant entities and relationships."""
+        """Seed the graph with default plant entities and relationships."""
         seed_nodes = [
             # Zones
             KnowledgeGraphNode("zone_coke_oven", "Zone", {"name": "Coke Oven Battery 1", "risk_score": 0.0, "status": "normal"}),

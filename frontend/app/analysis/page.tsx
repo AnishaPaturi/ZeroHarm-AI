@@ -48,36 +48,10 @@ export default function AnalysisPage() {
         method: 'POST',
       });
       setHybridReasoning(res);
-    } catch (err) {
-      console.warn("Hybrid reasoner offline, using mock fusion reasoning.");
-      setHybridReasoning({
-        zone,
-        composite_similarity: 88.0,
-        similarity_breakdown: {
-          equipment_similarity: 85.0,
-          weather_similarity: 35.0,
-          maintenance_similarity: 30.0,
-          root_cause_similarity: 80.0
-        },
-        similar_reports: [
-          { title: "Historical Accident ACC-02: Flammable gas pocket buildup under weather front", source: "Knowledge Graph", similarity_score: 88.0 },
-          { title: "Standard Operating Procedure: OISD-STD-105 SIMOPs permits control", source: "Vector Store", similarity_score: 75.0 }
-        ],
-        fused_analysis_markdown: `### 🧬 Hybrid RAG + Knowledge Graph Precedent Analysis
-
-Fusing vector document search with physical plant graph relations for zone **${zone}**.
-
-**Precedent Similarity Matrix:**
-- ⚙️ **Equipment Similarity:** 85% (Gas pipelines and valves)
-- 🌦️ **Weather Similarity:** 35% (stagnant air layers)
-- 🔧 **Maintenance Schedule overlap:** 30% (LOTO checkouts)
-- 🧠 **Root Cause Similarity:** 80% (confined spaces and unsealed flanges)
-
-**Integrated Prevention Plan:**
-1. Close bypass loop actuators to stop backpressure buildup.
-2. Deploy localized exhaust fan arrays to counter stagnant wind layers.
-3. Enforce mandatory 20m safety perimeter around unsealed flanges.`
-      });
+    } catch (err: any) {
+      console.error("Failed to load hybrid reasoning:", err);
+      addToast('Failed to load hybrid precedent reasoning from backend', 'error');
+      setHybridReasoning(null);
     } finally {
       setLoadingHybrid(false);
     }

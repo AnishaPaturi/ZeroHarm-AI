@@ -23,44 +23,10 @@ export default function ShiftHandover() {
       if (summary) {
         setData(summary);
       }
-    } catch (e) {
-      console.warn('Backend offline, loading mock handover summary.');
-      setData({
-        timestamp: new Date().toISOString(),
-        offline_equipment: ['Blast Furnace A pressure valve BF-MV-104'],
-        gas_alerts: ['Methane levels in Coke Oven Battery 1 rose to 6.8% LFL during hot work.'],
-        active_permits: [
-          { permit_id: 'PTW-HW-202', permit_type: 'hot_work', zone: 'Coke Oven Battery 1', workers: 3 },
-          { permit_id: 'PTW-CS-101', permit_type: 'confined_space', zone: 'Sinter Plant', workers: 2 }
-        ],
-        ongoing_maintenance: [
-          { equipment: 'BF-MV-104 line flushing', zone: 'Blast Furnace A', status: 'In Progress' }
-        ],
-        high_risk_zones: [
-          { zone: 'Coke Oven Battery 1', risk_score: 96, risk_level: 'Critical' },
-          { zone: 'Blast Furnace A', risk_score: 45, risk_level: 'Warning' }
-        ],
-        recommendations: [
-          'Continue ventilation in Coke Oven Battery 1 until methane reads below 4% LFL.',
-          'Verify bypass orientation for isolated Blast Furnace A valve before handoff.',
-          'Review standby watch safety tag for Sinter Plant hopper entries.'
-        ],
-        handover_narrative: `### 🛡️ AI Generated Shift Handover Report
-
-**Operational Status Overview:**
-- **Active Permits:** 2 authorized permit(s) in progress.
-- **Maintenance Status:** 1 equipment unit(s) isolated for servicing.
-- **Safety Alerts Logged:** 1 gas/telemetry anomalies recorded in current shift.
-
-**Incident Risk Zones:**
-- ⚠️ **Coke Oven Battery 1:** Composite Risk 96.0% (Critical)
-- ⚠️ **Blast Furnace A:** Composite Risk 45.0% (Warning)
-
-**Directives & Action Checklist:**
-1. **Methane Sweep:** Gas monitor checks mandatory at 30-min cycles.
-2. **Watchperson Shift Checklist:** Confirm external watch has harness lifeline ready.
-`
-      });
+    } catch (e: any) {
+      console.error('Failed to load handover summary:', e);
+      addToast(e.message || 'Failed to load handover summary from backend', 'error');
+      setData(null);
     } finally {
       setLoading(false);
     }

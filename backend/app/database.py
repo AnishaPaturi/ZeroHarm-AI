@@ -164,8 +164,8 @@ def reject_user(email: str) -> bool:
         conn.close()
 
 
-def seed_mock_users():
-    mock_accounts = [
+def seed_default_users():
+    default_accounts = [
         {
             "id": "usr_1",
             "email": "safety@zeroharm.ai",
@@ -242,7 +242,7 @@ def seed_mock_users():
 
     conn = get_connection()
     try:
-        for user in mock_accounts:
+        for user in default_accounts:
             conn.execute(
                 """
                 INSERT OR IGNORE INTO users (
@@ -278,6 +278,6 @@ def seed_mock_users():
                 ),
             )
         conn.commit()
-        logger.info("Mock users seeded successfully")
+        logger.info("Default users seeded successfully")
     finally:
         conn.close()

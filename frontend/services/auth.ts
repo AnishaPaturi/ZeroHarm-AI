@@ -1,33 +1,6 @@
 import { User } from '../types/user';
 import { fetchBackend } from './api';
 
-const MOCK_USERS: Record<string, User> = {
-  'safety@zeroharm.ai': {
-    id: 'usr_1',
-    name: 'Sarah Jenkins',
-    email: 'safety@zeroharm.ai',
-    role: 'Safety Officer',
-    department: 'HSE (Health, Safety, Environment)',
-    plantLocation: 'Plant A - Refinery Complex'
-  },
-  'manager@zeroharm.ai': {
-    id: 'usr_2',
-    name: 'David Vance',
-    email: 'manager@zeroharm.ai',
-    role: 'Plant Manager',
-    department: 'Plant Operations',
-    plantLocation: 'Plant A - Refinery Complex'
-  },
-  'inspector@zeroharm.ai': {
-    id: 'usr_3',
-    name: 'Marcus Brody',
-    email: 'inspector@zeroharm.ai',
-    role: 'Industrial Inspector',
-    department: 'Compliance Auditing',
-    plantLocation: 'Plant B - Chemical Storage'
-  }
-};
-
 export const authService = {
   login: async (email: string, password?: string): Promise<User> => {
     try {

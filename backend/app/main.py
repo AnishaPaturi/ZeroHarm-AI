@@ -67,7 +67,7 @@ from .rag.hybrid_reasoner import RAGKnowledgeGraphHybridReasoner
 from .engine.feedback_engine import SelfImprovingAgentEngine
 from .database import (
     init_db,
-    seed_mock_users,
+    seed_default_users,
     get_user_by_email,
     get_users_by_status,
     create_pending_user,
@@ -255,7 +255,7 @@ async def startup_event():
     await loop.run_in_executor(None, ml_model.train)
     
     init_db()
-    seed_mock_users()
+    seed_default_users()
     
     asyncio.create_task(worker_tick_loop())
     
@@ -1616,7 +1616,7 @@ def get_hybrid_reasoning(zone: str):
         "factors": [{"name": f.get("name") if isinstance(f, dict) else getattr(f, "name", "")} for f in zone_data.get("factors", [])]
     }
     
-    # Build default mock factors if empty
+    # Build default fallback factors if empty
     if not risk_assessment["factors"]:
         factors = []
         if zone_data.get("maintenance_active"):

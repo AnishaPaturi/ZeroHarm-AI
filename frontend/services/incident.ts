@@ -80,7 +80,7 @@ export const incidentService = {
       return [...filteredLocal, ...mapped];
     } catch (error) {
       console.error('Error fetching incidents from backend:', error);
-      // Fallback to localStorage/mock
+      // Fallback to localStorage cache
       const localStr = typeof window !== 'undefined' ? localStorage.getItem('local_incidents') : null;
       return localStr ? JSON.parse(localStr) : [];
     }
@@ -201,19 +201,8 @@ export const incidentService = {
         ]
       };
     } catch (err) {
-      console.warn('Backend compliance audit failed, falling back to local analysis:', err);
-      return incident.aiAnalysis || {
-        riskLevel: incident.severity,
-        confidenceScore: 85,
-        detectedHazards: ['General incident telemetry check'],
-        rootCause: `Operational stress limits exceeded. Fallback analysis active.`,
-        recommendedPPE: ['Standard safety boots', 'Hard hat', 'Nitrile gloves'],
-        violatedRegulations: [],
-        immediateActions: ['Check safety equipment integrity'],
-        preventiveMeasures: ['Regular audits of plant valves'],
-        similarIncidents: [],
-        timeline: []
-      };
+      console.error('Backend compliance audit failed:', err);
+      throw err;
     }
   }
 };

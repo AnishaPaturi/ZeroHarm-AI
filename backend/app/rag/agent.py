@@ -10,7 +10,7 @@ class ZeroHarmSafetyAgent:
     Person C RAG Agent:
     - Queries the local vector store for historical precedents and statutory compliance text.
     - Prompts an LLM via OpenRouter to analyze compliance deviations and incident patterns.
-    - Implements a high-quality local rule-based mock generator if OPENROUTER_API_KEY is missing or the LLM call fails.
+    - Implements a high-quality local rule-based fallback generator if OPENROUTER_API_KEY is missing or the LLM call fails.
     """
     OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -74,10 +74,10 @@ class ZeroHarmSafetyAgent:
                     "sources": sources_list,
                     "mode": self.mode
                 }
-            logger.error("OpenRouter query failed. Falling back to rule-based mock engine.")
+            logger.error("OpenRouter query failed. Falling back to rule-based fallback engine.")
 
         # Rule-based fallback if offline / key missing / API failed
-        answer = self._generate_rule_based_mock_response(user_query, hits)
+        answer = self._generate_rule_based_fallback_response(user_query, hits)
         return {
             "answer": answer,
             "sources": sources_list,
@@ -134,8 +134,8 @@ class ZeroHarmSafetyAgent:
         rag_response = self.query(f"Identify compliance deviations or past precedents for the following plant status: {scenario_description}")
         return rag_response
 
-    def _generate_rule_based_mock_response(self, query: str, hits: List[Dict[str, Any]]) -> str:
-        """Generates a highly structured, readable mock analysis utilizing the retrieved context."""
+    def _generate_rule_based_fallback_response(self, query: str, hits: List[Dict[str, Any]]) -> str:
+        """Generates a highly structured, readable fallback analysis utilizing the retrieved context."""
         query_lower = query.lower()
         
         # Analyze query categories

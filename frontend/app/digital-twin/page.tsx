@@ -176,26 +176,9 @@ export default function DigitalTwin() {
       setDroneZone(zoneName);
       setDroneData(res);
       useNotifications.getState().addToast(`Drone deployed to ${zoneName}. Scanning sensors...`, 'info');
-    } catch (err) {
-      console.warn("Drone backend offline, starting mock sweep flight.");
-      setDroneActive(true);
-      setDroneZone(zoneName);
-      setDroneData({
-        status: 'Hovering',
-        active_zone: zoneName,
-        battery_pct: 94.5,
-        video_stream_url: `rtsp://drone-cam.plant.local/stream/${zoneName.toLowerCase().replace(' ', '_')}`,
-        thermal_max_temp_c: 120.4,
-        gas_sniff_ch4_lfl: 4.8,
-        gas_sniff_co_ppm: 25.0,
-        aerial_workers_count: 2,
-        gps_coordinates: [40, 30],
-        flight_logs: [
-          `[${new Date().toLocaleTimeString()}] Drone checklist: OK`,
-          `[${new Date().toLocaleTimeString()}] Launching to ${zoneName}...`,
-          `[${new Date().toLocaleTimeString()}] Hovering and streaming infrared telemetry.`
-        ]
-      });
+    } catch (err: any) {
+      console.error("Drone dispatch failed:", err);
+      useNotifications.getState().addToast(`Failed to deploy drone: ${err.message || 'Drone backend offline'}`, 'error');
     }
   };
 
@@ -212,7 +195,10 @@ export default function DigitalTwin() {
             useNotifications.getState().addToast(`Drone mission complete. Returned to base pad.`, 'success');
           }
         } catch (err) {
-          // If offline, let's keep mock state
+          console.error("Drone status check failed:", err);
+          setDroneActive(false);
+          setDroneZone(null);
+          if (interval) clearInterval(interval);
         }
       }, 3000);
     }

@@ -513,7 +513,7 @@ export default function SignupPage() {
                     </div>
                   </div>
 
-                  {/* File Upload MOCK */}
+                  {/* File Upload Handling */}
                   <div>
                     <label className="text-[10px] text-slate-400 font-mono uppercase tracking-widest block mb-1.5">
                       Upload Certificate Copy <span className="text-slate-500">(PDF / Image)</span>
