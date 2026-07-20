@@ -70,12 +70,48 @@ class RAGKnowledgeGraphHybridReasoner:
                 
             graph_nodes.append(f"{node_type}: {name} (via {relation})")
 
-        # 3. Fuse RAG text hits with Graph entities to calculate similarity scores
-        # We look for overlapping terms (e.g. "Coke Oven", "Blast Furnace", "CO leak")
+        # 3. Fuse RAG text hits with Graph entities to calculate similarity scores dynamically
+        # Get active telemetry and flags from risk_assessment
+        telemetry = risk_assessment.get("gas_readings") or {}
+        maintenance_active = risk_assessment.get("maintenance_active", False)
+        shift_changeover_active = risk_assessment.get("shift_changeover_active", False)
+        permits = risk_assessment.get("permits", [])
+        
+        # Equipment similarity based on connected machines and active permits
         equipment_sim = 40.0
-        weather_sim = 35.0
-        maintenance_sim = 30.0
-        root_cause_sim = 45.0
+        if connected_machines:
+            equipment_sim = min(50.0 + len(connected_machines) * 10, 85.0)
+        if any(p.get("status", "").lower() == "active" for p in permits):
+            equipment_sim = max(equipment_sim, 70.0)
+
+        # Weather similarity based on temperature and climate anomalies
+        temp = telemetry.get("temperature", 25.0)
+        if temp > 30.0:
+            # Summer ambient temperature peak / stagnant weather match
+            weather_sim = round(temp * 2.2, 1)
+        else:
+            weather_sim = round(30.0 + (temp * 0.4), 1)
+
+        # Maintenance overlap similarity based on active maintenance and shift transition
+        maintenance_sim = 20.0
+        if maintenance_active:
+            maintenance_sim = 65.0
+            if shift_changeover_active:
+                # High-risk maintenance-changeover overlap
+                maintenance_sim = 92.0
+        elif shift_changeover_active:
+            maintenance_sim = 50.0
+
+        # Root cause similarity based on telemetry threshold breaches
+        co = telemetry.get("co", 0.0)
+        ch4 = telemetry.get("ch4_lfl", 0.0)
+        h2s = telemetry.get("h2s", 0.0)
+        o2 = telemetry.get("o2", 20.9)
+        
+        if co > 25.0 or ch4 > 1.0 or h2s > 5.0 or o2 < 19.5 or o2 > 23.5:
+            root_cause_sim = 88.0
+        else:
+            root_cause_sim = 35.0
         
         similar_reports = []
 
@@ -107,19 +143,51 @@ class RAGKnowledgeGraphHybridReasoner:
         # Calculate a unified risk memory score (max similarity found)
         max_sim = max((item["similarity_score"] for item in similar_reports), default=0.0)
         
+        # Build dynamic prevention plan recommendations
+        prevention_steps = []
+        if co > 25.0:
+            prevention_steps.append("Initiate emergency forced exhaust ventilation to sweeps toxic CO concentration.")
+        if ch4 > 1.0:
+            prevention_steps.append("Revoke all active hot work permits and establish continuous flammability sweep loops.")
+        if h2s > 5.0:
+            prevention_steps.append("Activate specialized chemical scrubbers and mandate SCBA breathing gear.")
+        if o2 < 19.5:
+            prevention_steps.append("Withdraw personnel from deficient zone and activate high-flow oxygen replenishment fans.")
+        
+        # Permit-specific recommendations
+        for p in permits:
+            ptype = p.get("permit_type", "").lower()
+            if "height" in ptype or "ppe" in ptype:
+                prevention_steps.append("Verify personnel working at heights are continuously secured to certified anchor lines.")
+            elif "confined" in ptype:
+                prevention_steps.append("Station a dedicated rescue sentinel outside entry portals holding a lifeline recovery harness.")
+            elif "cold" in ptype or "hot" in ptype:
+                prevention_steps.append("Enforce double-valve isolation and blind-flange blocking for maintenance line segments.")
+                
+        if maintenance_active:
+            prevention_steps.append("Verify physical padlocks and safety tags (LOTO isolation) are applied at isolation breakers.")
+        if shift_changeover_active:
+            prevention_steps.append("Mandate face-to-face handovers with safety supervisor override signoff verification.")
+
+        # Default recommendations if no factors matched
+        if not prevention_steps:
+            prevention_steps.append("Perform routine atmospheric sweeps using calibrated portable detectors.")
+            prevention_steps.append("Maintain standard safety perimeter checks and verify PPE readiness.")
+            prevention_steps.append("Verify permit logging compliance before starting any localized field service.")
+
+        prevention_plan_str = "\n".join(f"{i+1}. {step}" for i, step in enumerate(prevention_steps[:5]))
+
         # Build structured narrative
         narrative = (
             f"### 🧬 Hybrid RAG + Knowledge Graph Safety Precedent Analysis\n\n"
             f"Fusing vector document search with physical plant graph relations for zone **{zone}**.\n\n"
             f"**Precedent Similarity Matrix:**\n"
             f"- ⚙️ **Equipment Similarity:** {equipment_sim}% (Machines: {', '.join(connected_machines) if connected_machines else 'None'})\n"
-            f"- 🌦️ **Weather Similarity:** {weather_sim}% (stagnant air dispersion match)\n"
-            f"- 🔧 **Maintenance Schedule overlap:** {maintenance_sim}% (LOTO tags verified)\n"
-            f"- 🧠 **Root Cause Similarity:** {root_cause_sim}% (gas venting / spark overlap)\n\n"
+            f"- 🌦️ **Weather Similarity:** {weather_sim}% (stagnant air dispersion / ambient heat correlation)\n"
+            f"- 🔧 **Maintenance Schedule overlap:** {maintenance_sim}% (LOTO tags / SIMOPs scheduling checks)\n"
+            f"- 🧠 **Root Cause Similarity:** {root_cause_sim}% (gas venting / mechanical pressure dynamics)\n\n"
             f"**Integrated Prevention Plan:**\n"
-            "1. Close process bypass loop actuators to stop backpressure buildup.\n"
-            "2. Deploy localized exhaust fan arrays to counter stagnant wind layers.\n"
-            "3. Enforce mandatory 20m safety perimeter around unsealed flanges."
+            f"{prevention_plan_str}"
         )
 
         return {

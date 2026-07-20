@@ -618,6 +618,62 @@ async def simulation_tick():
         sinter_gas2["co"] = 8.0
         updates.append(await update_zone_state("Sinter Plant", {"permits": permits, "gas_readings": sinter_gas2}))
 
+    # Dynamic Simulation of Worker Safety Coach Events (Innovation 6)
+    if safety_coach_engine.profiles:
+        import random
+        from datetime import timedelta
+        # Iterate and simulate safety events
+        for wid, profile in list(safety_coach_engine.profiles.items()):
+            # Simulate fatigue progression
+            if profile.shift_start:
+                try:
+                    start = datetime.fromisoformat(profile.shift_start)
+                    # Shift start timestamp gets pushed back to simulate longer shifts
+                    new_start = start - timedelta(minutes=random.randint(10, 30))
+                    profile.shift_start = new_start.isoformat()
+                except Exception:
+                    pass
+            else:
+                # 20% chance to start a shift for an offline worker
+                if random.random() < 0.2:
+                    profile.shift_start = (datetime.now() - timedelta(hours=random.randint(1, 6))).isoformat()
+            
+            # Recalculate fatigue based on current time
+            safety_coach_engine._recalculate_fatigue(profile, datetime.now())
+
+            # Simulate random safety incidents/behaviours
+            roll = random.random()
+            if roll < 0.04:
+                # PPE violation
+                safety_coach_engine.ingest_event(wid, "ppe_violation", {
+                    "worker_name": profile.name,
+                    "zone": profile.zone
+                })
+            elif roll < 0.08:
+                # Zone violation
+                safety_coach_engine.ingest_event(wid, "zone_violation", {
+                    "worker_name": profile.name,
+                    "zone": profile.zone
+                })
+            elif roll < 0.12:
+                # Alert ignored
+                safety_coach_engine.ingest_event(wid, "alert_ignored", {
+                    "worker_name": profile.name,
+                    "zone": profile.zone
+                })
+            elif roll < 0.22:
+                # Alert acknowledged
+                safety_coach_engine.ingest_event(wid, "alert_acknowledged", {
+                    "worker_name": profile.name,
+                    "zone": profile.zone
+                })
+            elif roll < 0.27:
+                # Hazard exposure
+                safety_coach_engine.ingest_event(wid, "hazard_exposure", {
+                    "worker_name": profile.name,
+                    "zone": profile.zone
+                })
+
     return {
         "simulation_step": simulation_step,
         "cycle_index": cycle,
@@ -661,6 +717,12 @@ def get_heatmap():
 def get_workers(zone: str = None):
     """Simulated worker location overlay."""
     return [w.dict() for w in worker_sim.get_workers(zone)]
+
+
+@app.get("/api/safety-coach/workers")
+def get_safety_coach_workers():
+    """Returns worker safety profiles from the Safety Coach Engine."""
+    return [p.to_dict() for p in safety_coach_engine.profiles.values()]
 
 
 # ---------------------------------------------------------------------------
