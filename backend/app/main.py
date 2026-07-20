@@ -488,6 +488,7 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any]):
         )
 
         eval_result = await evaluate_risk_score(req)
+        zone_state["risk_score"] = eval_result.composite_risk_score
 
         payload = {
             "event": "risk_update",
