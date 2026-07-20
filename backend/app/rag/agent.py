@@ -38,12 +38,40 @@ class ZeroHarmSafetyAgent:
         """
         active_mode = self.mode
         answer_text = None
+        query_lower = user_query.lower().strip()
+        greetings = {
+            "hi",
+            "hello",
+            "hey",
+            "good morning",
+            "good afternoon",
+            "good evening"
+        }
+
+        if query_lower in greetings:
+            return {
+                "answer": (
+                    "Hello! I'm ZeroHarm AI.\n\n"
+                    "I can help you with:\n"
+                    "- Industrial safety regulations\n"
+                    "- Permit compliance\n"
+                    "- Historical incident analysis\n"
+                    "- Gas safety\n"
+                    "- PPE requirements\n"
+                    "- Emergency response\n\n"
+                    "How can I help you today?"
+                ),
+                "sources": [],
+                "mode": self.mode
+            }
 
         # 1. Retrieve relevant context
         hits = self.vector_store.search(user_query, k=k)
 
         context_str = ""
         sources_list = []
+        if not hits:
+            context_str +="No matching documents found"
         for h in hits:
             context_str += f"Title: {h['title']}\nSource: {h['source']}\nContent: {h['content']}\n\n"
             sources_list.append({
@@ -56,15 +84,35 @@ class ZeroHarmSafetyAgent:
         prompt = self._build_rag_prompt(user_query, context_str, hard_violations, hits)
 
         # 2. Generate response via OpenRouter if available
+        # if self.openrouter_api_key:
+        #     answer_text = self._call_openrouter(prompt)
+        #     if answer_text:
+        #         return {
+        #             "answer": answer_text,
+        #             "sources": sources_list,
+        #             "mode": active_mode
+        #         }
+        #     logger.error("OpenRouter query failed. Falling back to rule-based fallback engine.")
+        #     active_mode = "Rule-Based Engine (Local Fallback)"
         if self.openrouter_api_key:
+            logger.info("Attempting OpenRouter response...")
+
             answer_text = self._call_openrouter(prompt)
+
             if answer_text:
+                logger.info("LLM response received successfully.")
+
                 return {
                     "answer": answer_text,
                     "sources": sources_list,
                     "mode": active_mode
                 }
-            logger.error("OpenRouter query failed. Falling back to rule-based fallback engine.")
+
+            logger.warning("=" * 60)
+            logger.warning("LLM call failed.")
+            logger.warning("Switching to Rule-Based Fallback Engine.")
+            logger.warning("=" * 60)
+
             active_mode = "Rule-Based Engine (Local Fallback)"
 
         # Rule-based fallback if offline / key missing / API failed
@@ -75,77 +123,237 @@ class ZeroHarmSafetyAgent:
             "mode": active_mode
         }
 
-    def _build_rag_prompt(self, user_query: str, context_str: str, hard_violations: List[str] = None, hits: List[Dict[str, Any]] = None) -> str:
-        """Build the grounded RAG prompt with explicit deterministic safety instructions."""
-        prompt = (
-            "You are ZeroHarm AI, an expert industrial safety intelligence and compliance agent.\n"
-            "You must answer using ONLY the provided retrieved context. Do not rely on general knowledge.\n\n"
-        )
-        if hard_violations:
-            prompt += (
-                "--- DETERMINISTIC SYSTEM AUDIT FINDINGS (HARDCODED IN PYTHON — CITE VERBATIM) ---\n"
-                "The following threshold breaches have been detected by deterministic code and are non-negotiable:\n"
-                + "\n".join(f"- {v}" for v in hard_violations) + "\n"
-                "You MUST cite each exact finding verbatim under the 'Statutory Compliance Audit' section.\n"
-                "Do not paraphrase, soften, or omit these findings.\n\n"
-            )
-        if context_str:
-            prompt += (
-                "--- RETRIEVED CONTEXT (USE AS SOLE BASIS FOR PRECEDENTS) ---\n"
-                f"{context_str}"
-                "--- USER QUERY / SCENARIO ---\n"
-                f"{user_query}\n\n"
-                "Instructions:\n"
-                "1. Historical Precedents: Cite specific historical incidents from the context above. If context is insufficient, state so explicitly.\n"
-                "2. Statutory Compliance Audit: Flag any compliance deviations. Highlight strict legal limits (O2 19.5%-23.5%, CO 25ppm caution / 50ppm evacuate, CH4 4% LFL hot-work limit, H2S 10ppm).\n"
-                "3. Preemptive Safety Recommendations: List mandatory actions safety teams must execute immediately.\n\n"
-                "Format your response cleanly in markdown. Be concise, authoritative, and cite specific rules/incidents."
-            )
-        else:
-            prompt += (
-                "--- NO RETRIEVED CONTEXT ---\n"
-                "The vector store returned no matching documents for this query.\n"
-                "--- USER QUERY / SCENARIO ---\n"
-                f"{user_query}\n\n"
-                "Instructions:\n"
-                "1. Historical Precedents: State clearly that no matching precedents were found in the regulatory database.\n"
-                "2. Statutory Compliance Audit: If no hard violations are listed, state that no specific statutory deviations were identified for this query.\n"
-                "3. Preemptive Safety Recommendations: Provide general safety guidance based on the hazard categories mentioned.\n\n"
-                "Format your response cleanly in markdown."
-            )
-        return prompt
+    # def _build_rag_prompt(self, user_query: str, context_str: str, hard_violations: List[str] = None, hits: List[Dict[str, Any]] = None) -> str:
+    #     """Build the grounded RAG prompt with explicit deterministic safety instructions."""
+    #     prompt = (
+    #         "You are ZeroHarm AI, an expert industrial safety intelligence and compliance agent.\n"
+    #         "You must answer using ONLY the provided retrieved context. Do not rely on general knowledge.\n\n"
+    #     )
+    #     if hard_violations:
+    #         prompt += (
+    #             "--- DETERMINISTIC SYSTEM AUDIT FINDINGS (HARDCODED IN PYTHON — CITE VERBATIM) ---\n"
+    #             "The following threshold breaches have been detected by deterministic code and are non-negotiable:\n"
+    #             + "\n".join(f"- {v}" for v in hard_violations) + "\n"
+    #             "You MUST cite each exact finding verbatim under the 'Statutory Compliance Audit' section.\n"
+    #             "Do not paraphrase, soften, or omit these findings.\n\n"
+    #         )
+    #     if context_str:
+    #         prompt += (
+    #             "--- RETRIEVED CONTEXT (USE AS SOLE BASIS FOR PRECEDENTS) ---\n"
+    #             f"{context_str}"
+    #             "--- USER QUERY / SCENARIO ---\n"
+    #             f"{user_query}\n\n"
+    #             "Instructions:\n"
+    #             "1. Historical Precedents: Cite specific historical incidents from the context above. If context is insufficient, state so explicitly.\n"
+    #             "2. Statutory Compliance Audit: Flag any compliance deviations. Highlight strict legal limits (O2 19.5%-23.5%, CO 25ppm caution / 50ppm evacuate, CH4 4% LFL hot-work limit, H2S 10ppm).\n"
+    #             "3. Preemptive Safety Recommendations: List mandatory actions safety teams must execute immediately.\n\n"
+    #             "Format your response cleanly in markdown. Be concise, authoritative, and cite specific rules/incidents."
+    #         )
+    #     else:
+    #         prompt += (
+    #             "--- NO RETRIEVED CONTEXT ---\n"
+    #             "The vector store returned no matching documents for this query.\n"
+    #             "--- USER QUERY / SCENARIO ---\n"
+    #             f"{user_query}\n\n"
+    #             "Instructions:\n"
+    #             "1. Historical Precedents: State clearly that no matching precedents were found in the regulatory database.\n"
+    #             "2. Statutory Compliance Audit: If no hard violations are listed, state that no specific statutory deviations were identified for this query.\n"
+    #             "3. Preemptive Safety Recommendations: Provide general safety guidance based on the hazard categories mentioned.\n\n"
+    #             "Format your response cleanly in markdown."
+    #         )
+    #     return prompt
+
+
+    def _build_rag_prompt(
+    self,
+    user_query: str,
+    context_str: str,
+    hard_violations: List[str] = None,
+    hits: List[Dict[str, Any]] = None
+) -> str:
+
+        return f"""
+            You are ZeroHarm AI, an Industrial Safety & Compliance Assistant.
+
+            Your ONLY knowledge source is the retrieved context below.
+
+            Never invent regulations.
+            Never invent incidents.
+            Never use outside knowledge.
+
+            If the answer is not present in the retrieved context, clearly say:
+
+            "I could not find this information in the ZeroHarm safety database."
+
+            Answer in this format ONLY.
+
+            ## Summary
+
+            A short 2-3 sentence answer.
+
+            ## Relevant Regulations
+
+            Only include regulations that actually appear in the retrieved documents.
+
+            ## Historical Incidents
+
+            Only include this section if historical incidents exist.
+
+            ## Recommended Actions
+
+            Maximum 5 bullet points.
+
+            Keep the total response under 300 words.
+
+            Retrieved Context:
+
+            {context_str}
+
+            User Question:
+
+            {user_query}
+            """
+
+
+
+    # def _call_openrouter(self, prompt: str) -> str:
+    #     """Send a prompt to OpenRouter and return the text answer, or '' on failure."""
+    #     try:
+    #         import requests
+    #         headers = {
+    #             "Authorization": f"Bearer {self.openrouter_api_key}",
+    #             "Content-Type": "application/json",
+    #             "HTTP-Referer": "http://localhost:8000",
+    #             "X-Title": "ZeroHarm AI"
+    #         }
+    #         # payload = {
+    #         #     "model": self.model,
+    #         #     "messages": [{"role": "user", "content": prompt}],
+    #         #     "temperature": 0.2,
+    #         #     "max_tokens": 1024
+    #         # }
+    #         payload = {
+    #             "model": self.model,
+    #             "messages": [
+    #                 {
+    #                     "role": "system",
+    #                     "content": "You are an industrial safety expert. Answer ONLY from the retrieved documents."
+    #                 },
+    #                 {
+    #                     "role": "user",
+    #                     "content": prompt
+    #                 }
+    #             ],
+    #             "temperature": 0,
+    #             "max_tokens": 600
+    #         }
+
+    #         logger.info(f"Sending RAG query to OpenRouter using model: {self.model}")
+    #         resp = requests.post(self.OPENROUTER_URL, headers=headers, json=payload, timeout=30)
+
+    #         if resp.status_code == 200:
+    #             res_json = resp.json()
+    #             choices = res_json.get("choices", [])
+    #             if choices:
+    #                 return choices[0].get("message", {}).get("content", "")
+    #             logger.error(f"OpenRouter response did not contain choices: {res_json}")
+    #         else:
+    #             logger.error(f"OpenRouter returned status code {resp.status_code}: {resp.text}")
+    #     except Exception as e:
+    #         logger.error(f"OpenRouter query failed: {e}")
+    #     return ""
+
+
+
+
+
 
     def _call_openrouter(self, prompt: str) -> str:
-        """Send a prompt to OpenRouter and return the text answer, or '' on failure."""
+        """
+        Send a prompt to OpenRouter and return the generated response.
+        Returns an empty string if the request fails.
+        """
         try:
             import requests
+
             headers = {
                 "Authorization": f"Bearer {self.openrouter_api_key}",
                 "Content-Type": "application/json",
                 "HTTP-Referer": "http://localhost:8000",
                 "X-Title": "ZeroHarm AI"
             }
+
             payload = {
                 "model": self.model,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.2,
-                "max_tokens": 1024
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are an industrial safety expert. "
+                            "Answer ONLY from the retrieved documents."
+                        )
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "temperature": 0,
+                "max_tokens": 600
             }
 
-            logger.info(f"Sending RAG query to OpenRouter using model: {self.model}")
-            resp = requests.post(self.OPENROUTER_URL, headers=headers, json=payload, timeout=30)
+            logger.info("=" * 60)
+            logger.info("Sending request to OpenRouter...")
+            logger.info(f"Model: {self.model}")
+            logger.info(f"URL: {self.OPENROUTER_URL}")
 
-            if resp.status_code == 200:
-                res_json = resp.json()
-                choices = res_json.get("choices", [])
-                if choices:
-                    return choices[0].get("message", {}).get("content", "")
-                logger.error(f"OpenRouter response did not contain choices: {res_json}")
-            else:
-                logger.error(f"OpenRouter returned status code {resp.status_code}: {resp.text}")
-        except Exception as e:
-            logger.error(f"OpenRouter query failed: {e}")
+            resp = requests.post(
+                self.OPENROUTER_URL,
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
+
+            logger.info(f"OpenRouter Status Code: {resp.status_code}")
+            logger.info(f"OpenRouter Raw Response:\n{resp.text}")
+
+            # Raise an exception automatically if HTTP status is not 200
+            resp.raise_for_status()
+
+            res_json = resp.json()
+
+            logger.info("Parsed JSON Response:")
+            logger.info(res_json)
+
+            choices = res_json.get("choices", [])
+
+            if not choices:
+                logger.error("OpenRouter returned no choices.")
+                return ""
+
+            answer = choices[0].get("message", {}).get("content", "")
+
+            if not answer.strip():
+                logger.error("OpenRouter returned an empty answer.")
+                return ""
+
+            logger.info("OpenRouter response generated successfully.")
+            return answer
+
+        except requests.exceptions.HTTPError:
+            logger.exception("HTTP Error while calling OpenRouter")
+
+        except requests.exceptions.Timeout:
+            logger.exception("OpenRouter request timed out")
+
+        except requests.exceptions.ConnectionError:
+            logger.exception("Could not connect to OpenRouter")
+
+        except Exception:
+            logger.exception("Unexpected error while calling OpenRouter")
+
         return ""
+
 
     def audit_telemetry(self, zone: str, telemetry: Dict[str, Any], permits: List[Dict[str, Any]], maintenance_active: bool, shift_changeover: bool) -> Dict[str, Any]:
         """
