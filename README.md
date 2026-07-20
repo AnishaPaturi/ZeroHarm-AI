@@ -20,6 +20,37 @@ ZeroHarm AI is a next-generation, AI-driven **Industrial Safety Intelligence (IS
 
 ---
 
+## 🛠️ Tech Stack & Technologies Used
+
+ZeroHarm AI leverages a modern, robust, and highly integrated technology stack across the frontend user experience and the backend safety intelligence engine:
+
+### 💻 Frontend (User Interface)
+* **Core Framework**: **React 19** & **Next.js 16 (App Router)** for fast, optimized page compilation and server-side rendering support.
+* **State Management**: **Zustand** for lightweight, high-performance global state management across live SCADA telemetry, alerts, and authentication.
+* **Styling & Layout**: **Tailwind CSS** combined with custom **Vanilla CSS variables** for deep glassmorphism themes, glowing safety states, responsive charts, and printer-friendly PDF compliance layouts.
+* **Micro-Animations**: **Framer Motion** for smooth transition physics, fading alerts, dynamic progress bars, and modal slides.
+* **Data Visualization**: **Recharts** to compile and render live, high-frequency historical sensor graphs (oxygen depletion, carbon monoxide accumulation, gas LPG and ambient pressure trends).
+* **Iconography**: **Lucide React** for modern, high-contrast dashboard iconography.
+
+### ⚙️ Backend (Safety Intelligence Engine)
+* **API Framework**: **FastAPI (Python 3.11+)** for high-performance, asynchronous REST API routes and low-latency bidirectional WebSockets streaming live telemetry.
+* **Artificial Intelligence**:
+  * **OpenRouter API** integration linking safety reasoning models for collaborative agent debates, regulatory citations, and advisory compilation.
+  * **Dynamic TF-IDF Vector Store** (In-Memory) for fast semantic RAG query calculations across indexed Factories Act and OISD safety standard databases.
+* **Machine Learning & Analytics**:
+  * **Scikit-Learn** implementing supervised **Random Forest Classifier** models for multi-sensor threat classification.
+  * **Isolation Forest Classifier** for unsupervised anomaly detection and scoring on raw SCADA feeds.
+* **Geospatial & Adjacency Graphs**:
+  * **NetworkX** to build process piping topology graphs, calculating cascading risk propagation between boilers, headers, and valve segments.
+* **Simulation Engine**: Custom background python thread loops to simulate realistic sensor drifts, gas anomalies, and worker badge GPS coordinate trails.
+
+### 🐳 Infrastructure & Deployment
+* **Containerization**: **Docker** & **Docker Compose** to package the frontend and backend microservices for uniform staging.
+* **Serialization**: **Joblib/Pickle** for automated disk serialization of trained ML anomaly scoring model weights, avoiding initialization delays during reboots.
+* **Testing & Diagnostics**: Automated REST client suites (`requests` & `pytest`) validating SCADA rules, rate-of-change temporal equations, black box logs, and permit logic.
+
+---
+
 ## 📌 About the Project
 
 ### The Problem Context
