@@ -31,6 +31,8 @@ export default function IncidentsPage() {
   const selectIncident = useIncident(state => state.selectIncident);
   const submitComment = useIncident(state => state.submitComment);
   const runAIAnalysis = useIncident(state => state.runAIAnalysis);
+  const addIncident = useIncident(state => state.addIncident);
+  const updateIncident = useIncident(state => state.updateIncident);
 
   // Search & Filter state
   const [search, setSearch] = useState('');
@@ -61,6 +63,22 @@ export default function IncidentsPage() {
 
     try {
       const newId = `inc_${Date.now()}`;
+      
+      const newIncidentObj = {
+        id: newId,
+        title: newIncident.title,
+        description: newIncident.description,
+        location: newIncident.location,
+        department: newIncident.department,
+        severity: newIncident.severity,
+        status: 'Reported' as IncidentStatus,
+        reportedAt: new Date().toISOString(),
+        reporterName: user?.name || 'Anonymous Officer',
+        reporterRole: (user?.role || 'Safety Officer') as any,
+        comments: [],
+      };
+
+      addIncident(newIncidentObj);
       
       eventBus.publish({
         type: 'IncidentCreated',
@@ -97,11 +115,12 @@ export default function IncidentsPage() {
   };
 
   const handleResolveIncident = (id: string) => {
+    updateIncident(id, { status: 'Resolved' });
     eventBus.publish({
       type: 'IncidentResolved',
       payload: { id }
     });
-    addToast('Incident marked resolved in Event Bus', 'success');
+    addToast('Incident marked resolved successfully', 'success');
   };
 
   const handleCommentSubmit = async (e: React.FormEvent) => {

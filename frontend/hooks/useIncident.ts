@@ -295,10 +295,38 @@ export const useIncident = create<IncidentStore>((set, get) => ({
   })),
   addAlert: (alert) => set((s) => ({ alerts: [alert, ...s.alerts] })),
   removeAlert: (id) => set((s) => ({ alerts: s.alerts.filter((a) => a.id !== id) })),
-  addIncident: (incident) => set((s) => ({ incidents: [incident, ...s.incidents] })),
+  addIncident: (incident) => set((s) => {
+    if (typeof window !== 'undefined') {
+      try {
+        const localStr = localStorage.getItem('local_incidents');
+        const localList = localStr ? JSON.parse(localStr) : [];
+        if (!localList.some((l: any) => l.id === incident.id)) {
+          localStorage.setItem('local_incidents', JSON.stringify([incident, ...localList]));
+        }
+      } catch (e) {
+        console.warn('Failed to save incident to localStorage:', e);
+      }
+    }
+    return { incidents: [incident, ...s.incidents] };
+  }),
   updateIncident: (id, updates) => set((s) => {
     const updated = s.incidents.map(inc => inc.id === id ? { ...inc, ...updates } : inc);
     const active = s.activeIncident?.id === id ? { ...s.activeIncident, ...updates } : s.activeIncident;
+    if (typeof window !== 'undefined') {
+      try {
+        const localStr = localStorage.getItem('local_incidents');
+        if (localStr) {
+          const localList: any[] = JSON.parse(localStr);
+          const idx = localList.findIndex((l: any) => l.id === id);
+          if (idx !== -1) {
+            localList[idx] = { ...localList[idx], ...updates };
+            localStorage.setItem('local_incidents', JSON.stringify(localList));
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to update local incident in localStorage:', e);
+      }
+    }
     return { incidents: updated, activeIncident: active };
   }),
   setEmergency: (active, msg) => set({ emergencyMode: active, evacuationMessage: msg || '' }),
