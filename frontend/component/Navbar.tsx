@@ -33,6 +33,7 @@ export default function Navbar() {
   const router = useRouter();
 
   const showNavLinks = isAuthenticated && user && pathname !== '/' && pathname !== '/login';
+  const showOperationsTag = pathname === "/" && !isAuthenticated;
 
   const NAV_ITEMS = [
     { label: 'Operations', fullLabel: 'Operations Center', path: '/dashboard', icon: LayoutDashboard },
@@ -51,27 +52,33 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
-      <div className="max-w-[1440px] mx-auto glass-nav rounded-2xl px-6 py-3 flex items-center justify-between border border-white/5 gap-4">
-        
+      <div className="max-w-[1440px] mx-auto glass-nav rounded-2xl px-8 py-3 flex items-center border border-white/5">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer flex-shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-safety-orange to-amber-500 flex items-center justify-center shadow-lg shadow-safety-orange/20 transition-transform group-hover:scale-105">
+          {/* <div className="flex items-center flex-shrink-0"> */}
             <Shield className="w-4 h-4 text-white" />
           </div>
           <div>
             <span className="font-heading font-bold text-lg tracking-wide text-white">
               ZeroHarm<span className="text-safety-orange">.AI</span>
             </span>
+            {/* <span className="hidden sm:inline-block text-[10px] text-slate-400 font-mono ml-2 border border-white/10 px-1.5 py-0.5 rounded uppercase">
+              Operations Center
+            </span> */}
+            {showOperationsTag && (
             <span className="hidden sm:inline-block text-[10px] text-slate-400 font-mono ml-2 border border-white/10 px-1.5 py-0.5 rounded uppercase">
               Operations Center
             </span>
+          )}
           </div>
         </Link>
 
         {/* Nav Links (Desktop hovering top bar integrated) */}
-        {showNavLinks && (
-          <div className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/5 rounded-xl p-1.5 backdrop-blur-md flex-shrink-0">
-            {NAV_ITEMS.map((item) => {
+        {/* {showNavLinks && (
+        <div className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/5 rounded-xl p-1.5 backdrop-blur-md flex-shrink-0">
+          {/* <div className="flex-1 flex justify-center px-8"> */}
+           {/* {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = pathname.startsWith(item.path);
 
@@ -92,14 +99,52 @@ export default function Navbar() {
               );
             })}
           </div>
-        )}
+        )} */}
+
+        {showNavLinks && (
+        <div className="flex justify-center ml-6">
+          <div className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/5 rounded-xl p-1.5 backdrop-blur-md">
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname.startsWith(item.path);
+
+              return (
+                <Link key={item.path} href={item.path} title={item.fullLabel}>
+                  <div
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 lg:px-3.5 rounded-lg cursor-pointer transition-all select-none text-[11px] lg:text-xs font-semibold relative group whitespace-nowrap",
+                      isActive
+                        ? "bg-white/10 text-white font-semibold shadow-md shadow-black/10 border-b border-safety-orange"
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "w-3.5 h-3.5 flex-shrink-0 transition-transform",
+                        isActive
+                          ? "scale-110 text-safety-orange"
+                          : "group-hover:scale-105"
+                      )}
+                    />
+                    <span className="hidden lg:inline">{item.label}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+
+        
 
         {/* Right Actions */}
-        <div className="flex items-center gap-4 flex-shrink-0">
+        {/* <div className="flex items-center gap-4 flex-shrink-0"> */}
+        <div className="flex justify-end items-center gap-10">
           {isAuthenticated && user ? (
             <>
               {/* Notifications */}
-              <div className="relative">
+              <div className="relative ml-6">
                 <button
                   suppressHydrationWarning
                   onClick={() => setShowNotifications(!showNotifications)}
@@ -122,7 +167,8 @@ export default function Navbar() {
               </div>
 
               {/* Profile Pill */}
-              <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl pl-3 pr-2 py-1.5">
+              {/* <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl pl-3 pr-2 py-1.5">
+             
                 <div className="text-right hidden md:block">
                   <div className="text-xs font-semibold text-white">{user.name}</div>
                   <div className="text-[9px] text-slate-400 font-mono tracking-wider uppercase">{user.role}</div>
@@ -141,6 +187,40 @@ export default function Navbar() {
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
+              </div> */}
+              <div className="relative group">
+                {/* Avatar */}
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-accentBlue to-indigo-500 flex items-center justify-center text-white text-sm font-bold cursor-pointer">
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </div>
+
+                {/* Hover Card */}
+                <div className="absolute right-0 top-12 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-[#131926] border border-white/10 rounded-xl shadow-2xl p-4 z-50">
+
+                  <div className="text-sm font-semibold text-white">
+                    {user.name}
+                  </div>
+
+                  <div className="text-xs text-slate-400 uppercase tracking-wider mt-1">
+                    {user.role}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      logout();
+                      router.push("/");
+                    }}
+                    className="mt-4 w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg py-2 transition"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+
+                </div>
+
               </div>
             </>
           ) : (
