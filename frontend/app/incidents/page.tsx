@@ -293,7 +293,7 @@ export default function IncidentsPage() {
 
                   <div className="flex justify-between items-center mt-4 border-t border-white/5 pt-2.5 text-[9px] text-slate-500 font-mono">
                     <span>{inc.location}</span>
-                    <span>{new Date(inc.reportedAt).toLocaleDateString()}</span>
+                    <span suppressHydrationWarning>{new Date(inc.reportedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))
@@ -352,7 +352,7 @@ export default function IncidentsPage() {
                   </div>
                   <div>
                     <span className="text-[9px] text-slate-500 font-mono block">REPORTED AT</span>
-                    <span className="font-semibold text-slate-200 mt-0.5 block">
+                    <span className="font-semibold text-slate-200 mt-0.5 block" suppressHydrationWarning>
                       {new Date(activeIncident.reportedAt).toLocaleDateString()}
                     </span>
                   </div>
@@ -447,7 +447,7 @@ export default function IncidentsPage() {
                         <div key={c.id} className="p-3 bg-white/5 border border-white/5 rounded-xl text-xs text-slate-300">
                           <div className="flex justify-between items-center mb-1 text-[10px] text-slate-400 font-mono">
                             <span className="font-bold">{c.authorName} ({c.authorRole})</span>
-                            <span>{new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span suppressHydrationWarning>{new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                           <p className="leading-relaxed">{c.content}</p>
                         </div>

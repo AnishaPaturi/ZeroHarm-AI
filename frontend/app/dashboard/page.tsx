@@ -503,7 +503,7 @@ export default function Dashboard() {
                   >
                     <div className="flex justify-between items-center">
                       <span className="text-[9px] font-bold font-mono uppercase tracking-wider">{alert.department}</span>
-                      <span className="text-[9px] font-mono text-slate-500">
+                      <span className="text-[9px] font-mono text-slate-500" suppressHydrationWarning>
                         {new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                       </span>
                     </div>

@@ -21,6 +21,7 @@ export default function ChatbotPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { addToast } = useNotifications();
+  const [mounted, setMounted] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -43,6 +44,10 @@ Try asking one of the suggested prompts below to start:`,
     { label: 'DGMS Gas Leak Reporting Directives', query: 'How do we report a gas leak under DGMS?' },
     { label: 'Factory Act Standard PPE Checklist', query: 'Show me standard PPE guidelines for working at heights.' }
   ];
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -281,7 +286,9 @@ Try asking one of the suggested prompts below to start:`,
                   {isUser ? <p>{msg.content}</p> : formatContent(msg.content)}
                   
                   <span className="text-[8px] font-mono text-slate-500 block text-right mt-2 uppercase">
-                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {mounted 
+                      ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : ''}
                   </span>
                 </div>
               </div>

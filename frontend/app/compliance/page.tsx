@@ -38,7 +38,6 @@ export default function CompliancePage() {
     if (!item || !selectedRecord) return;
     // Clicking the already-active mark clears it back to unmarked/pending
     const nextState: 'unmarked' | 'compliant' | 'non_compliant' = item.state === mark ? 'unmarked' : mark;
-
     // Persist the mark for real (this used to only publish an event nobody listened to)
     useIncident.getState().toggleChecklistItem(selectedRecord.id, id, nextState);
 
@@ -59,6 +58,7 @@ export default function CompliancePage() {
       nextState === 'non_compliant' ? 'error' : 'info'
     );
   };
+
 
   const filteredRecords = complianceRecords.filter(rec => {
     const matchesCategory = categoryFilter === 'ALL' || rec.category === categoryFilter;
@@ -165,7 +165,7 @@ export default function CompliancePage() {
                   
                   <div className="flex justify-between items-center mt-4 border-t border-white/5 pt-2.5 text-[9px] text-slate-500 font-mono">
                     <span>SCORE: {rec.score > 0 ? `${rec.score}%` : 'N/A'}</span>
-                    <span>Audited: {new Date(rec.lastAudited).toLocaleDateString()}</span>
+                    <span suppressHydrationWarning>Audited: {new Date(rec.lastAudited).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))

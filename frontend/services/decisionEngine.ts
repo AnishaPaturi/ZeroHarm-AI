@@ -174,10 +174,16 @@ async function syncIncidents() {
     // Fetch local ones
     const localStr = typeof window !== 'undefined' ? localStorage.getItem('local_incidents') : null;
     const localIncidents = localStr ? JSON.parse(localStr) : [];
+    
+    // Retrieve historical seed incidents from the current store state
+    const currentIncidents = useIncident.getState().incidents;
+    const seedIncidents = currentIncidents.filter(i => i.id.startsWith('inc_h'));
+    
     const ids = new Set(mappedIncidents.map(i => i.id));
     const filteredLocal = localIncidents.filter((i: any) => !ids.has(i.id));
+    const filteredSeed = seedIncidents.filter((i: any) => !ids.has(i.id) && !filteredLocal.some((l: any) => l.id === i.id));
 
-    useIncident.setState({ incidents: [...filteredLocal, ...mappedIncidents] });
+    useIncident.setState({ incidents: [...filteredLocal, ...filteredSeed, ...mappedIncidents] });
   } catch (err) {
     console.warn('Failed to sync incidents from backend:', err);
   }
@@ -368,10 +374,10 @@ export const initDecisionEngine = () => {
     listRefreshInterval = setInterval(() => {
       syncAlerts();
       syncIncidents();
-      syncCompliance();
       syncNearMisses();
       syncSafetyCoach();
     }, 5000);
+
   }
 
   // Return unsubscribe cleanup handler

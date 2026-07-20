@@ -10,7 +10,93 @@ const DEFAULT_WORKERS: any[] = [];
 const DEFAULT_PERMITS: any[] = [];
 const DEFAULT_ALERTS: SafetyAlert[] = [];
 const DEFAULT_COMPLIANCE: ComplianceRecord[] = [];
-const DEFAULT_INCIDENTS: Incident[] = [];
+
+const seedDate = (daysAgo: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString();
+};
+
+const DEFAULT_INCIDENTS: Incident[] = [
+  {
+    id: 'inc_h1',
+    title: 'Gas Detector Calibration Failure',
+    description: 'Gas sensors in Blast Furnace A showed calibration drift during weekly inspection.',
+    location: 'Blast Furnace A',
+    department: 'Maintenance',
+    severity: 'Low',
+    status: 'Resolved',
+    reportedAt: seedDate(150),
+    reporterName: 'David Vance',
+    reporterRole: 'Safety Auditor',
+    comments: []
+  },
+  {
+    id: 'inc_h2',
+    title: 'Methane Concentration Spike',
+    description: 'Sub-critical methane leak detected in Coke Oven Battery 1 during maintenance.',
+    location: 'Coke Oven Battery 1',
+    department: 'Plant Operations',
+    severity: 'Medium',
+    status: 'Resolved',
+    reportedAt: seedDate(120),
+    reporterName: 'Arjun',
+    reporterRole: 'Field Technician',
+    comments: []
+  },
+  {
+    id: 'inc_h3',
+    title: 'Confined Space Ventilation Breach',
+    description: 'Sinter Plant confined space entry permitted without secondary exhaust fan active, violating OISD-STD-105.',
+    location: 'Sinter Plant',
+    department: 'Plant Operations',
+    severity: 'High',
+    status: 'Resolved',
+    reportedAt: seedDate(90),
+    reporterName: 'Sarah Jenkins',
+    reporterRole: 'Safety Officer',
+    comments: []
+  },
+  {
+    id: 'inc_h4',
+    title: 'Hydrogen Sulfide Gas Alarm',
+    description: 'H2S detector triggered high alarm (28 ppm) in Sinter Plant area. Evacuation checklist initiated.',
+    location: 'Sinter Plant',
+    department: 'Plant Operations',
+    severity: 'Critical',
+    status: 'Resolved',
+    reportedAt: seedDate(60),
+    reporterName: 'Marcus Brody',
+    reporterRole: 'Control Room Operator',
+    comments: []
+  },
+  {
+    id: 'inc_h5',
+    title: 'Boiler Valve Steam Leak',
+    description: 'High pressure steam leak detected at isolation valve B-41, requiring emergency maintenance crew.',
+    location: 'Blast Furnace A',
+    department: 'Electrical Zone',
+    severity: 'Medium',
+    status: 'Resolved',
+    reportedAt: seedDate(30),
+    reporterName: 'David Vance',
+    reporterRole: 'Maintenance Supervisor',
+    comments: []
+  },
+  {
+    id: 'inc_h6',
+    title: 'PPE Violation - No Safety Harness',
+    description: 'Worker observed at Ammonia Storage Tank height scaffold without double lanyard safety harness.',
+    location: 'Ammonia Storage Tank',
+    department: 'LPG Yard',
+    severity: 'Medium',
+    status: 'Resolved',
+    reportedAt: seedDate(10),
+    reporterName: 'Sarah Jenkins',
+    reporterRole: 'Safety Officer',
+    comments: []
+  }
+];
 
 interface IncidentStore {
   // Raw States
@@ -419,7 +505,7 @@ export const selectMonthlyIncidentData = (state: IncidentStore): MonthlyIncident
       const m = months[date.getMonth()];
       if (data[m]) {
         data[m].incidents += 1;
-        if (inc.severity === 'Critical') {
+        if (inc.severity === 'Critical' || inc.severity === 'High') {
           data[m].critical += 1;
         }
       }
