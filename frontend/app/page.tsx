@@ -524,6 +524,7 @@ export default function LandingPage() {
                     <span className="text-[10px] text-slate-400">Allows active welding / spark-producing tasks</span>
                   </div>
                   <button 
+                    suppressHydrationWarning
                     onClick={() => setIsPermitActive(!isPermitActive)}
                     className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-none ${
                       isPermitActive ? 'bg-safety-orange' : 'bg-white/10'
