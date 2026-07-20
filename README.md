@@ -127,83 +127,83 @@ ZeroHarm AI implements a comprehensive suite of 20 high-impact safety innovation
 
 ### 1. 🤝 Multi-Agent Collaborative Reasoning (Most Important)
 Multiple specialized AI agents reason and debate in a structured dialogue to calculate compound risks before raising an alarm, rather than relying on basic single-sensor thresholds (e.g., Gas rising + Active Maintenance + Confined Space + Poor ventilation = 96% risk of explosion in 18 mins).
-* **Implementation:** [collaborative_reasoning.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/collaborative_reasoning.py) | [page.tsx (Dashboard Discussion Feed)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/dashboard/page.tsx)
+* **Implementation:** [collaborative_reasoning.py](file:backend/app/engine/collaborative_reasoning.py) | [page.tsx (Dashboard Discussion Feed)](file:frontend/app/dashboard/page.tsx)
 
 ### 2. ⏳ Predictive Timeline Simulation
 Like Google Maps predicts traffic, ZeroHarm AI projects chronological event chains and estimated time-to-incident if current telemetry trends continue unchecked without intervention.
-* **Implementation:** [predictive_timeline.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/predictive_timeline.py) | [page.tsx (Predictive Timeline Panel)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/dashboard/page.tsx)
+* **Implementation:** [predictive_timeline.py](file:backend/app/engine/predictive_timeline.py) | [page.tsx (Predictive Timeline Panel)](file:frontend/app/dashboard/page.tsx)
 
 ### 3. 🌐 Industrial Digital Twin
 A live, dynamic 2D plant visualization featuring real-time zone color gradients (Green &rarr; Yellow &rarr; Orange &rarr; Red), moving gas dispersion clouds, simulated worker coordinate tracking trails, exit blockages, and visual overheating alarms.
-* **Implementation:** [heatmap.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/geospatial/heatmap.py) | [page.tsx (Digital Twin Canvas)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/digital-twin/page.tsx)
+* **Implementation:** [heatmap.py](file:backend/app/geospatial/heatmap.py) | [page.tsx (Digital Twin Canvas)](file:frontend/app/digital-twin/page.tsx)
 
 ### 4. 🧠 Explainable AI Risk Reasoning
 Breaks down the final risk index into transparent, human-readable safety factors with individual risk contributions and confidence levels, making AI predictions audit-friendly.
-* **Implementation:** [rules.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/rules.py) | [page.tsx (Near-Miss Breakdown)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/near-misses/page.tsx)
+* **Implementation:** [rules.py](file:backend/app/engine/rules.py) | [page.tsx (Near-Miss Breakdown)](file:frontend/app/near-misses/page.tsx)
 
 ### 5. ⚠️ Near Miss Prediction
 Proactively forecasts high-probability incident patterns (e.g. tracking workers entering restricted zones repeatedly over several shifts with zero immediate incidents today but escalating risk tomorrow).
-* **Implementation:** [near_miss_predictor.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/near_miss_predictor.py) | [page.tsx (Near-Miss Console)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/near-misses/page.tsx)
+* **Implementation:** [near_miss_predictor.py](file:backend/app/engine/near_miss_predictor.py) | [page.tsx (Near-Miss Console)](file:frontend/app/near-misses/page.tsx)
 
 ### 6. 👟 AI Safety Coach
 Monitors individual worker safety scores, tracking PPE violations, unauthorized zone entry counts, ignored alerts, and fatigue to suggest mandatory training and supervisors.
-* **Implementation:** [safety_coach.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/safety_coach.py) | [page.tsx (Safety Coach Profiles)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/safety-coach/page.tsx)
+* **Implementation:** [safety_coach.py](file:backend/app/engine/safety_coach.py) | [page.tsx (Safety Coach Profiles)](file:frontend/app/safety-coach/page.tsx)
 
 ### 7. 🕸️ Dynamic Risk Graph (Knowledge Graph)
 Uses an in-memory process topology mapping relationships between workers, permits, zones, sensors, machines, and historical incident logs to propagate hazard levels.
-* **Implementation:** [graph.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/knowledge_graph/graph.py) | [page.tsx (Risk Graph View)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/knowledge-graph/page.tsx)
+* **Implementation:** [graph.py](file:backend/app/knowledge_graph/graph.py) | [page.tsx (Risk Graph View)](file:frontend/app/knowledge-graph/page.tsx)
 
 ### 8. 🔍 AI Root Cause Generator
 Automatically constructs post-incident/near-miss analysis specifying primary cause, contributing human factors, corrective actions, and violated regulatory acts (e.g. Factory Act Sec 36 or OISD-STD-105).
-* **Implementation:** [incident_report.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/orchestrator/incident_report.py) | [page.tsx (Incident desk Diagnostics)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/incidents/page.tsx)
+* **Implementation:** [incident_report.py](file:backend/app/orchestrator/incident_report.py) | [page.tsx (Incident desk Diagnostics)](file:frontend/app/incidents/page.tsx)
 
 ### 9. 📈 Risk Propagation Engine
 Models process network connections (piping systems, isolation valves, boilers) to calculate cascading hazard escalation (e.g. valve failure upstream causing pressure spikes and boiler shutdown downstream).
-* **Implementation:** [topology.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/geospatial/topology.py) | [test_topology.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/test_topology.py)
+* **Implementation:** [topology.py](file:backend/app/geospatial/topology.py) | [test_topology.py](file:backend/test_topology.py)
 
 ### 10. 💤 Fatigue Detection
 Integrates CCTV telemetry indicators, shift lengths, and night-shift timing multipliers to predict operational worker exhaustion and suggest immediate rest schedules.
-* **Implementation:** [safety_coach.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/safety_coach.py) | [page.tsx (Safety Coach Profile Metrics)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/safety-coach/page.tsx)
+* **Implementation:** [safety_coach.py](file:backend/app/engine/safety_coach.py) | [page.tsx (Safety Coach Profile Metrics)](file:frontend/app/safety-coach/page.tsx)
 
 ### 11. 📝 AI Shift Handover Summary
 Compiles all isolated machinery, telemetry alerts, active permits, and high-risk zones into a concise compliance handover checklist for incoming shifts.
-* **Implementation:** [handover.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/orchestrator/handover.py) | [page.tsx (Handover Summary Report)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/handover/page.tsx)
+* **Implementation:** [handover.py](file:backend/app/orchestrator/handover.py) | [page.tsx (Handover Summary Report)](file:frontend/app/handover/page.tsx)
 
 ### 12. 👮 Regulatory Copilot
 A conversational assistant that indexes safety standards (OISD, Factories Act 1948) to answer regulatory compliance questions such as: "Can hot work happen here?"
-* **Implementation:** [agent.py (RAG Agent)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/agent.py) | [page.tsx (RAG Chatbot)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/chatbot/page.tsx)
+* **Implementation:** [agent.py (RAG Agent)](file:backend/app/rag/agent.py) | [page.tsx (RAG Chatbot)](file:frontend/app/chatbot/page.tsx)
 
 ### 13. 🚨 Autonomous Emergency Commander
 Automatically coordinates initial containment: shuts downstream fuel valves, halts permits, engages ventilation systems, sounds sirens, plans evacuation paths, and generates incident logs.
-* **Implementation:** [evacuation.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/orchestrator/evacuation.py) | [main.py (FastAPI entrypoint)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/main.py)
+* **Implementation:** [evacuation.py](file:backend/app/orchestrator/evacuation.py) | [main.py (FastAPI entrypoint)](file:backend/app/main.py)
 
 ### 14. 🗺️ Spatial AI
 Maintains spatial location maps, identifying overlapping hazard parameters (e.g. worker standing 3m from gas leak, 8m from hot welding spark).
-* **Implementation:** [heatmap.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/geospatial/heatmap.py) | [agent.py (Permit boundary audit)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/permits/agent.py)
+* **Implementation:** [heatmap.py](file:backend/app/geospatial/heatmap.py) | [agent.py (Permit boundary audit)](file:backend/app/permits/agent.py)
 
 ### 15. 💾 Learning Risk Memory
 Correlates ambient factors (shift restarts, Friday rushes, storm stagnation, summer spikes) to adjust plant risk scoring dynamically based on historical precedent patterns.
-* **Implementation:** [learning_risk_memory.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/learning_risk_memory.py) | [rules.py (Dynamic offset calculations)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/rules.py)
+* **Implementation:** [learning_risk_memory.py](file:backend/app/engine/learning_risk_memory.py) | [rules.py (Dynamic offset calculations)](file:backend/app/engine/rules.py)
 
 ### 16. 🛸 Autonomous Drone Inspection
 Simulates dispatching autonomous quadcopters to inspect warning zones, returning live feeds, battery status, gas sniffing outputs, worker counts, and thermal sensor payloads.
-* **Implementation:** [drone.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/orchestrator/drone.py) | [page.tsx (Digital Twin sidebar control)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/digital-twin/page.tsx)
+* **Implementation:** [drone.py](file:backend/app/orchestrator/drone.py) | [page.tsx (Digital Twin sidebar control)](file:frontend/app/digital-twin/page.tsx)
 
 ### 17. 💬 Natural Language Query Engine
 Lets safety officers query in plain English (e.g., "Show me all permits with gas > 20ppm during maintenance in the last 6 months") to return visual stats and highlighted layout zones.
-* **Implementation:** [query_engine.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/orchestrator/query_engine.py) | [page.tsx (Query engine integration)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/chatbot/page.tsx)
+* **Implementation:** [query_engine.py](file:backend/app/orchestrator/query_engine.py) | [page.tsx (Query engine integration)](file:frontend/app/chatbot/page.tsx)
 
 ### 18. 🧬 Risk Memory using RAG + Knowledge Graph
 Fuses semantic documentation indexing (RAG) with process relation traversals (Knowledge Graph) to compute detailed Equipment, Weather, Maintenance, and Root Cause similarity matrices.
-* **Implementation:** [hybrid_reasoner.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/hybrid_reasoner.py) | [page.tsx (Incident Desk diagnostics)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/incidents/page.tsx)
+* **Implementation:** [hybrid_reasoner.py](file:backend/app/rag/hybrid_reasoner.py) | [page.tsx (Incident Desk diagnostics)](file:frontend/app/incidents/page.tsx)
 
 ### 19. 🤖 Plant Safety GPT
 Enables step-by-step query checking before approving hazardous work permits, auditing active zone gas concentrations, LOTO isolations, and technician certifications.
-* **Implementation:** [agent.py (RAG compliance audit)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/agent.py) | [agent.py (Permit auditor)](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/permits/agent.py)
+* **Implementation:** [agent.py (RAG compliance audit)](file:backend/app/rag/agent.py) | [agent.py (Permit auditor)](file:backend/app/permits/agent.py)
 
 ### 20. 🔄 Self-Improving AI Agents
 Implements an interactive feedback system where safety coordinators score agent decisions, dynamically updating weights to reinforce consensus predictions over time.
-* **Implementation:** [feedback_engine.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/feedback_engine.py) | [collaborative_reasoning.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/collaborative_reasoning.py)
+* **Implementation:** [feedback_engine.py](file:backend/app/engine/feedback_engine.py) | [collaborative_reasoning.py](file:backend/app/engine/collaborative_reasoning.py)
 
 ---
 
