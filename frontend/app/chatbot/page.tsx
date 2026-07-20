@@ -105,7 +105,9 @@ Try asking one of the suggested prompts below to start:`,
         const assistantMsg: ChatMessage = {
           id: `a_${Date.now()}`,
           sender: 'assistant',
-          content: response,
+          content: response.answer,
+          sources: response.sources,
+          mode: response.mode,
           timestamp: new Date().toISOString()
         };
         setMessages((prev) => [...prev, assistantMsg]);
@@ -283,8 +285,39 @@ Try asking one of the suggested prompts below to start:`,
                     ? 'bg-safety-orange text-white border-l-4 border-l-amber-500 rounded-tr-none' 
                     : 'bg-black/35 border border-white/5 text-slate-300 rounded-tl-none'
                 }`}>
+                  {!isUser && msg.mode && (
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-bold font-mono tracking-wide mb-2 uppercase ${
+                      msg.mode.includes('Active') 
+                        ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' 
+                        : msg.mode.includes('Failed')
+                        ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+                        : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+                    }`}>
+                      {msg.mode}
+                    </span>
+                  )}
+
                   {isUser ? <p>{msg.content}</p> : formatContent(msg.content)}
                   
+                  {!isUser && msg.sources && msg.sources.length > 0 && (
+                    <div className="mt-3 pt-2.5 border-t border-white/5">
+                      <span className="text-[8px] font-mono text-slate-500 block uppercase mb-1.5 tracking-wider">📚 Verified Reference Sources:</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {msg.sources.map((src, sidx) => (
+                          <div 
+                            key={sidx} 
+                            className="bg-white/5 border border-white/5 rounded px-2 py-1 text-[9px] font-mono text-slate-300 flex items-center gap-1 hover:bg-white/10 transition-colors"
+                            title={`Document: ${src.title} | Source: ${src.source} | Score: ${(src.score * 100).toFixed(0)}%`}
+                          >
+                            <span className="w-1 h-1 rounded-full bg-safety-orange/70" />
+                            <span className="truncate max-w-[150px]">{src.title}</span>
+                            <span className="text-slate-500">({(src.score * 100).toFixed(0)}%)</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <span className="text-[8px] font-mono text-slate-500 block text-right mt-2 uppercase">
                     {mounted 
                       ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

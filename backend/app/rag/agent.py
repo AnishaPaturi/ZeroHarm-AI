@@ -27,7 +27,7 @@ class ZeroHarmSafetyAgent:
         else:
             logger.info("No OPENROUTER_API_KEY found. RAG Agent will use the local rule-based fallback engine.")
 
-    def query(self, user_query: str) -> Dict[str, Any]:
+    def query(self, user_query: str, hard_violations: List[str] = None) -> Dict[str, Any]:
         """
         Query the RAG pipeline.
         Returns:
@@ -54,6 +54,15 @@ class ZeroHarmSafetyAgent:
             "You are ZeroHarm AI, an expert industrial safety intelligence and compliance agent.\n"
             "Analyze the user's query/scenario using the provided context containing statutory compliance acts, "
             "OISD/DGMS safety standards, and historical plant incident records.\n\n"
+        )
+        if hard_violations:
+            prompt += (
+                "--- DETERMINISTIC SYSTEM AUDIT FINDINGS ---\n"
+                "The system has detected the following hard threshold violations in code:\n"
+                + "\n".join(f"- {v}" for v in hard_violations) + "\n"
+                "You must cite these exact findings in your analysis under the 'Statutory Compliance Audit' section.\n\n"
+            )
+        prompt += (
             "--- RETRIEVED CONTEXT ---\n"
             f"{context_str}"
             "--- USER QUERY / SCENARIO ---\n"
@@ -77,7 +86,7 @@ class ZeroHarmSafetyAgent:
             logger.error("OpenRouter query failed. Falling back to rule-based fallback engine.")
 
         # Rule-based fallback if offline / key missing / API failed
-        answer = self._generate_rule_based_fallback_response(user_query, hits)
+        answer = self._generate_rule_based_fallback_response(user_query, hits, hard_violations)
         return {
             "answer": answer,
             "sources": sources_list,
@@ -120,6 +129,31 @@ class ZeroHarmSafetyAgent:
         """
         Audit a live zone telemetry and operational status for compliance violations.
         """
+        # Hard legal limit comparisons (Factories Act Sec 36, OISD standards)
+        hard_violations = []
+        o2 = telemetry.get("o2", 20.9)
+        co = telemetry.get("co", 0)
+        ch4 = telemetry.get("ch4_lfl", 0)
+        h2s = telemetry.get("h2s", 0)
+        
+        if o2 is not None:
+            if o2 < 19.5:
+                hard_violations.append(f"CRITICAL OXYGEN DEFICIENCY: Level is {o2}% (Statutory minimum: 19.5% per Factories Act Sec 36). Asphyxiation hazard.")
+            elif o2 > 23.5:
+                hard_violations.append(f"OXYGEN ENRICHED ATMOSPHERE: Level is {o2}% (Statutory limit: 23.5%). High flammability risk.")
+                
+        if co is not None and co > 25:
+            if co >= 50:
+                hard_violations.append(f"CRITICAL TOXIC GAS ALARM (CO): Carbon Monoxide is {co} ppm (OSHA Evacuation limit: 50 ppm, OISD-137 exceedance).")
+            else:
+                hard_violations.append(f"TOXIC GAS WARNING (CO): Carbon Monoxide is {co} ppm (OSHA PEL: 25 ppm). Wear respirators.")
+                
+        if ch4 is not None and ch4 >= 4.0:
+            hard_violations.append(f"CRITICAL FLAMMABILITY REACHED (CH4): Methane is {ch4}% LFL (Limit: 4.0% LFL per OISD-STD-105). Banned spark-producing hot work.")
+            
+        if h2s is not None and h2s >= 10.0:
+            hard_violations.append(f"CRITICAL TOXIC HAZARD (H2S): Hydrogen Sulfide is {h2s} ppm (OISD limit: 10 ppm). Fatal exposure potential.")
+
         # Compile a text scenario description from the live status
         permit_types = [p.get("permit_type", "") for p in permits if p.get("status", "").lower() == "active"]
         
@@ -131,18 +165,39 @@ class ZeroHarmSafetyAgent:
         )
         
         # Query the RAG agent
-        rag_response = self.query(f"Identify compliance deviations or past precedents for the following plant status: {scenario_description}")
+        rag_response = self.query(
+            f"Identify compliance deviations or past precedents for the following plant status: {scenario_description}",
+            hard_violations=hard_violations
+        )
         return rag_response
 
-    def _generate_rule_based_fallback_response(self, query: str, hits: List[Dict[str, Any]]) -> str:
+    def _generate_rule_based_fallback_response(self, query: str, hits: List[Dict[str, Any]], hard_violations: List[str] = None) -> str:
         """Generates a highly structured, readable fallback analysis utilizing the retrieved context."""
         query_lower = query.lower()
         
+        # Check if the query is a simple greeting or general smalltalk
+        greetings = ["hello", "hi", "hey", "greetings", "good morning", "good afternoon", "good evening", "howdy", "status"]
+        is_greeting = any(g in query_lower.split() for g in greetings) or query_lower.strip() in ("hello", "hi", "hey")
+        
+        if is_greeting:
+            return (
+                "### 👋 Hello! I am your ZeroHarm Safety Intelligence Assistant.\n\n"
+                "I am connected to the refinery safety database containing regulations such as the **Factories Act 1948**, "
+                "**OISD safety standards**, and historical plant incident records.\n\n"
+                "I am currently running in offline fallback mode using rule-based compliance auditing. You can query me about:\n"
+                "- 📜 **Confined space safety** (Section 36 guidelines, oxygen level limits)\n"
+                "- 🔥 **Hot Work permits** (OISD-STD-105 standard, methane flammability limits)\n"
+                "- 👷 **PPE guidelines** (Working at heights, safety harnesses, gas masks)\n"
+                "- 📈 **Carbon Monoxide alarms** (safe exposure limits, ventilation rules)\n\n"
+                "How can I assist you with safety protocols today?"
+            )
+            
         # Analyze query categories
         has_confined = "confined" in query_lower or "sinter" in query_lower or "o2" in query_lower or "oxygen" in query_lower
         has_hotwork = "hot work" in query_lower or "welding" in query_lower or "ch4" in query_lower or "methane" in query_lower or "coke" in query_lower
         has_co = "co" in query_lower or "carbon monoxide" in query_lower or "gas leak" in query_lower
         has_maint = "maintenance" in query_lower or "changeover" in query_lower or "handover" in query_lower
+        has_height = "height" in query_lower or "ppe" in query_lower or "harness" in query_lower or "scaffold" in query_lower or "fall" in query_lower or "equipment" in query_lower
         
         response = (
             "### 🛡️ ZeroHarm AI Safety & Compliance Audit\n\n"
@@ -177,6 +232,13 @@ class ZeroHarmSafetyAgent:
                 "Past audits indicate high compliance checks are required in this zone, "
                 "specifically checking oxygen levels before entry to prevent asphyxiation traps.\n"
             )
+        if has_height:
+            precedent_found = True
+            response += (
+                "- **Ammonia Storage Tank Scaffold Incident (Oct 2025)** matches this profile. "
+                "A maintenance technician was observed working at heights on a scaffold without a double lanyard safety harness "
+                "or appropriate fall protection gear. The work was halted for safety re-briefing.\n"
+            )
             
         if not precedent_found:
             response += "- **No direct matching historical incidents** found in the curated database. However, general safety audits apply.\n"
@@ -205,6 +267,12 @@ class ZeroHarmSafetyAgent:
                 "**SIMOPs Guidelines Violation**: Performing spark-producing maintenance work in a zone containing active confined space operations "
                 "creates severe overlapping hazards requiring senior safety coordinator override."
             )
+        if has_height:
+            deviations.append(
+                "**Factories Act 1948 - Section 32 & OISD-STD-105 (Working at Heights)**: "
+                "Any work performed at a height of 1.8 meters or more requires a valid height permit, a double-lanyard safety harness "
+                "anchored to a certified life-line, proper scaffolding handrails, and personal fall-arrest system safety helmet."
+            )
             
         if deviations:
             for dev in deviations:
@@ -214,13 +282,30 @@ class ZeroHarmSafetyAgent:
             
         # Part 3: Actions
         response += "\n#### 3. 🚨 Preemptive Safety Recommendations\n"
-        response += (
-            "1. **Isolate and Vent**: Activate emergency exhaust ventilation in the affected zone. Close upstream valves.\n"
-            "2. **Suspend Permits**: Revoke all active Hot Work or Confined Space permits in the zone immediately.\n"
-            "3. **Deploy Standby Watch**: Ensure safety monitors stand by outside any confined entry point with breathing apparatus and lifeline harness.\n"
-            "4. **Re-Audits**: Conduct mandatory gas sweeps using portable calibrated detectors before permitting worker re-entry."
-        )
-        
+        recs = []
+        if has_confined:
+            recs.append("**Atmospheric Testing**: Perform oxygen and toxic gas sweeps using portable calibrated detectors before entry.")
+            recs.append("**Standby Watch**: Station a trained safety sentinel outside the entrance with rescue breathing gear and a lifeline harness.")
+        if has_hotwork:
+            recs.append("**Permit Suspend**: Revoke active hot work permits if methane or flammable gases rise above 4% LFL.")
+            recs.append("**Spark Containment**: Install flame-resistant tarpaulins/blankets to capture sparks and slag.")
+        if has_co:
+            recs.append("**Process Isolation**: Close upstream ESD valves immediately to contain gas leak propagation.")
+            recs.append("**Emergency Exhaust**: Initiate continuous mechanical ventilation to sweep and dilute CO levels.")
+        if has_height:
+            recs.append("**Fall Arrest Gear**: Verify that all personnel are wearing double lanyard safety harnesses with shock absorbers.")
+            recs.append("**Scaffolding Audit**: Verify stable scaffolding footings, handrails, toe-boards, and presence of safety nets.")
+            
+        # Default fallback recommendations if no specific category matched
+        if not recs:
+            recs.append("**Isolate and Vent**: Activate emergency exhaust ventilation in the affected zone. Close upstream valves.")
+            recs.append("**Suspend Permits**: Revoke all active Hot Work or Confined Space permits in the zone immediately.")
+            recs.append("**Deploy Standby Watch**: Ensure safety monitors stand by outside any confined entry point with breathing apparatus.")
+            recs.append("**Re-Audits**: Conduct mandatory gas sweeps using portable calibrated detectors before permitting worker re-entry.")
+
+        for i, rec in enumerate(recs):
+            response += f"{i+1}. {rec}\n"
+            
         # Part 4: Context Sources
         response += "\n\n---"
         response += "\n**Retrieved RAG Chunks:**\n"
