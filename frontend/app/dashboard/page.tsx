@@ -19,6 +19,7 @@ import {
 } from '../../hooks/useIncident';
 import Modal from '../../component/Modal';
 import { fetchBackend } from '../../services/api';
+import { eventBus } from '../../lib/eventBus';
 import { 
   Users, 
   FileWarning, 
@@ -180,8 +181,61 @@ export default function Dashboard() {
     C: plantCStats
   };
 
-  const handleResolveAction = (title: string) => {
+  const handleResolveAction = async (title: string) => {
     addToast(`Initiated dispatch: ${title}`, 'success');
+    
+    const zone = debateResult?.zone || 'Coke Oven Battery 1';
+    const titleLower = title.toLowerCase();
+
+    // 1. If it's an evacuation directive, trigger emergency mode in the store
+    if (titleLower.includes('evacuate') || titleLower.includes('sirens') || titleLower.includes('siren')) {
+      useIncident.getState().setEmergency(true, `Evacuation ordered: ${title}`);
+      eventBus.publish({
+        type: 'EmergencyDeclared',
+        payload: { message: title }
+      });
+    }
+    
+    // 2. If it's a permit revocation directive, publish PermitRevoked
+    else if (titleLower.includes('revoke') || titleLower.includes('permit')) {
+      const match = title.match(/PTW-[A-Z0-9-]+/i);
+      const permitId = match ? match[0] : 'PTW-HW-202';
+      eventBus.publish({
+        type: 'PermitRevoked',
+        payload: { permitId }
+      });
+    }
+
+    // 3. If it's an isolation directive
+    else if (titleLower.includes('isolate') || titleLower.includes('close')) {
+      eventBus.publish({
+        type: 'EquipmentFaultDetected',
+        payload: { equipId: 'ESD Valve', line: zone, fault: 'Isolating Line Segment' }
+      });
+    }
+
+    // 4. Default Crew Dispatch
+    else {
+      eventBus.publish({
+        type: 'MaintenanceStarted',
+        payload: {
+          equipId: 'Safety Rescue Squad',
+          task: title
+        }
+      });
+    }
+
+    // 5. Drone inspection integration
+    if (titleLower.includes('drone') || titleLower.includes('inspect') || titleLower.includes('sweep')) {
+      try {
+        await fetchBackend(`/api/drone/dispatch?zone=${encodeURIComponent(zone)}`, {
+          method: 'POST'
+        });
+        addToast(`Autonomous Drone successfully dispatched to ${zone}`, 'success');
+      } catch (err) {
+        console.warn('Drone dispatch backend call failed:', err);
+      }
+    }
   };
 
   if (authLoading) {
