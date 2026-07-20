@@ -122,7 +122,252 @@ export default function ShiftHandover() {
   }, [authLoading, isAuthenticated]);
 
   const handleExport = () => {
-    addToast('Shift handover report exported to PDF logbook.', 'success');
+    if (!data) return;
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      addToast('Popup blocked! Please allow popups to export the logbook.', 'error');
+      return;
+    }
+
+    const permitsRows = data.active_permits?.length
+      ? data.active_permits.map((p: any) => `
+        <tr>
+          <td>${p.permit_id}</td>
+          <td style="text-transform: uppercase;">${p.permit_type?.replace('_', ' ')}</td>
+          <td>${p.zone}</td>
+          <td>${p.workers}</td>
+        </tr>
+      `).join('')
+      : '<tr><td colspan="4" style="text-align: center; color: #64748b;">No active work permits at shift boundary.</td></tr>';
+
+    const maintenanceRows = data.ongoing_maintenance?.length
+      ? data.ongoing_maintenance.map((m: any) => `
+        <tr>
+          <td>${m.equipment}</td>
+          <td>${m.zone}</td>
+          <td>${m.status}</td>
+        </tr>
+      `).join('')
+      : '<tr><td colspan="3" style="text-align: center; color: #64748b;">All machinery operating online. No LOTO tags active.</td></tr>';
+
+    const gasAlertsContent = data.gas_alerts?.length
+      ? data.gas_alerts.map((a: string) => `<li style="color: #b91c1c; font-weight: bold; margin-bottom: 4px;">❌ ${a}</li>`).join('')
+      : '<li style="color: #15803d; list-style-type: none;">✔️ All gas sensor readings within safe statutory thresholds.</li>';
+
+    const riskZonesContent = data.high_risk_zones?.length
+      ? data.high_risk_zones.map((hz: any) => `<li>⚠️ <strong>${hz.zone}</strong>: Composite Risk ${hz.risk_score}% (${hz.risk_level})</li>`).join('')
+      : '<li style="list-style-type: none;">✔️ No critical risk zones active. Plant operating within safe parameters.</li>';
+
+    const recommendationsContent = data.recommendations?.length
+      ? data.recommendations.map((rec: string) => `<li>[ ] ${rec}</li>`).join('')
+      : '<li>[ ] Continue routine safety rounds and monitor SCADA feeds.</li>';
+
+    const formattedNarrative = data.handover_narrative || '';
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Shift_Handover_Logbook_${new Date(data.timestamp).toISOString().split('T')[0]}</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            body {
+              font-family: 'Inter', sans-serif;
+              color: #1e293b;
+              padding: 40px;
+              margin: 0;
+              background-color: #ffffff;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 2px solid #0f172a;
+              padding-bottom: 20px;
+              margin-bottom: 25px;
+            }
+            .header h1 {
+              font-size: 22px;
+              margin: 0;
+              color: #0f172a;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .header p {
+              font-size: 10px;
+              color: #475569;
+              margin: 5px 0 0 0;
+              font-family: monospace;
+              letter-spacing: 0.5px;
+            }
+            .meta-grid {
+              display: grid;
+              grid-template-cols: 1fr 1fr;
+              gap: 15px;
+              margin-bottom: 25px;
+              font-size: 13px;
+              background-color: #f8fafc;
+              padding: 15px;
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+            }
+            .meta-item {
+              margin-bottom: 4px;
+            }
+            .meta-item strong {
+              color: #0f172a;
+            }
+            .section-title {
+              font-size: 13px;
+              font-weight: 700;
+              color: #0f172a;
+              border-left: 4px solid #f97316;
+              padding-left: 8px;
+              margin: 25px 0 12px 0;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+              font-size: 12px;
+            }
+            table th, table td {
+              border: 1px solid #cbd5e1;
+              padding: 8px 12px;
+              text-align: left;
+            }
+            table th {
+              background-color: #f1f5f9;
+              color: #0f172a;
+              font-weight: 600;
+            }
+            ul {
+              margin: 0;
+              padding-left: 20px;
+              font-size: 12px;
+              line-height: 1.6;
+            }
+            li {
+              margin-bottom: 6px;
+            }
+            .narrative-box {
+              background-color: #fafafa;
+              border: 1px solid #e2e8f0;
+              border-left: 4px solid #0f172a;
+              padding: 15px;
+              font-family: monospace;
+              font-size: 12px;
+              white-space: pre-wrap;
+              line-height: 1.5;
+              border-radius: 4px;
+              margin-top: 10px;
+            }
+            .signatures {
+              margin-top: 50px;
+              display: grid;
+              grid-template-cols: 1fr 1fr;
+              gap: 50px;
+              page-break-inside: avoid;
+            }
+            .signature-line {
+              border-top: 1px solid #cbd5e1;
+              padding-top: 8px;
+              text-align: center;
+              font-size: 12px;
+              font-weight: 500;
+              color: #475569;
+              margin-top: 40px;
+            }
+            @media print {
+              body {
+                padding: 20px;
+              }
+              .no-print {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>ZeroHarm AI Safety Intelligence Platform</h1>
+            <p>STATUTORY SHIFT HANDOVER LOGBOOK (FACTORIES ACT 1948 SEC. 87)</p>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item"><strong>Generated On:</strong> ${new Date().toLocaleString()}</div>
+            <div class="meta-item"><strong>Shift Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}</div>
+            <div class="meta-item"><strong>Facility Location:</strong> Refinery Operations Area</div>
+            <div class="meta-item"><strong>Audited Zones:</strong> Coke Oven Battery, Sinter Plant, Ammonia Storage</div>
+          </div>
+
+          <div class="section-title">1. Active Work Permits</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Permit ID</th>
+                <th>Permit Type</th>
+                <th>Zone / Sector</th>
+                <th>Worker Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${permitsRows}
+            </tbody>
+          </table>
+
+          <div class="section-title">2. LOTO Status & Machinery Isolations</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Isolated Equipment Segment</th>
+                <th>Zone / Sector</th>
+                <th>Current Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${maintenanceRows}
+            </tbody>
+          </table>
+
+          <div class="section-title">3. Environmental & Gas Telemetry Anomaly Log</div>
+          <ul>
+            ${gasAlertsContent}
+          </ul>
+
+          <div class="section-title">4. Zone Safety Risk Classifications</div>
+          <ul>
+            ${riskZonesContent}
+          </ul>
+
+          <div class="section-title">5. AI Compiled Shift Change Directives</div>
+          <ul>
+            ${recommendationsContent}
+          </ul>
+
+          <div class="section-title">6. Safety RAG Summary & Precedent Analysis</div>
+          <div class="narrative-box">${formattedNarrative}</div>
+
+          <div class="signatures">
+            <div>
+              <div class="signature-line">Outgoing Shift Safety Officer</div>
+            </div>
+            <div>
+              <div class="signature-line">Incoming Shift Safety Officer</div>
+            </div>
+          </div>
+          
+          <script>
+            window.onload = function() {
+              window.print();
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    addToast('PDF shift logbook layout prepared for printing.', 'success');
   };
 
   if (authLoading || loading) {
