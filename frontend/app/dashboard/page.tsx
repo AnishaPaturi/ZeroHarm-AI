@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -39,6 +39,11 @@ import {
 export default function Dashboard() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  useEffect(() => {
+  if (!authLoading && !isAuthenticated) {
+    router.replace("/login");
+  }
+}, [authLoading, isAuthenticated, router]);
   const { addToast } = useNotifications();
 
   // central raw store telemetry values
@@ -192,24 +197,27 @@ export default function Dashboard() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center max-w-md mx-auto py-12">
-        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-safety-orange mb-4">
-          <ShieldAlert className="w-6 h-6" />
-        </div>
-        <h3 className="font-heading text-lg font-bold text-white mb-2">Gatehouse Verification Required</h3>
-        <p className="text-xs text-slate-400 leading-relaxed mb-6">
-          You must log into the platform gateway to view refinery safety telemetry details.
-        </p>
-        <button
-          onClick={() => router.push('/login')}
-          className="bg-safety-orange text-white font-semibold text-xs px-6 py-2.5 rounded-xl hover:bg-safety-orange/90 transition-colors cursor-pointer"
-        >
-          Proceed to Login
-        </button>
-      </div>
-    );
+  // if (!isAuthenticated) {
+  //   return (
+  //     <div className="min-h-[60vh] flex flex-col items-center justify-center text-center max-w-md mx-auto py-12">
+  //       <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-safety-orange mb-4">
+  //         <ShieldAlert className="w-6 h-6" />
+  //       </div>
+  //       <h3 className="font-heading text-lg font-bold text-white mb-2">Gatehouse Verification Required</h3>
+  //       <p className="text-xs text-slate-400 leading-relaxed mb-6">
+  //         You must log into the platform gateway to view refinery safety telemetry details.
+  //       </p>
+  //       <button
+  //         onClick={() => router.push('/login')}
+  //         className="bg-safety-orange text-white font-semibold text-xs px-6 py-2.5 rounded-xl hover:bg-safety-orange/90 transition-colors cursor-pointer"
+  //       >
+  //         Proceed to Login
+  //       </button>
+  //     </div>
+  //   );
+  // }
+  if(!isAuthenticated){
+    return null;
   }
 
   return (

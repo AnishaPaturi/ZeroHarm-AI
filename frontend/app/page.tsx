@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Shield, 
   BrainCircuit, 
@@ -30,6 +32,18 @@ import {
 } from 'lucide-react';
 
 export default function LandingPage() {
+
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+
+  const handleOperationsCenter = () => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    } else {
+      router.push("/login");
+    }
+  };
+
   // Scenario simulation state
   const [methaneLevel, setMethaneLevel] = useState<number>(3.2);
   const [isPermitActive, setIsPermitActive] = useState<boolean>(true);
@@ -171,13 +185,21 @@ export default function LandingPage() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <Link 
-            href="/dashboard"
+          {/* <Link 
+            href="/login"
             className="group bg-gradient-to-r from-safety-orange to-amber-600 hover:from-safety-orange hover:to-amber-500 text-white font-semibold text-sm px-8 py-4 rounded-2xl transition-all shadow-lg shadow-safety-orange/15 hover:shadow-safety-orange/20 flex items-center justify-center gap-2 border border-white/10"
           >
             <span>Enter Operations Center</span>
             <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          </Link> */}
+        <button
+            onClick={handleOperationsCenter}
+            className="group bg-gradient-to-r from-safety-orange to-amber-600 hover:from-safety-orange hover:to-amber-500 text-white font-semibold text-sm px-8 py-3.5 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 border border-white/10"
+        >
+            <span>Enter Operations Center</span>
+            <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+        </button>
+
           <Link 
             href="/login"
             className="bg-white/5 hover:bg-white/10 text-white font-semibold text-sm px-8 py-4 rounded-2xl transition-all border border-white/10 flex items-center justify-center"
