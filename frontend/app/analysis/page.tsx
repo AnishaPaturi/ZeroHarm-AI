@@ -8,6 +8,7 @@ import { useIncident, selectPlantSafetyRating, selectOverallRisk } from '../../h
 import { useNotifications } from '../../hooks/useNotifications';
 import Loader from '../../component/Loader';
 import { fetchBackend } from '../../services/api';
+import MarkdownRenderer from '../../component/MarkdownRenderer';
 import { 
   Activity, 
   BrainCircuit, 
@@ -603,8 +604,8 @@ export default function AnalysisPage() {
                           </div>
 
                           {/* Markdown report */}
-                          <div className="md:col-span-2 bg-black/35 border border-white/5 p-5 rounded-2xl border-l-4 border-l-safety-orange font-mono text-[10.5px] leading-relaxed whitespace-pre-line text-slate-300">
-                            {hybridReasoning.fused_analysis_markdown}
+                          <div className="md:col-span-2 bg-black/35 border border-white/5 p-5 rounded-2xl border-l-4 border-l-safety-orange text-slate-300">
+                            <MarkdownRenderer content={hybridReasoning.fused_analysis_markdown} />
                           </div>
 
                         </div>

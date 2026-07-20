@@ -7,6 +7,7 @@ import { useNotifications } from '../../hooks/useNotifications';
 import { fetchBackend } from '../../services/api';
 import { FileText, Clock, AlertTriangle, CheckCircle, ArrowRight, ShieldAlert, Cpu } from 'lucide-react';
 import Loader from '../../component/Loader';
+import MarkdownRenderer from '../../component/MarkdownRenderer';
 
 const generateLocalHandoverSummary = () => {
   const now = new Date();
@@ -525,8 +526,8 @@ export default function ShiftHandover() {
             <span className="text-[10px] font-mono text-slate-500 uppercase">Compiled by ZeroHarm AI</span>
           </div>
 
-          <div className="text-xs text-slate-300 leading-relaxed font-mono whitespace-pre-line bg-black/25 border border-white/5 p-5 rounded-2xl border-l-4 border-l-safety-orange">
-            {data?.handover_narrative}
+          <div className="bg-black/25 border border-white/5 p-5 rounded-2xl border-l-4 border-l-safety-orange">
+            <MarkdownRenderer content={data?.handover_narrative} />
           </div>
         </div>
 
