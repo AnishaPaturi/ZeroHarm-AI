@@ -108,6 +108,7 @@ interface IncidentStore {
   activePermits: typeof DEFAULT_PERMITS;
   emergencyMode: boolean;
   evacuationMessage: string;
+  wsConnected: boolean;
   eventLogs: AppEvent[];
   aiReasoning: { reasoning: string; recommendations: string[]; detectedHazards: string[] };
   activeDebate: any | null;
@@ -156,6 +157,7 @@ export const useIncident = create<IncidentStore>((set, get) => ({
   activePermits: [...DEFAULT_PERMITS],
   emergencyMode: false,
   evacuationMessage: '',
+  wsConnected: false,
   eventLogs: [],
   aiReasoning: {
     reasoning: 'Connecting to ZeroHarm safety system server...',
@@ -615,7 +617,8 @@ export const selectPlantAStats = (state: IncidentStore) => {
     safety: safetyRating,
     crew: crewA,
     hazards: hazardsA,
-    name: 'Refinery Block A',
+    name: 'Blast Furnace A',
+    zone: 'Blast Furnace A',
     details: `Active distillation segment operating at pressure ${state.telemetry.segmentDPressure} bar, temp ${state.telemetry.temperature}°C.`
   };
 
@@ -655,7 +658,8 @@ export const selectPlantBStats = (state: IncidentStore) => {
     safety: safetyB,
     crew: crewB,
     hazards: hazardsB,
-    name: 'Chemical Storage Area B',
+    name: 'Coke Oven Battery 1',
+    zone: 'Coke Oven Battery 1',
     details: `Containment manifold monitoring LEL levels at ${state.telemetry.gasLpgLEL}%. Active permits: ${state.activePermits.length}.`
   };
 
@@ -688,7 +692,8 @@ export const selectPlantCStats = (state: IncidentStore) => {
     safety: 98,
     crew: crewC,
     hazards: hazardsC,
-    name: 'Packaging and Logistics C',
+    name: 'Sinter Plant',
+    zone: 'Sinter Plant',
     details: 'Nominal operational status. Secondary visual checks validated.'
   };
 

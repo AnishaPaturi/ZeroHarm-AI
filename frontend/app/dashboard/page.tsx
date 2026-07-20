@@ -54,6 +54,7 @@ export default function Dashboard() {
   const emergencyMode = useIncident(state => state.emergencyMode);
   const evacuationMessage = useIncident(state => state.evacuationMessage);
   const nearMisses = useIncident(state => state.nearMisses);
+  const wsConnected = useIncident(state => state.wsConnected);
 
   // computed derived selectors
   const safetyRating = useIncident(selectPlantSafetyRating);
@@ -70,6 +71,7 @@ export default function Dashboard() {
   const [isDebateModalOpen, setIsDebateModalOpen] = useState(false);
   const [isDebating, setIsDebating] = useState(false);
   const [debateResult, setDebateResult] = useState<any>(null);
+  const NEAR_MISS_DISPLAY_LIMIT = 5;
 
   const generateLocalDashboardDebate = (zone: string) => {
     const isCoke = zone.toLowerCase().includes('coke') || zone.toLowerCase().includes('battery');
@@ -149,9 +151,7 @@ export default function Dashboard() {
 
   const handleRunDebate = async () => {
     setIsDebating(true);
-    let zone = 'Blast Furnace A';
-    if (selectedPlant === 'B') zone = 'Coke Oven Battery 1';
-    else if (selectedPlant === 'C') zone = 'Sinter Plant';
+    const zone = plantStats[selectedPlant].zone;
 
     try {
       const response = await fetchBackend<any>('/api/collaborative-reasoning/debate', {
@@ -244,9 +244,21 @@ export default function Dashboard() {
             Safety Operations Center
           </h1>
         </div>
-        <div className="flex items-center gap-2 bg-white/5 border border-white/5 rounded-xl px-3 py-1.5 text-xs text-slate-400 font-mono">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
-          <span>CONNECTED SECTORS: 3 / 3</span>
+        <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-2 bg-white/5 border border-white/5 rounded-xl px-3 py-1.5 text-xs font-mono ${
+            wsConnected ? 'text-slate-400' : 'text-amber-400'
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${wsConnected ? 'bg-green-500 animate-ping' : 'bg-amber-500'}`} />
+            <span>{wsConnected ? 'LIVE TELEMETRY: CONNECTED' : 'OFFLINE — CACHED DATA'}</span>
+          </div>
+          <div className={`flex items-center gap-2 border rounded-xl px-3 py-1.5 text-xs font-mono font-semibold ${
+            overallRisk === 'Low' ? 'bg-green-500/10 border-green-500/20 text-green-400' :
+            overallRisk === 'Medium' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+            overallRisk === 'High' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
+            'bg-red-500/10 border-red-500/20 text-red-400'
+          }`}>
+            <span>OVERALL RISK: {overallRisk.toUpperCase()}</span>
+          </div>
         </div>
       </div>
 
@@ -285,6 +297,11 @@ export default function Dashboard() {
               <div>
                 <h3 className="font-heading text-base font-bold text-white tracking-wide">Plant Telemetry Monitor</h3>
                 <p className="text-[11px] text-slate-400 mt-0.5">Select plant segment to filter sensors</p>
+                <div className="flex gap-3 mt-2 text-[10px] font-mono text-slate-400">
+                  <span>GAS LEL: <span className="text-slate-200 font-semibold">{telemetry.gasLpgLEL}%</span></span>
+                  <span>PRESSURE: <span className="text-slate-200 font-semibold">{telemetry.segmentDPressure} bar</span></span>
+                  <span>TEMP: <span className="text-slate-200 font-semibold">{telemetry.temperature}°C</span></span>
+                </div>
               </div>
 
               {/* Plant Switchers */}
@@ -333,6 +350,31 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Active Work Permits for selected zone */}
+            <div className="bg-black/35 border border-white/5 rounded-2xl p-5">
+              <span className="text-[10px] text-slate-400 font-mono uppercase tracking-wider block mb-3">
+                Active Work Permits — {plantStats[selectedPlant].name}
+              </span>
+              {(() => {
+                const zonePermits = activePermits.filter((p: any) => p.zone === plantStats[selectedPlant].zone);
+                if (zonePermits.length === 0) {
+                  return (
+                    <p className="text-xs text-slate-500 italic">No active permits in this segment.</p>
+                  );
+                }
+                return (
+                  <div className="flex flex-col gap-2">
+                    {zonePermits.map((p: any, idx: number) => (
+                      <div key={p.permitId || idx} className="flex justify-between items-center bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-xs">
+                        <span className="text-slate-300">{p.description}</span>
+                        <span className="text-[9px] font-mono text-safety-orange uppercase">{p.permitId}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
           </div>
@@ -399,14 +441,14 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
               {nearMisses.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-6 text-center bg-black/25 border border-dashed border-white/5 rounded-2xl p-4 text-xs text-slate-500">
                   <ShieldAlertIcon className="w-8 h-8 text-slate-600 mb-2" />
                   <p className="italic">No active near-miss risks predicted. Shift forecast nominal.</p>
                 </div>
               ) : (
-                nearMisses.map((nm, idx) => {
+                nearMisses.slice(0, NEAR_MISS_DISPLAY_LIMIT).map((nm, idx) => {
                   const trendIcon = nm.trend === 'escalating' ? <TrendingUp className="w-3.5 h-3.5 text-red-400" /> :
                     nm.trend === 'stable' ? <Minus className="w-3.5 h-3.5 text-amber-400" /> :
                     <TrendingDown className="w-3.5 h-3.5 text-green-400" />;
@@ -474,6 +516,14 @@ export default function Dashboard() {
                 })
               )}
             </div>
+            {nearMisses.length > NEAR_MISS_DISPLAY_LIMIT && (
+              <button
+                onClick={() => router.push('/near-misses')}
+                className="w-full mt-3 text-center text-[10px] font-mono font-semibold text-safety-orange hover:underline cursor-pointer"
+              >
+                View all {nearMisses.length} predictions →
+              </button>
+            )}
           </div>
           <div className="glass-panel border border-white/10 rounded-3xl p-6">
             <div className="flex justify-between items-center mb-6">
