@@ -52,6 +52,11 @@ from .integration.models import FullAssessmentResponse, DemoScenarioResponse
 from .integration.demo_script import get_demo_scenario
 from .geospatial.topology import PlantTopology
 
+# ---------------------------------------------------------------------------
+# Innovation 7 — Dynamic Risk Graph (Knowledge Graph)
+# ---------------------------------------------------------------------------
+from .knowledge_graph.graph import RiskKnowledgeGraph
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("zeroharm_ai")
 
@@ -92,6 +97,9 @@ safety_agent = ZeroHarmSafetyAgent(vector_store=vector_store)
 permit_agent = DigitalPermitIntelligenceAgent()
 topology_engine = PlantTopology()
 collaborative_engine = MultiAgentCollaborativeReasoning()
+
+# --- Innovation 7: Knowledge Graph globals ---
+risk_graph = RiskKnowledgeGraph()
 
 
 def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
@@ -1311,3 +1319,82 @@ def get_safety_coach_leaderboard(limit: int = 10):
 @app.get("/api/health")
 def health():
     return {"status": "ok", "zones": list(plant_state.keys()), "rag_mode": safety_agent.vector_store.mode}
+
+
+# ---------------------------------------------------------------------------
+# Innovation 7 — Dynamic Risk Graph (Knowledge Graph)
+# ---------------------------------------------------------------------------
+@app.get("/api/knowledge-graph")
+def get_knowledge_graph():
+    """
+    Returns the full knowledge graph snapshot (nodes + edges).
+    Feeds the node-link diagram visualization on the frontend.
+    """
+    return risk_graph.snapshot()
+
+
+@app.get("/api/knowledge-graph/node/{node_id}")
+def get_knowledge_graph_node(node_id: str):
+    """
+    Returns a single node and its immediate neighbors from the knowledge graph.
+    """
+    node = risk_graph.get_node(node_id)
+    if not node:
+        raise HTTPException(status_code=404, detail=f"Node '{node_id}' not found in knowledge graph.")
+    neighbors = risk_graph.get_neighbors(node_id)
+    return {"node": node, "neighbors": neighbors}
+
+
+@app.get("/api/knowledge-graph/paths")
+def get_knowledge_graph_paths(source: str, target: str, max_length: int = 4):
+    """
+    Returns all simple paths between two nodes in the knowledge graph.
+    Used for AI reasoning chains.
+    """
+    paths = risk_graph.find_paths(source, target, max_length=max_length)
+    return {"source": source, "target": target, "paths": paths, "path_count": len(paths)}
+
+
+@app.post("/api/knowledge-graph/reason")
+def reason_knowledge_graph(node_id: str):
+    """
+    AI-style reasoning traversal starting from a node.
+    Produces a human-readable chain explaining compound risk across the graph.
+    """
+    if node_id not in risk_graph.graph.nodes:
+        raise HTTPException(status_code=404, detail=f"Node '{node_id}' not found in knowledge graph.")
+    return risk_graph.reason_across_graph(node_id)
+
+
+@app.post("/api/knowledge-graph/query")
+def query_knowledge_graph(query: str):
+    """
+    Keyword query across all nodes and edges in the knowledge graph.
+    """
+    if not query or not query.strip():
+        raise HTTPException(status_code=400, detail="Query string is required.")
+    return risk_graph.query(query.strip())
+
+
+@app.post("/api/knowledge-graph/sensor/update")
+def update_knowledge_graph_sensor(sensor_node_id: str, reading: Dict[str, Any]):
+    """
+    Updates a gas sensor node reading in the knowledge graph.
+    """
+    result = risk_graph.update_sensor_reading(sensor_node_id, reading)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
+@app.post("/api/knowledge-graph/zone/risk")
+def update_knowledge_graph_zone_risk(zone_node_id: str, risk_score: float):
+    """
+    Updates a zone node risk score in the knowledge graph.
+    """
+    if risk_score < 0 or risk_score > 100:
+        raise HTTPException(status_code=400, detail="Risk score must be between 0 and 100.")
+    result = risk_graph.update_zone_risk(zone_node_id, risk_score)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result

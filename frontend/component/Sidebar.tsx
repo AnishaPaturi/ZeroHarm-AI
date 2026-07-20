@@ -12,7 +12,8 @@ import {
   BookOpen,
   Scan,
   ShieldAlert,
-  UserCheck
+  UserCheck,
+  Network
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
@@ -33,6 +34,7 @@ export default function Sidebar() {
     { label: 'Safety Assistant', path: '/chatbot', icon: MessageSquare },
     { label: 'Data Storytelling', path: '/analytics', icon: BarChart3 },
     { label: 'Compliance Audits', path: '/compliance', icon: BookOpen },
+    { label: 'Knowledge Graph', path: '/knowledge-graph', icon: Network },
   ];
 
   return (
