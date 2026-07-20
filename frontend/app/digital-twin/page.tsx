@@ -231,63 +231,13 @@ export default function DigitalTwin() {
       setGasClouds(generateGasClouds(zoneList));
       setIsLive(true);
     } catch (e) {
-      console.warn('Backend offline, running in demo mode.', e);
-      runDemoMode();
+      console.error('Backend offline, failed to fetch digital twin telemetry:', e);
+      setIsLive(false);
+      setLayout({});
+      setZones([]);
+      setWorkers([]);
+      setGasClouds([]);
     }
-  }, []);
-
-  // Demo mode with fake data
-  const runDemoMode = useCallback(() => {
-    const demoLayout: Record<string, ZoneLayout> = {
-      'Coke Oven Battery 1': {
-        zone: 'Coke Oven Battery 1',
-        polygon: [[0,0],[80,0],[80,60],[0,60]],
-        centroid: [40, 30],
-        hazard_classification: 'Hot Work / Flammable Gas Zone',
-      },
-      'Blast Furnace A': {
-        zone: 'Blast Furnace A',
-        polygon: [[100,0],[180,0],[180,70],[100,70]],
-        centroid: [140, 35],
-        hazard_classification: 'High Temperature / Toxic Gas (CO) Zone',
-      },
-      'Sinter Plant': {
-        zone: 'Sinter Plant',
-        polygon: [[0,80],[70,80],[70,140],[0,140]],
-        centroid: [35, 110],
-        hazard_classification: 'Confined Space Entry Zone',
-      },
-      'Ammonia Storage Tank': {
-        zone: 'Ammonia Storage Tank',
-        polygon: [[100,90],[150,90],[150,140],[100,140]],
-        centroid: [125, 115],
-        hazard_classification: 'Toxic Gas Storage (H2S/NH3) Zone',
-      },
-    };
-    const demoZones: HeatmapZone[] = [
-      { zone: 'Coke Oven Battery 1', polygon: [[0,0],[80,0],[80,60],[0,60]], centroid: [40, 30], hazard_classification: 'Hot Work / Flammable Gas Zone', risk_score: 45, risk_level: 'Warning', color: '#eab308', worker_count: 3, action_required: 'Increase surveillance', last_updated: new Date().toISOString() },
-      { zone: 'Blast Furnace A', polygon: [[100,0],[180,0],[180,70],[100,70]], centroid: [140, 35], hazard_classification: 'High Temperature / Toxic Gas (CO) Zone', risk_score: 92, risk_level: 'Critical', color: '#ef4444', worker_count: 2, action_required: 'EVACUATE AREA', last_updated: new Date().toISOString() },
-      { zone: 'Sinter Plant', polygon: [[0,80],[70,80],[70,140],[0,140]], centroid: [35, 110], hazard_classification: 'Confined Space Entry Zone', risk_score: 15, risk_level: 'Safe', color: '#22c55e', worker_count: 2, action_required: 'Routine monitoring', last_updated: new Date().toISOString() },
-      { zone: 'Ammonia Storage Tank', polygon: [[100,90],[150,90],[150,140],[100,140]], centroid: [125, 115], hazard_classification: 'Toxic Gas Storage (H2S/NH3) Zone', risk_score: 68, risk_level: 'Warning', color: '#eab308', worker_count: 4, action_required: 'Re-audit permits', last_updated: new Date().toISOString() },
-    ];
-    const demoWorkers: WorkerLocation[] = [
-      { worker_id: 'W-001', name: 'Ravi', zone: 'Coke Oven Battery 1', x: 25, y: 20, status: 'on_site' },
-      { worker_id: 'W-002', name: 'Suresh', zone: 'Coke Oven Battery 1', x: 55, y: 40, status: 'on_site' },
-      { worker_id: 'W-003', name: 'Anil', zone: 'Coke Oven Battery 1', x: 45, y: 15, status: 'on_site' },
-      { worker_id: 'W-004', name: 'Priya', zone: 'Blast Furnace A', x: 130, y: 25, status: 'evacuating' },
-      { worker_id: 'W-005', name: 'Kavita', zone: 'Blast Furnace A', x: 150, y: 50, status: 'evacuating' },
-      { worker_id: 'W-006', name: 'Manoj', zone: 'Sinter Plant', x: 30, y: 100, status: 'on_site' },
-      { worker_id: 'W-007', name: 'Deepak', zone: 'Sinter Plant', x: 50, y: 120, status: 'on_site' },
-      { worker_id: 'W-008', name: 'Sunita', zone: 'Ammonia Storage Tank', x: 115, y: 100, status: 'on_site' },
-      { worker_id: 'W-009', name: 'Arjun', zone: 'Ammonia Storage Tank', x: 135, y: 125, status: 'on_site' },
-      { worker_id: 'W-010', name: 'Neha', zone: 'Ammonia Storage Tank', x: 120, y: 105, status: 'on_site' },
-      { worker_id: 'W-011', name: 'Rahul', zone: 'Ammonia Storage Tank', x: 140, y: 110, status: 'on_site' },
-    ];
-    setLayout(demoLayout);
-    setZones(demoZones);
-    setWorkers(demoWorkers);
-    setGasClouds(generateGasClouds(demoZones));
-    setIsLive(true);
   }, []);
 
   // WebSocket connection
@@ -772,7 +722,7 @@ export default function DigitalTwin() {
           <div className={`px-3 py-1.5 rounded-xl text-[10px] font-bold font-mono border ${
             isLive ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'
           }`}>
-            {isLive ? 'LIVE FEED' : 'DEMO MODE'}
+            {isLive ? 'LIVE FEED' : 'OFFLINE'}
           </div>
         </div>
       </div>

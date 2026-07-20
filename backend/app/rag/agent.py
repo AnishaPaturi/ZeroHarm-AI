@@ -19,7 +19,7 @@ class ZeroHarmSafetyAgent:
         self.openrouter_api_key = os.environ.get("OPENROUTER_API_KEY")
         self.model = os.environ.get("OPENROUTER_MODEL", "openai/gpt-4o-mini")
 
-        self.mode = "Rule-Based Engine (Demo Fallback)"
+        self.mode = "Rule-Based Engine (Local Fallback)"
 
         if self.openrouter_api_key:
             self.mode = f"OpenRouter ({self.model}) (Active)"
@@ -81,7 +81,7 @@ class ZeroHarmSafetyAgent:
         return {
             "answer": answer,
             "sources": sources_list,
-            "mode": "Rule-Based Engine (Demo Fallback)"
+            "mode": "Rule-Based Engine (Local Fallback)"
         }
 
     def _call_openrouter(self, prompt: str) -> str:
