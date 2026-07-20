@@ -719,6 +719,12 @@ def get_workers(zone: str = None):
     return [w.dict() for w in worker_sim.get_workers(zone)]
 
 
+@app.get("/api/safety-coach/workers")
+def get_safety_coach_workers():
+    """Returns worker safety profiles from the Safety Coach Engine."""
+    return [p.to_dict() for p in safety_coach_engine.profiles.values()]
+
+
 # ---------------------------------------------------------------------------
 # PERSON B — Emergency Response Orchestrator
 # ---------------------------------------------------------------------------

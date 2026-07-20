@@ -8,26 +8,20 @@ export const WS_BASE_URL = typeof window !== 'undefined'
 
 export async function fetchBackend<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  console.debug('[fetchBackend] URL:', url, 'method:', options?.method || 'GET');
-  try {
-    const res = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options?.headers || {}),
-      },
-    });
-    if (!res.ok) {
-      let errorDetail = '';
-      try {
-        const errJson = await res.json();
-        errorDetail = errJson?.detail || errJson?.message || '';
-      } catch (e) {}
-      throw new Error(errorDetail || `API call failed: ${options?.method || 'GET'} ${endpoint} returned ${res.status}`);
-    }
-    return res.json() as Promise<T>;
-  } catch (err) {
-    console.debug('[fetchBackend] FAILED for', url, 'error:', err);
-    throw err;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options?.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    let errorDetail = '';
+    try {
+      const errJson = await res.json();
+      errorDetail = errJson?.detail || errJson?.message || '';
+    } catch (e) {}
+    throw new Error(errorDetail || `API call failed: ${options?.method || 'GET'} ${endpoint} returned ${res.status}`);
   }
+  return res.json() as Promise<T>;
 }
