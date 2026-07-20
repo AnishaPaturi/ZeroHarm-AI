@@ -364,10 +364,10 @@ export const initDecisionEngine = () => {
     listRefreshInterval = setInterval(() => {
       syncAlerts();
       syncIncidents();
-      syncCompliance();
       syncNearMisses();
       syncSafetyCoach();
     }, 5000);
+
   }
 
   // Return unsubscribe cleanup handler

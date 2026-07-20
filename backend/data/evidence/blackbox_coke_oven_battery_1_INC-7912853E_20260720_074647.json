@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-7912853E",
+    "zone": "Coke Oven Battery 1",
+    "recorded_at": "2026-07-20T07:46:47.811402+00:00",
+    "record_count": 0,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": []
+}

@@ -37,6 +37,31 @@ export default function CompliancePage() {
     if (!item || !selectedRecord) return;
     const nextState = !item.checked;
 
+    // Directly update checklist item in store state
+    useIncident.setState((state) => {
+      const updated = state.complianceRecords.map(rec => {
+        if (rec.id === selectedRecord.id) {
+          const updatedChecklist = rec.checklist.map((c: any) => 
+            c.id === id ? { ...c, checked: nextState } : c
+          );
+          
+          // Recompute compliance score
+          const checkedCount = updatedChecklist.filter((c: any) => c.checked).length;
+          const score = updatedChecklist.length > 0 ? Math.round((checkedCount / updatedChecklist.length) * 100) : 100;
+          const status = score === 100 ? 'Compliant' : score > 50 ? 'Pending Audit' : 'Non-Compliant';
+          
+          return {
+            ...rec,
+            checklist: updatedChecklist,
+            score: score,
+            status: status
+          };
+        }
+        return rec;
+      });
+      return { complianceRecords: updated };
+    });
+
     eventBus.publish({
       type: 'ComplianceChecklistToggled',
       payload: {
@@ -48,6 +73,7 @@ export default function CompliancePage() {
 
     addToast(nextState ? 'Checklist task verified' : 'Checklist task marked pending', 'info');
   };
+
 
   const filteredRecords = complianceRecords.filter(rec => {
     const matchesCategory = categoryFilter === 'ALL' || rec.category === categoryFilter;
