@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { 
   Shield, 
   Bell, 
@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
-import { useIncident, selectActiveAlertCount } from '../hooks/useIncident';
+// import { useIncident, selectActiveAlertCount } from '../hooks/useIncident';
 import NotificationPanel from './NotificationPanel';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -28,7 +28,8 @@ export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const { toasts } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
-  const unreadCount = useIncident(selectActiveAlertCount);
+  // const unreadCount = useIncident(selectActiveAlertCount);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -45,6 +46,19 @@ export default function Navbar() {
     { label: 'Compliance', fullLabel: 'Compliance Audits', path: '/compliance', icon: BookOpen },
     { label: 'Handover', fullLabel: 'Shift Handover Summary', path: '/handover', icon: FileText },
   ];
+
+  useEffect(() => {
+  fetch("http://localhost:8000/api/notifications/")
+    .then((res) => res.json())
+    .then((data) => {
+      const unread = data.filter(
+        (notification: { is_read: number }) => notification.is_read === 0
+      ).length;
+
+      setUnreadCount(unread);
+    })
+    .catch(console.error);
+}, []);
 
   if (user && (user.role === 'Safety Officer' || user.role === 'Plant Manager')) {
     NAV_ITEMS.push({ label: 'Gatehouse', fullLabel: 'Gatehouse Approvals', path: '/admin', icon: Users });

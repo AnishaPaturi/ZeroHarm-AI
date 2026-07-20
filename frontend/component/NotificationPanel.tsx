@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React,{useEffect,useState} from 'react';
 import { AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { SafetyAlert } from '../types/analytics';
 import { useIncident } from '../hooks/useIncident';
@@ -11,8 +11,28 @@ interface NotificationPanelProps {
   onClose: () => void;
 }
 
+interface BackendNotification {
+  id: number;
+  title: string;
+  message: string;
+  category: string;
+  severity: string;
+  created_at: string;
+  is_read: number;
+}
+
 export default function NotificationPanel({ onClose }: NotificationPanelProps) {
-  const alerts = useIncident(state => state.alerts);
+  // const alerts = useIncident(state => state.alerts);
+  const [alerts, setAlerts] = useState<BackendNotification[]>([]);
+  useEffect(() => {
+  fetch("http://localhost:8000/api/notifications/")
+    .then((res) => res.json())
+    // .then((data) => setAlerts(data))
+    .then((data) =>
+  setAlerts(data.filter((notification: BackendNotification) => notification.is_read === 0))
+)
+    .catch((err) => console.error(err));
+}, []);
   const { addToast } = useNotifications();
 
   const getAlertStyle = (severity: SafetyAlert['severity']) => {
@@ -39,13 +59,38 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
     }
   };
 
-  const acknowledgeAlert = (id: string, message: string) => {
-    eventBus.publish({
-      type: 'AlertAcknowledged',
-      payload: { alertId: id }
-    });
-    addToast(`Acknowledged alert: "${message.substring(0, 30)}..."`, 'success');
-  };
+  // const acknowledgeAlert = (id: number, message: string) => {
+  //   eventBus.publish({
+  //     type: 'AlertAcknowledged',
+  //     payload: { alertId: id.toString() }
+  //   });
+  //   addToast(`Acknowledged alert: "${message.substring(0, 30)}..."`, 'success');
+  // };
+  const acknowledgeAlert = async (id: number, message: string) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/api/notifications/${id}/read`,
+      {
+        method: "PATCH",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to acknowledge notification");
+    }
+
+    // Remove the acknowledged notification from the list
+    setAlerts((prev) => prev.filter((notification) => notification.id !== id));
+
+    addToast(
+      `Acknowledged alert: "${message.substring(0, 30)}..."`,
+      "success"
+    );
+  } catch (error) {
+    console.error(error);
+    addToast("Failed to acknowledge notification", "error");
+  }
+};
 
   return (
     <div className="glass-panel bg-slate-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
@@ -70,16 +115,24 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
           </div>
         ) : (
           alerts.map((alert) => {
-            const styles = getAlertStyle(alert.severity);
+            // const styles = getAlertStyle(alert.severity);
+            const severity =
+              alert.severity.toLowerCase() === "critical"
+                ? "Critical"
+                : alert.severity.toLowerCase() === "warning"
+                ? "Warning"
+                : "Info";
+
+            const styles = getAlertStyle(severity);
             return (
               <div key={alert.id} className="p-4 hover:bg-white/[0.02] transition-colors relative flex items-start gap-3">
                 <div className="mt-0.5">{styles.icon}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline gap-2">
-                    <span className="text-[10px] text-slate-400 font-mono">{alert.department}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">{alert.category}</span>
                     <span className="text-[9px] text-slate-500 font-mono">
                       {(() => {
-                        const d = new Date(alert.timestamp);
+                        const d = new Date(alert.created_at);
                         return isNaN(d.getTime()) ? 'Just now' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                       })()}
                     </span>
