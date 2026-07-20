@@ -118,7 +118,7 @@ export default function ShiftHandover() {
             <div className="flex flex-col gap-3 font-mono text-[11px] text-slate-300">
               <div className="flex justify-between border-b border-white/5 pb-2">
                 <span className="text-slate-400">TIMESTAMP:</span>
-                <span>{new Date(data?.timestamp).toLocaleString()}</span>
+                <span suppressHydrationWarning>{new Date(data?.timestamp).toLocaleString()}</span>
               </div>
               <div className="flex justify-between border-b border-white/5 pb-2">
                 <span className="text-slate-400">ISOLATED EQ:</span>

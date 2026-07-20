@@ -165,7 +165,7 @@ export default function CompliancePage() {
                   
                   <div className="flex justify-between items-center mt-4 border-t border-white/5 pt-2.5 text-[9px] text-slate-500 font-mono">
                     <span>SCORE: {rec.score > 0 ? `${rec.score}%` : 'N/A'}</span>
-                    <span>Audited: {new Date(rec.lastAudited).toLocaleDateString()}</span>
+                    <span suppressHydrationWarning>Audited: {new Date(rec.lastAudited).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))
