@@ -40,11 +40,17 @@ import {
 export default function Dashboard() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-  if (!authLoading && !isAuthenticated) {
-    router.replace("/login");
-  }
-}, [authLoading, isAuthenticated, router]);
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
   const { addToast } = useNotifications();
 
   // central raw store telemetry values
@@ -234,7 +240,7 @@ export default function Dashboard() {
     }
   };
 
-  if (authLoading) {
+  if (!isMounted || authLoading) {
     return (
       <div className="flex flex-col gap-6 py-8 animate-pulse">
         <div className="h-10 bg-white/5 rounded-xl w-1/3" />
