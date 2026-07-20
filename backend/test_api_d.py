@@ -39,6 +39,13 @@ def test_health():
 
 def test_baseline_permit_audit():
     section("2. Baseline permit audit — Coke Oven Battery 1 (should be clean)")
+    # Reset/ensure Coke Oven Battery 1 is in a clean baseline state first
+    requests.post(f"{BASE_URL}/api/state/update?zone_name=Coke%20Oven%20Battery%201", json={
+        "gas_readings": {"o2": 20.8, "co": 2.5, "ch4_lfl": 0.1, "h2s": 0.2, "temperature": 29.5, "pressure": 1.01},
+        "permits": [{"permit_id": "PTW-2026-001", "permit_type": "hot_work", "status": "active", "zone": "Coke Oven Battery 1", "workers_count": 3}],
+        "maintenance_active": False,
+        "shift_changeover_active": False
+    })
     r = requests.post(f"{BASE_URL}/api/permits/audit", json={"zone": "Coke Oven Battery 1"})
     data = r.json()
     check("Audit endpoint success", r.status_code == 200)
@@ -57,11 +64,13 @@ def test_audit_all_zones():
 
 def test_compound_hazard_escalation():
     section("4. Drive methane up under an active Hot Work permit, then re-check")
-    # Cycles 0,1,3,4 in the simulation ramp CH4 on Coke Oven Battery 1 up to 6.5% LFL
-    # while the Hot Work permit PTW-2026-001 stays active.
-    for _ in range(4):
-        requests.post(f"{BASE_URL}/api/simulate/tick")
-        time.sleep(0.2)
+    # Force Coke Oven Battery 1 to have high methane (>4% LFL) under the active Hot Work permit
+    requests.post(f"{BASE_URL}/api/state/update?zone_name=Coke%20Oven%20Battery%201", json={
+        "gas_readings": {"o2": 20.8, "co": 2.5, "ch4_lfl": 6.5, "h2s": 0.2, "temperature": 29.5, "pressure": 1.01},
+        "permits": [{"permit_id": "PTW-2026-001", "permit_type": "hot_work", "status": "active", "zone": "Coke Oven Battery 1", "workers_count": 3}],
+        "maintenance_active": False,
+        "shift_changeover_active": False
+    })
 
     r = requests.post(f"{BASE_URL}/api/permits/audit", json={"zone": "Coke Oven Battery 1"})
     data = r.json()

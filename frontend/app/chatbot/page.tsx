@@ -154,13 +154,21 @@ Try asking one of the suggested prompts below to start:`,
           </h3>
         );
       }
+      if (line.startsWith('#### ')) {
+        return (
+          <h4 key={idx} className="font-heading font-bold text-xs text-slate-200 mt-3 mb-1.5 tracking-wide uppercase">
+            {line.replace('#### ', '')}
+          </h4>
+        );
+      }
 
       // 3. Table Rows (Simple visual layout for tables)
       if (line.startsWith('|')) {
         if (line.includes('---')) return null; // skip divider lines
         const cells = line.split('|').filter(c => c.trim() !== '');
+        const colCount = cells.length;
         return (
-          <div key={idx} className="grid grid-cols-3 gap-2.5 border-b border-white/5 py-2 font-mono text-[10px]">
+          <div key={idx} className={`grid gap-2.5 border-b border-white/5 py-2 font-mono text-[10px]`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
             {cells.map((cell, cIdx) => (
               <span key={cIdx} className="text-slate-300 truncate">{cell.trim()}</span>
             ))}
@@ -187,6 +195,9 @@ Try asking one of the suggested prompts below to start:`,
       }
 
       // 5. Standard line
+      if (line.trim() === '---') {
+        return <hr key={idx} className="border-white/10 my-4" />;
+      }
       return <p key={idx} className="my-1 text-slate-300 leading-relaxed font-sans">{line}</p>;
     });
   };
