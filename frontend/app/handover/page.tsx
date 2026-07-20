@@ -42,7 +42,7 @@ const generateLocalHandoverSummary = () => {
       "Ensure forced-draft ventilation is active at maximum capacity in affected gas zones.",
       "Verify all Lock-Out Tag-Out (LOTO) isolations on the fuel gas line block valves."
     ],
-    handover_narrative: `### 🛡️ AI Generated Shift Handover Report (Offline Preview Mode)
+    handover_narrative: `### AI Generated Shift Handover Report (Offline Preview Mode)
 
 **Generation Timestamp:** ${now.toUTCString()}
 
@@ -51,29 +51,29 @@ const generateLocalHandoverSummary = () => {
 - **Maintenance Status:** 1 equipment unit isolated for servicing.
 - **Safety Alerts Logged:** 1 gas flammability anomaly recorded in Coke Oven Battery 1.
 
-#### 📜 Active Work Permits
+#### Active Work Permits
 | Permit ID | Type | Zone | Workers |
 |---|---|---|---|
 | PTW-HW-202 | HOT WORK | Coke Oven Battery 1 | 3 |
 
-#### ⚡ Lock-Out Tag-Out & Isolations
+#### Lock-Out Tag-Out & Isolations
 | Isolated Equipment | Zone | Status |
 |---|---|---|
 | Coke Oven Battery 1 manifold/machinery | Coke Oven Battery 1 | In Progress |
 
-#### ☁️ Environmental & Gas Anomaly Log
-- ❌ Methane flammability in Coke Oven Battery 1: 4.2% LFL (Statutory limit is <4.0%)
+#### Environmental & Gas Anomaly Log
+- Methane flammability in Coke Oven Battery 1: 4.2% LFL (Statutory limit is <4.0%)
 
-#### ⚠️ Risk Classification
-- ⚠️ **Coke Oven Battery 1:** Composite Risk **68.5%** (Warning)
+#### Risk Classification
+- **Coke Oven Battery 1:** Composite Risk **68.5%** (Warning)
 
-#### 📋 Preemptive Directives Checklist
+#### Preemptive Directives Checklist
 - [ ] Halt spark-producing operations in Coke Oven Battery 1 immediately.
 - [ ] Confirm secondary escape routes are clear and safety watch is alert.
 - [ ] Verify gas sensor telemetry at the battery boundary.
 
-#### 🧠 Shift Change Safety Advisory Focus
-⚠️ **Factories Act Sec. 36 Compliance Alert**: Direct incoming shift supervisor to re-verify gas levels on all active confined space entries.`
+#### Shift Change Safety Advisory Focus
+**Factories Act Sec. 36 Compliance Alert**: Direct incoming shift supervisor to re-verify gas levels on all active confined space entries.`
   };
 };
 
