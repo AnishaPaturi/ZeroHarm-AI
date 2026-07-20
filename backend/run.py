@@ -2,12 +2,12 @@ import uvicorn
 import os
 import sys
 
-# Add the current directory to Python path to ensure 'app' is importable
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 if __name__ == "__main__":
-    print("Starting Harm AI backend server...")
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    print("Starting ZeroHarm AI backend server...")
+    reload = os.getenv("RELOAD", "true").lower() == "true"
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=reload)
 
 
 # # # 🛡️ ZeroHarm AI Backend Run & Test Guide

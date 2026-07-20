@@ -1,0 +1,12 @@
+__pycache__
+*.pyc
+*.pyo
+.venv
+.git
+.gitignore
+.env
+data/evidence
+*.pkl
+.DS_Store
+*.md
+!README.md

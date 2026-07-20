@@ -8,7 +8,9 @@
     "start": "cd frontend && next start",
     "lint": "cd frontend && next lint",
     "backend": "python backend/run.py",
-    "dev:full": "concurrently \"npm run dev\" \"npm run backend\""
+    "dev:full": "concurrently \"npm run dev\" \"npm run backend\"",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
   },
   "dependencies": {
     "next": "^16.2.10",

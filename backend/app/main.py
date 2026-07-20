@@ -830,9 +830,10 @@ class CCTVAlertRequest(BaseModel):
 @app.post("/api/cctv/event")
 async def trigger_cctv_event(request: CCTVAlertRequest):
     """
-    Receives Computer Vision metadata alerts from active CCTV streams.
-    Saves the alert into the zone state, triggers a risk re-evaluation,
-    and broadcasts the updated risk metrics.
+    Receives CCTV analytics event metadata from camera streams or external CV systems.
+    Supported event types: no_ppe, smoke_detected, fire_detected, unauthorized_entry.
+    Saves the alert into zone state, triggers a compound risk re-evaluation,
+    and broadcasts the updated risk metrics to connected dashboard clients.
     """
     import random
     zone_name = request.zone
@@ -909,12 +910,11 @@ async def trigger_cctv_event(request: CCTVAlertRequest):
 @app.post("/api/cctv/analyze-frame")
 async def analyze_cctv_frame(zone: str, file: UploadFile = File(...)):
     """
-    Receives an actual CCTV image frame snapshot file.
-    Decodes the frame using Pillow and runs real pixel analytics:
-      - Brightness/Luminance calculation
-      - Contrast standard deviation (identifies lens obstruction/occlusion)
-      - Redness thermal-ignition color indexing (identifies flame/sparks)
-    Integrates results directly into the Safety Engine risk pipeline.
+    Receives a CCTV keyframe snapshot and runs pixel-level heuristic analysis:
+      - Luminance / brightness calculation
+      - Contrast standard deviation (detects lens obstruction / occlusion)
+      - Redness thermal-ignition color indexing (detects flame / spark signatures)
+    Integrates detected visual anomalies directly into the Safety Engine risk pipeline.
     """
     from PIL import Image
     import io

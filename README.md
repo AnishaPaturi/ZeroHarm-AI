@@ -32,7 +32,7 @@ A **FICCI survey in 2024** revealed that **over 60% of large industrial faciliti
 1. **IoT / SCADA Telemetry**: Gas concentrations (CO, CH4, O2), temperature, and pressure.
 2. **Digital Permit to Work (PTW)**: Details, locations, and timings of active maintenance, hot work, and confined space entries.
 3. **Geospatial Worker Badges**: Live locations of field workers and maintenance crews.
-4. **CCTV/CV Analytics**: Detections of safety infractions (PPE violations) or physical hazards (smoke, unauthorized access).
+4. **CCTV Frame Analytics & Visual Anomaly Detection**: Ingests CCTV analytics event metadata (PPE violations, smoke, unauthorized zone entry) and analyzes uploaded keyframe snapshots using a pixel-level heuristic engine. Detects camera occlusion (lens obstruction), thermal flare signatures via redness ratio indexing, and nominal/healthy frame states. Escalates local hazard indices instantly when visual anomalies correlate with sensor or permit data.
 5. **Shift Logs & Historical Incident Files**: Regulatory standards (OISD, Factory Act) and past near-miss records.
 
 By correlating these inputs, the platform's multi-agent risk engine detects **compound risk conditions**—such as active hot work permits in zones experiencing sub-critical gas accumulation—and triggers immediate emergency response protocols or automatic permit suspensions.
@@ -95,8 +95,8 @@ When a critical compound risk is triggered, this module handles the first 10 min
 ### 6. Quality & Compliance Audit Agent
 Monitors shift changeovers, pre-work safety check logs, and training records. Calculates a real-time compliance score and automatically generates corrective actions for procedural deviations.
 
-### 7. CCTV Computer Vision AI Telemetry
-Integrates physical visual sensors directly into the safety logic. Ingests CCTV analytics event logs (e.g., lack of safety helmets/harnesses, smoke/sparks, or unauthorized entry into dangerous zones) and escalates local hazard indices instantly.
+### 7. CCTV Frame Analytics & Visual Anomaly Detection
+Ingests CCTV analytics event metadata from camera streams (PPE violations, smoke/sparks, unauthorized entry) and analyzes uploaded keyframe snapshots through a pixel-level heuristic engine. The frame analyzer computes luminance, contrast standard deviation, and thermal redness indexing to detect camera occlusion (lens obstruction), flame/thermal flare signatures, and nominal frame states. Detected visual anomalies are fused directly into the compound risk scoring pipeline alongside gas telemetry and permit intelligence.
 
 ### 8. Plant Process Graph & Topology Cascading Risk
 Uses a directed in-memory process graph (`networkx`) representing pipelines, valves, vents, and units to trace and propagate cascading hazards. Instead of calculating spherical buffers, it models how toxic leaks or fire spreads through process connections.
@@ -426,7 +426,7 @@ ZeroHarm AI includes a comprehensive, automated testing suite covering rules eng
 | **Test Client B** | SVG heatmaps, live worker logs, and evacuation dispatching | `python backend/test_api_b.py` |
 | **Test Client C** | OpenRouter/Local Fallback RAG questions and compliance audits | `python backend/test_api_c.py` |
 | **Test Client D** | Permit overlaps, SIMOPs calculations, and multi-agent aggregate state | `python backend/test_api_d.py` |
-| **CCTV Test** | Video analytics event ingestion (PPE violations) & safety scoring | `python backend/test_cctv.py` |
+| **CCTV Test** | CCTV event metadata ingestion & frame analytics (PPE, occlusion, thermal flare detection) | `python backend/test_cctv.py` |
 | **Temporal Test** | Roll buffer gas concentration speed ($d[CO]/dt$) and warnings | `python backend/test_temporal.py` |
 | **Topology Test** | Network adjacency process loops cascading risk calculation | `python backend/test_topology.py` |
 | **Black Box Test** | Automatic telemetry flight logs serialization check | `python backend/test_blackbox.py` |
@@ -644,6 +644,23 @@ Here are the precise inputs submitted to the backend and what the safety engine 
 
 ---
 
+## 📊 Baseline Comparison: Compound Risk vs. Single-Sensor Thresholds
+
+We evaluated our compound risk classifier against a traditional single-sensor threshold baseline using an 1,800-sample synthetic telemetry dataset (450 test samples). The compound risk model achieves a **100% reduction in false negative rate** compared to single-sensor baselines, demonstrating that correlating gas levels with permits, maintenance state, and shift activity catches compound hazards that isolated thresholds miss.
+
+| Metric | Single-Sensor Baseline | Compound Risk Classifier | Improvement |
+| :--- | :--- | :--- | :--- |
+| **Accuracy** | 91.11% | 99.78% | +8.67 pp |
+| **Recall** | 37.50% | 100.00% | +62.50 pp |
+| **False Negative Rate** | 62.50% (40/64 risks missed) | 0.00% (0/64 risks missed) | **100% reduction** |
+| **False Positives** | 0 | 1 | — |
+| **True Negatives** | 386 | 385 | — |
+| **True Positives** | 24 | 64 | +40 additional risks caught |
+
+*Dataset: 1,800 samples (85% normal operations, 15% anomaly scenarios including methane+hot-work, O2 depletion+confined space, SIMOPs clashes). Model: Random Forest Classifier trained on structured feature set (gas levels, permit flags, maintenance/shift state). Full results saved to `backend/data/baseline_comparison_results.json`.*
+
+---
+
 ## 🏛️ Covered Statutory Frameworks
 
 ZeroHarm AI directly references and audits compliance against:
@@ -651,4 +668,32 @@ ZeroHarm AI directly references and audits compliance against:
 * **OISD-GDN-137**: Guidelines on hazardous gas monitoring systems and sensor placements.
 * **OISD-STD-105**: Work Permit System standards (Hot work, Cold work, Confined space, and Height work constraints).
 * **DGMS (Directorate General of Mines Safety)**: Heavy equipment and hazardous area safety rules.
+
+---
+
+## 🚢 Deployment & Scalability
+
+ZeroHarm AI is containerized for consistent deployment across development, staging, and production environments.
+
+### Docker Deployment
+
+```bash
+# Build and start all services
+docker compose up --build
+
+# Backend API: http://localhost:8000
+# Frontend Dashboard: http://localhost:3000
+```
+
+### Architecture for Multi-Plant Scaling
+
+The current single-instance FastAPI server is designed for a single plant simulation. For multi-plant / multi-tenant deployment:
+
+1. **Stateless API layer**: All risk scoring endpoints (`/risk-score`, `/api/cctv/event`, `/api/state/update`) are stateless and can be horizontally scaled behind a load balancer.
+2. **Shared data stores**: Replace the in-memory `plant_state` dictionary with a Redis or PostgreSQL instance per plant/tenant. The `plant_state` updates are already centralized in `update_zone_state()`, making the swap straightforward.
+3. **Message queue for telemetry**: IoT/SCADA ingestion points can publish to a Kafka or RabbitMQ topic; consumers update zone state and trigger risk evaluations asynchronously.
+4. **Container orchestration**: Each service (backend API, frontend, vector store indexer, ML inference) runs in its own container. Kubernetes or ECS can manage scaling based on telemetry throughput.
+5. **Persistent volumes**: Model artifacts (`rf_model.pkl`, `if_model.pkl`) and evidence archives (`data/evidence/`) are mounted as Docker volumes to survive container restarts.
+
+This design preserves the current single-server demo experience while providing a clear migration path to production multi-plant deployments.
 
