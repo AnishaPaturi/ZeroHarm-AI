@@ -10,6 +10,8 @@ import { Incident, IncidentSeverity, IncidentStatus } from '../../types/incident
 import UploadBox from '../../component/UploadBox';
 import Modal from '../../component/Modal';
 import { eventBus } from '../../lib/eventBus';
+import { incidentService } from '../../services/incident';
+import { fetchBackend } from '../../services/api';
 import { 
   Plus, 
   Search, 
@@ -62,39 +64,33 @@ export default function IncidentsPage() {
     }
 
     try {
-      const newId = `inc_${Date.now()}`;
-      
-      const newIncidentObj = {
-        id: newId,
+      const backendReport = await incidentService.reportIncident({
         title: newIncident.title,
         description: newIncident.description,
         location: newIncident.location,
         department: newIncident.department,
         severity: newIncident.severity,
-        status: 'Reported' as IncidentStatus,
-        reportedAt: new Date().toISOString(),
         reporterName: user?.name || 'Anonymous Officer',
         reporterRole: (user?.role || 'Safety Officer') as any,
-        comments: [],
-      };
+      });
 
-      addIncident(newIncidentObj);
+      addIncident(backendReport);
       
       eventBus.publish({
         type: 'IncidentCreated',
         payload: {
-          id: newId,
-          title: newIncident.title,
-          description: newIncident.description,
-          location: newIncident.location,
-          department: newIncident.department,
-          severity: newIncident.severity,
-          reporterName: user?.name,
-          reporterRole: user?.role
+          id: backendReport.id,
+          title: backendReport.title,
+          description: backendReport.description,
+          location: backendReport.location,
+          department: backendReport.department,
+          severity: backendReport.severity,
+          reporterName: backendReport.reporterName,
+          reporterRole: backendReport.reporterRole
         }
       });
 
-      addToast(`Incident #${newId.substring(4)} registered successfully`, 'success');
+      addToast(`Incident #${backendReport.id.substring(7)} registered successfully`, 'success');
       setIsReportModalOpen(false);
       
       // Clear form
@@ -108,14 +104,25 @@ export default function IncidentsPage() {
       setFormFiles([]);
 
       // Auto-select the newly created incident
-      selectIncident(newId);
+      selectIncident(backendReport.id);
     } catch (err) {
       addToast('Failed to log incident', 'error');
     }
   };
 
-  const handleResolveIncident = (id: string) => {
+  const handleResolveIncident = async (id: string) => {
     updateIncident(id, { status: 'Resolved' });
+    
+    // Persist resolution to backend database
+    try {
+      await fetchBackend('/api/incidents/resolve', {
+        method: 'POST',
+        body: JSON.stringify({ id })
+      });
+    } catch (e) {
+      console.warn('Failed to persist incident resolution to backend:', e);
+    }
+
     eventBus.publish({
       type: 'IncidentResolved',
       payload: { id }

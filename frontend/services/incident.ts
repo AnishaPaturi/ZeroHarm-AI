@@ -92,9 +92,10 @@ export const incidentService = {
   },
 
   reportIncident: async (incidentData: Omit<Incident, 'id' | 'reportedAt' | 'comments' | 'status'>): Promise<Incident> => {
+    const newId = `INC-UI-${Date.now().toString().slice(-6)}`;
     const newIncident: Incident = {
       ...incidentData,
-      id: `INC-UI-${Date.now().toString().slice(-6)}`,
+      id: newId,
       reportedAt: new Date().toISOString(),
       status: 'Reported',
       comments: [],
@@ -102,9 +103,30 @@ export const incidentService = {
 
     // Save locally
     if (typeof window !== 'undefined') {
-      const localStr = localStorage.getItem('local_incidents');
-      const localList = localStr ? JSON.parse(localStr) : [];
-      localStorage.setItem('local_incidents', JSON.stringify([newIncident, ...localList]));
+      try {
+        const localStr = localStorage.getItem('local_incidents');
+        const localList = localStr ? JSON.parse(localStr) : [];
+        localStorage.setItem('local_incidents', JSON.stringify([newIncident, ...localList]));
+      } catch (e) {}
+    }
+
+    // Persist to backend database
+    try {
+      await fetchBackend('/api/incidents', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: newId,
+          title: incidentData.title,
+          description: incidentData.description,
+          location: incidentData.location,
+          department: incidentData.department,
+          severity: incidentData.severity,
+          reporterName: incidentData.reporterName,
+          reporterRole: incidentData.reporterRole
+        })
+      });
+    } catch (err) {
+      console.warn('Could not persist manual incident to backend:', err);
     }
 
     // Trigger backend alert to simulate orchestrator workflow

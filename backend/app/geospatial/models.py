@@ -71,6 +71,9 @@ class IncidentReport(BaseModel):
     regulatory_refs: List[str]
     narrative: str
     evidence_file_path: Optional[str] = None
+    title: Optional[str] = None
+    reporter_name: Optional[str] = None
+    reporter_role: Optional[str] = None
 
 
 class TriggerAlertRequest(BaseModel):

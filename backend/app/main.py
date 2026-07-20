@@ -4,7 +4,7 @@ import asyncio
 import logging
 import os
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Tuple, Optional
 from pydantic import BaseModel, Field
 
@@ -739,9 +739,55 @@ def get_alerts(zone: str = None, limit: int = 50):
     return [a.dict() for a in get_alert_log(zone, limit)]
 
 
+class CreateIncidentRequest(BaseModel):
+    id: str
+    title: str
+    description: str
+    location: str
+    department: str
+    severity: str
+    reporterName: Optional[str] = "Anonymous"
+    reporterRole: Optional[str] = "Safety Officer"
+
+
+class ResolveIncidentRequest(BaseModel):
+    id: str
+
+
 @app.get("/api/incidents")
 def get_incidents(zone: str = None, limit: int = 50):
     return [r.dict() for r in get_reports(zone, limit)]
+
+
+@app.post("/api/incidents")
+def create_incident(req: CreateIncidentRequest):
+    report = IncidentReport(
+        report_id=req.id,
+        zone=req.location,
+        generated_at=datetime.now(timezone.utc).isoformat(),
+        risk_level=req.severity,
+        composite_risk_score=72.0 if req.severity == "High" else 50.0,
+        factors=[{"name": "User Reported Breach", "score": 72.0, "details": req.description}],
+        suspended_permits=[],
+        workers_present=0,
+        evacuation_status="none",
+        regulatory_refs=["Factory Act 1948", "OISD-STD-105"],
+        narrative=req.description,
+        title=req.title,
+        reporter_name=req.reporterName,
+        reporter_role=req.reporterRole
+    )
+    reports_list.append(report)
+    return report.dict()
+
+
+@app.post("/api/incidents/resolve")
+def resolve_incident_endpoint(req: ResolveIncidentRequest):
+    for r in reports_list:
+        if r.report_id == req.id:
+            r.evacuation_status = "resolved"
+            return {"status": "success", "message": f"Incident {req.id} resolved"}
+    raise HTTPException(status_code=404, detail=f"Incident {req.id} not found")
 
 
 @app.post("/api/alerts/trigger")
