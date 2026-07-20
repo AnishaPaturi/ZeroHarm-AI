@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-6EDC1DD6",
+    "zone": "Coke Oven Battery 1",
+    "recorded_at": "2026-07-20T02:19:35.254548+00:00",
+    "record_count": 1,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": [
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 70.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 19.5,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Hot Work Flammable Gas Overlap",
+          "score": 95.0,
+          "contribution": 71.2,
+          "details": "CRITICAL: Active Hot Work (ignition source) in area with 4.2% LFL Methane. High risk of immediate fire/explosion. Violation of OISD-STD-105 Work Permit standards."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 9.4,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [
+        "PTW-2026-001"
+      ],
+      "timestamp": "2026-07-20T07:48:26.880049",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 4.2,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.011,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    }
+  ]
+}

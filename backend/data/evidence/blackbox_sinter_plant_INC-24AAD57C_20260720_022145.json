@@ -1,0 +1,912 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-24AAD57C",
+    "zone": "Sinter Plant",
+    "recorded_at": "2026-07-20T02:21:45.668739+00:00",
+    "record_count": 24,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": [
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:48:26.789652",
+      "gas_readings": {
+        "o2": 20.12,
+        "co": 9.2,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.025,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:48:26.850577",
+      "gas_readings": {
+        "o2": 20.1,
+        "co": 8.8,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.001,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:49:35.305322",
+      "gas_readings": {
+        "o2": 20.02,
+        "co": 9.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:49:35.591578",
+      "gas_readings": {
+        "o2": 20.09,
+        "co": 8.6,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.009,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:07.885787",
+      "gas_readings": {
+        "o2": 20.06,
+        "co": 8.4,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.004,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:27.046919",
+      "gas_readings": {
+        "o2": 20.13,
+        "co": 8.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.017,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:27.151915",
+      "gas_readings": {
+        "o2": 20.12,
+        "co": 8.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.019,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:27.209858",
+      "gas_readings": {
+        "o2": 20.1,
+        "co": 8.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.006,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 87.0,
+      "risk_level": "Critical",
+      "rule_score": 87.0,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 59.500000000000014,
+          "contribution": 68.4,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 18.2% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 17.2,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 14.4,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:27.244801",
+      "gas_readings": {
+        "o2": 18.2,
+        "co": 8.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.005,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 87.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 75.0,
+      "risk_level": "Critical",
+      "rule_score": 75.0,
+      "ml_score": 40.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 47.5,
+          "contribution": 63.3,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 19.0% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 20.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 16.7,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:37.561758",
+      "gas_readings": {
+        "o2": 19.0,
+        "co": 8.5,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.038,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 75.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 69.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 85.0,
+          "contribution": 33.7,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 16.5% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Toxicity Risk",
+          "score": 40.0,
+          "contribution": 15.8,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 35.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 39.6,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 2.58 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 5.9,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 5.0,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:37.606954",
+      "gas_readings": {
+        "o2": 16.5,
+        "co": 35.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 2.584,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 69.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 47.5,
+          "contribution": 22.1,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 19.0% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "CO Toxicity Risk",
+          "score": 39.599999999999994,
+          "contribution": 18.5,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 34.8 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 46.6,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 2.54 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 7.0,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 5.8,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:37.632359",
+      "gas_readings": {
+        "o2": 19.0,
+        "co": 34.8,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 2.544,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:37.677493",
+      "gas_readings": {
+        "o2": 20.2,
+        "co": 8.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -0.029,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:37.704819",
+      "gas_readings": {
+        "o2": 20.15,
+        "co": 7.7,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -5.261,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:37.851234",
+      "gas_readings": {
+        "o2": 20.16,
+        "co": 8.4,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -108.708,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:37.919061",
+      "gas_readings": {
+        "o2": 20.13,
+        "co": 8.7,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": -89.668,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 100.0,
+          "contribution": 78.4,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 3.96 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 11.8,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 9.8,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:50:38.000645",
+      "gas_readings": {
+        "o2": 20.14,
+        "co": 9.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 3.96,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 100.0
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:51:22.925115",
+      "gas_readings": {
+        "o2": 20.06,
+        "co": 9.2,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.033,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:51:23.067126",
+      "gas_readings": {
+        "o2": 20.1,
+        "co": 9.8,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.031,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:51:23.125118",
+      "gas_readings": {
+        "o2": 20.18,
+        "co": 10.5,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.04,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 29.5,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 32.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:51:34.345074",
+      "gas_readings": {
+        "o2": 20.25,
+        "co": 10.6,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.023,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 29.5
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 30.7,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 35.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:51:34.706809",
+      "gas_readings": {
+        "o2": 20.25,
+        "co": 11.1,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.161,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 30.7
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 30.7,
+      "risk_level": "Safe",
+      "rule_score": 27.5,
+      "ml_score": 35.4,
+      "factors": [
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 54.5,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 45.5,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:51:34.785595",
+      "gas_readings": {
+        "o2": 20.17,
+        "co": 11.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.128,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 30.7
+    },
+    {
+      "zone": "Sinter Plant",
+      "composite_risk_score": 87.0,
+      "risk_level": "Critical",
+      "rule_score": 87.0,
+      "ml_score": 43.4,
+      "factors": [
+        {
+          "name": "Asphyxiation Risk (Oxygen Deficiency)",
+          "score": 59.500000000000014,
+          "contribution": 68.4,
+          "details": "ASPHYXIATION HAZARD: Oxygen level is critical at 18.2% (below 19.5% standard threshold, Factories Act Sec 36)."
+        },
+        {
+          "name": "Active Maintenance Activity",
+          "score": 15.0,
+          "contribution": 17.2,
+          "details": "Zone is undergoing active equipment maintenance. Transient conditions and bypassed safety systems may exist."
+        },
+        {
+          "name": "Memory: Monday Morning Restart Risk",
+          "score": 12.5,
+          "contribution": 14.4,
+          "details": "Historical plant memory shows increased operator slip incidents during Monday morning startup cycles."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T07:51:34.827005",
+      "gas_readings": {
+        "o2": 18.2,
+        "co": 11.3,
+        "ch4_lfl": 0.0,
+        "h2s": 0.0,
+        "temperature": 27.0,
+        "pressure": 0.99,
+        "d_co_dt": 0.068,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 87.0
+    }
+  ]
+}

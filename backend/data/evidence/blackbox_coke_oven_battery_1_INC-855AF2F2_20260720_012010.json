@@ -1,0 +1,483 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-855AF2F2",
+    "zone": "Coke Oven Battery 1",
+    "recorded_at": "2026-07-20T01:20:10.204333+00:00",
+    "record_count": 13,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": [
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.8,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 12.0,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:47:48.941320",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": -0.433,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.8
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 51.3,
+      "risk_level": "Warning",
+      "rule_score": 26.0,
+      "ml_score": 51.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 51.0,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 49.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:47:49.023084",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 51.3
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 95.0,
+      "risk_level": "Critical",
+      "rule_score": 95.0,
+      "ml_score": 70.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 15.3,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 48.9,
+          "contribution": 28.8,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 0.54 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Hot Work Flammable Gas Overlap",
+          "score": 95.0,
+          "contribution": 55.9,
+          "details": "CRITICAL: Active Hot Work (ignition source) in area with 4.2% LFL Methane. High risk of immediate fire/explosion. Violation of OISD-STD-105 Work Permit standards."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [
+        "PTW-2026-001"
+      ],
+      "timestamp": "2026-07-20T06:47:51.551886",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 4.2,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.536,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 95.0
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 95.0,
+      "risk_level": "Critical",
+      "rule_score": 95.0,
+      "ml_score": 70.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 10.6,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Explosion Hazard (CH4 Flammability)",
+          "score": 32.0,
+          "contribution": 13.0,
+          "details": "FLAMMABLE GAS DETECTED: Methane level is 6.5% LFL (Lower Flammable Limit). Explosion risk elevated."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 92.5,
+          "contribution": 37.7,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 1.08 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Hot Work Flammable Gas Overlap",
+          "score": 95.0,
+          "contribution": 38.7,
+          "details": "CRITICAL: Active Hot Work (ignition source) in area with 6.5% LFL Methane. High risk of immediate fire/explosion. Violation of OISD-STD-105 Work Permit standards."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [
+        "PTW-2026-001"
+      ],
+      "timestamp": "2026-07-20T06:48:12.987190",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 6.5,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 1.081,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 95.0
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 26.8,
+      "risk_level": "Safe",
+      "rule_score": 5.0,
+      "ml_score": 59.5,
+      "factors": [
+        {
+          "name": "Normal Operations (Clean Telemetry)",
+          "score": 5.0,
+          "contribution": 100.0,
+          "details": "No active hazardous permits, no maintenance, and all sensors reporting green."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:48:13.043900",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 15.0,
+        "ch4_lfl": 2.5,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": -0.541,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 26.8
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.8,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 12.0,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:48:50.180246",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": -0.425,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.8
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 51.3,
+      "risk_level": "Warning",
+      "rule_score": 26.0,
+      "ml_score": 51.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 51.0,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 49.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:48:50.252575",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 51.3
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 95.0,
+      "risk_level": "Critical",
+      "rule_score": 95.0,
+      "ml_score": 70.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 21.5,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Hot Work Flammable Gas Overlap",
+          "score": 95.0,
+          "contribution": 78.5,
+          "details": "CRITICAL: Active Hot Work (ignition source) in area with 4.2% LFL Methane. High risk of immediate fire/explosion. Violation of OISD-STD-105 Work Permit standards."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [
+        "PTW-2026-001"
+      ],
+      "timestamp": "2026-07-20T06:49:02.371480",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 4.2,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.264,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 95.0
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 95.0,
+      "risk_level": "Critical",
+      "rule_score": 95.0,
+      "ml_score": 70.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 11.0,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Explosion Hazard (CH4 Flammability)",
+          "score": 32.0,
+          "contribution": 13.6,
+          "details": "FLAMMABLE GAS DETECTED: Methane level is 6.5% LFL (Lower Flammable Limit). Explosion risk elevated."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 82.9,
+          "contribution": 35.1,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 0.96 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Hot Work Flammable Gas Overlap",
+          "score": 95.0,
+          "contribution": 40.3,
+          "details": "CRITICAL: Active Hot Work (ignition source) in area with 6.5% LFL Methane. High risk of immediate fire/explosion. Violation of OISD-STD-105 Work Permit standards."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [
+        "PTW-2026-001"
+      ],
+      "timestamp": "2026-07-20T06:49:17.232752",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 6.5,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.961,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 95.0
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 26.8,
+      "risk_level": "Safe",
+      "rule_score": 5.0,
+      "ml_score": 59.5,
+      "factors": [
+        {
+          "name": "Normal Operations (Clean Telemetry)",
+          "score": 5.0,
+          "contribution": 100.0,
+          "details": "No active hazardous permits, no maintenance, and all sensors reporting green."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:49:17.313376",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 15.0,
+        "ch4_lfl": 2.5,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": -0.481,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 26.8
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.8,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 12.0,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:49:36.726127",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": -0.56,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.8
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 51.3,
+      "risk_level": "Warning",
+      "rule_score": 26.0,
+      "ml_score": 51.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 51.0,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 49.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "INCREASE SURVEILLANCE & RE-AUDIT PERMITS - Active anomalies detected. Safety supervisor must inspect site, verify gas ventilation, and review SIMOPs guidelines.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-20T06:49:36.845022",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 0.0,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 51.3
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 95.0,
+      "risk_level": "Critical",
+      "rule_score": 95.0,
+      "ml_score": 70.3,
+      "factors": [
+        {
+          "name": "CO Toxicity Risk",
+          "score": 26.0,
+          "contribution": 16.1,
+          "details": "TOXIC GAS ALARM: Carbon Monoxide level is 28.0 ppm (OSHA PEL: 50 ppm, OISD-137 limits exceeded)."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 40.3,
+          "contribution": 25.0,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 0.43 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Hot Work Flammable Gas Overlap",
+          "score": 95.0,
+          "contribution": 58.9,
+          "details": "CRITICAL: Active Hot Work (ignition source) in area with 4.2% LFL Methane. High risk of immediate fire/explosion. Violation of OISD-STD-105 Work Permit standards."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [
+        "PTW-2026-001"
+      ],
+      "timestamp": "2026-07-20T06:49:47.623506",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 28.0,
+        "ch4_lfl": 4.2,
+        "h2s": 0.1,
+        "temperature": 29.0,
+        "pressure": 1.0,
+        "d_co_dt": 0.429,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 95.0
+    }
+  ]
+}
