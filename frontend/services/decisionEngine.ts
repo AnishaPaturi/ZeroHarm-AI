@@ -72,23 +72,27 @@ function mapRAGToCompliance(docs: any[], existingRecords: any[]): any[] {
 // Merges with existing state rather than replacing it outright, so this can safely
 // run on a polling interval without wiping out user-entered audit progress.
 async function syncCompliance() {
+  if (backendOfflineFlag) return;
   try {
     const ragDocs = await fetchBackend<any[]>('/api/rag/documents');
     const existing = useIncident.getState().complianceRecords;
     const mappedCompliance = mapRAGToCompliance(ragDocs, existing);
     useIncident.setState({ complianceRecords: mappedCompliance });
   } catch (err) {
-    console.warn('Failed to sync compliance records from backend:', err);
+    console.warn('Failed to sync compliance records from backend: Server is offline.');
+    backendOfflineFlag = true;
   }
 }
 
 // Function to fetch near miss predictions from the backend and update store
 async function syncNearMisses() {
+  if (backendOfflineFlag) return;
   try {
     const nearMisses = await fetchBackend<NearMissPrediction[]>('/api/near-misses');
     useIncident.setState({ nearMisses });
   } catch (err) {
-    console.warn('Failed to sync near-miss predictions from backend:', err);
+    console.warn('Failed to sync near-miss predictions from backend: Server is offline.');
+    backendOfflineFlag = true;
   }
 }
 
@@ -97,20 +101,23 @@ export async function fetchNearMissPrediction(zone: string): Promise<NearMissPre
   try {
     return await fetchBackend<NearMissPrediction>(`/api/near-miss/predict?zone=${encodeURIComponent(zone)}`);
   } catch (err) {
-    console.warn('Failed to fetch near-miss prediction:', err);
+    console.warn('Failed to fetch near-miss prediction: Server is offline.');
     return null;
   }
 }
 
 // Function to fetch worker safety profiles from the backend and update store
 async function syncSafetyCoach() {
+  if (backendOfflineFlag) return;
   try {
     const profiles = await fetchBackend<WorkerSafetyProfile[]>('/api/safety-coach/workers');
     useIncident.setState({ workerSafetyProfiles: profiles });
   } catch (err) {
-    console.warn('Failed to sync safety coach profiles from backend:', err);
+    console.warn('Failed to sync safety coach profiles from backend: Server is offline.');
+    backendOfflineFlag = true;
   }
 }
+let backendOfflineFlag = false;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let workersInterval: NodeJS.Timeout | null = null;
 let listRefreshInterval: NodeJS.Timeout | null = null;
@@ -134,6 +141,7 @@ function checkEmergencyStatus(state: any): { active: boolean; message: string } 
 
 // Function to fetch worker locations from the backend and update store
 async function syncWorkers() {
+  if (backendOfflineFlag) return;
   try {
     const backendWorkers = await fetchBackend<any[]>('/api/workers');
     const mappedWorkers = backendWorkers.map(w => ({
@@ -144,12 +152,14 @@ async function syncWorkers() {
     }));
     useIncident.setState({ workers: mappedWorkers });
   } catch (err) {
-    console.warn('Failed to sync workers from backend:', err);
+    console.warn('Failed to sync workers from backend: Server is offline.');
+    backendOfflineFlag = true;
   }
 }
 
 // Function to fetch active alerts from the backend and update store
 async function syncAlerts() {
+  if (backendOfflineFlag) return;
   try {
     const backendAlerts = await fetchBackend<any[]>('/api/alerts');
     const mappedAlerts = backendAlerts.map((a, idx) => ({
@@ -161,12 +171,14 @@ async function syncAlerts() {
     }));
     useIncident.setState({ alerts: mappedAlerts });
   } catch (err) {
-    console.warn('Failed to sync alerts from backend:', err);
+    console.warn('Failed to sync alerts from backend: Server is offline.');
+    backendOfflineFlag = true;
   }
 }
 
 // Function to fetch incidents from the backend and update store
 async function syncIncidents() {
+  if (backendOfflineFlag) return;
   try {
     const backendReports = await fetchBackend<any[]>('/api/incidents');
     const mappedIncidents = backendReports.map(mapBackendReport);
@@ -185,7 +197,8 @@ async function syncIncidents() {
 
     useIncident.setState({ incidents: [...filteredLocal, ...filteredSeed, ...mappedIncidents] });
   } catch (err) {
-    console.warn('Failed to sync incidents from backend:', err);
+    console.warn('Failed to sync incidents from backend: Server is offline.');
+    backendOfflineFlag = true;
   }
 }
 
@@ -204,6 +217,7 @@ function connectWebSocket() {
   ws.onopen = () => {
     console.log('ZeroHarm WebSocket connection established successfully.');
     useIncident.setState({ wsConnected: true });
+    backendOfflineFlag = false; // Reset offline flag on successful connection
     // Trigger initial REST sync
     syncWorkers();
     syncAlerts();
