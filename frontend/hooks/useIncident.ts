@@ -28,7 +28,7 @@ const DEFAULT_INCIDENTS: Incident[] = [
     status: 'Resolved',
     reportedAt: seedDate(150),
     reporterName: 'David Vance',
-    reporterRole: 'Safety Auditor',
+    reporterRole: 'Compliance Officer',
     comments: []
   },
   {
@@ -41,7 +41,7 @@ const DEFAULT_INCIDENTS: Incident[] = [
     status: 'Resolved',
     reportedAt: seedDate(120),
     reporterName: 'Arjun',
-    reporterRole: 'Field Technician',
+    reporterRole: 'Site Engineer',
     comments: []
   },
   {
@@ -67,7 +67,7 @@ const DEFAULT_INCIDENTS: Incident[] = [
     status: 'Resolved',
     reportedAt: seedDate(60),
     reporterName: 'Marcus Brody',
-    reporterRole: 'Control Room Operator',
+    reporterRole: 'Site Engineer',
     comments: []
   },
   {
@@ -80,7 +80,7 @@ const DEFAULT_INCIDENTS: Incident[] = [
     status: 'Resolved',
     reportedAt: seedDate(30),
     reporterName: 'David Vance',
-    reporterRole: 'Maintenance Supervisor',
+    reporterRole: 'Site Engineer',
     comments: []
   },
   {
