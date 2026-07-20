@@ -57,6 +57,15 @@ from .geospatial.topology import PlantTopology
 # ---------------------------------------------------------------------------
 from .knowledge_graph.graph import RiskKnowledgeGraph
 
+# ---------------------------------------------------------------------------
+# Unimplemented/Partially Implemented Innovations (Innovations 11, 15, 16, 17, 18, 20)
+# ---------------------------------------------------------------------------
+from .orchestrator.handover import ShiftHandoverGenerator
+from .orchestrator.drone import DroneInspectionSimulator
+from .orchestrator.query_engine import NaturalLanguageQueryEngine
+from .rag.hybrid_reasoner import RAGKnowledgeGraphHybridReasoner
+from .engine.feedback_engine import SelfImprovingAgentEngine
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("zeroharm_ai")
 
@@ -100,6 +109,14 @@ collaborative_engine = MultiAgentCollaborativeReasoning()
 
 # --- Innovation 7: Knowledge Graph globals ---
 risk_graph = RiskKnowledgeGraph()
+
+# --- Innovation 11, 16, 17, 18, 20: New Safety Engine globals ---
+from .orchestrator.incident_report import _reports as reports_list
+handover_generator = ShiftHandoverGenerator(safety_agent=safety_agent)
+drone_simulator = DroneInspectionSimulator()
+query_engine = NaturalLanguageQueryEngine(incident_reports=reports_list)
+hybrid_reasoner = RAGKnowledgeGraphHybridReasoner(safety_agent=safety_agent, risk_graph=risk_graph)
+feedback_engine = SelfImprovingAgentEngine()
 
 
 def _on_incident_needed(zone: str, risk_assessment: dict, evacuation_record):
@@ -1398,3 +1415,90 @@ def update_knowledge_graph_zone_risk(zone_node_id: str, risk_score: float):
     if "error" in result:
         raise HTTPException(status_code=404, detail=result["error"])
     return result
+
+
+# ---------------------------------------------------------------------------
+# NEW INNOVATIONS ENDPOINTS (11, 16, 17, 18, 20)
+# ---------------------------------------------------------------------------
+
+@app.get("/api/shift-handover/summary")
+def get_shift_handover_summary():
+    """Innovation 11: AI Shift Handover Summary."""
+    alerts = [a.dict() for a in get_alert_log(limit=15)]
+    return handover_generator.generate_summary(plant_state, alerts)
+
+
+@app.post("/api/drone/dispatch")
+def dispatch_drone(zone: str):
+    """Innovation 16: Autonomous Drone Inspection Dispatch."""
+    if zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Zone '{zone}' not found.")
+    return drone_simulator.dispatch(zone)
+
+
+@app.get("/api/drone/status")
+def get_drone_status():
+    """Innovation 16: Get live Drone status, flight logs and payload telemetry."""
+    return drone_simulator.get_status()
+
+
+@app.post("/api/query/natural-language")
+def execute_natural_query(query: str):
+    """Innovation 17: Natural Language Query Engine."""
+    if not query or not query.strip():
+        raise HTTPException(status_code=400, detail="Query string is required.")
+    
+    permits = []
+    for zone, state in plant_state.items():
+        permits.extend(state.get("permits", []))
+    
+    # We pass the list from the global risk history buffer
+    history = list(risk_history)
+    return query_engine.execute_query(query.strip(), permits, history)
+
+
+@app.post("/api/rag/hybrid-reason")
+def get_hybrid_reasoning(zone: str):
+    """Innovation 18: Risk Memory using RAG + Knowledge Graph."""
+    if zone not in plant_state:
+        raise HTTPException(status_code=404, detail=f"Zone '{zone}' not found.")
+    
+    zone_data = plant_state[zone]
+    score = zone_data.get("risk_score", 15.0)
+    
+    # Simple risk assessment format
+    risk_assessment = {
+        "zone": zone,
+        "composite_risk_score": score,
+        "risk_level": "Critical" if score >= 75 else "Warning" if score >= 40 else "Safe",
+        "factors": [{"name": f.get("name") if isinstance(f, dict) else getattr(f, "name", "")} for f in zone_data.get("factors", [])]
+    }
+    
+    # Build default mock factors if empty
+    if not risk_assessment["factors"]:
+        factors = []
+        if zone_data.get("maintenance_active"):
+            factors.append({"name": "Active Maintenance Activity"})
+        if any(p.get("status", "").lower() == "active" for p in zone_data.get("permits", [])):
+            factors.append({"name": "Normal Operations (Active Permits)"})
+        risk_assessment["factors"] = factors
+
+    return hybrid_reasoner.run_hybrid_reasoning(zone, risk_assessment)
+
+
+@app.post("/api/agent/feedback")
+def submit_agent_feedback(feedback: Dict[str, Any]):
+    """Innovation 20: Self-Improving AI Agents Feedback Ingestion."""
+    return feedback_engine.ingest_feedback(feedback)
+
+
+@app.get("/api/agent/weights")
+def get_agent_weights():
+    """Innovation 20: Get current self-improved agent confidence weights."""
+    return {"weights": feedback_engine.get_weights()}
+
+
+@app.get("/api/agent/feedback/logs")
+def get_feedback_logs():
+    """Innovation 20: Get logged agent overrides and feedback history."""
+    return {"logs": feedback_engine.get_feedback_logs()}

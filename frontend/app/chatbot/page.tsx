@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
 import { chatbotService, ChatMessage } from '../../services/chatbot';
+import { fetchBackend } from '../../services/api';
 import { 
   Send, 
   Sparkles, 
@@ -34,6 +35,7 @@ Try asking one of the suggested prompts below to start:`,
   ]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [queryMode, setQueryMode] = useState<'rag' | 'db'>('rag');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const SUGGESTED_PROMPTS = [
@@ -61,14 +63,48 @@ Try asking one of the suggested prompts below to start:`,
     setLoading(true);
 
     try {
-      const response = await chatbotService.sendMessage(text);
-      const assistantMsg: ChatMessage = {
-        id: `a_${Date.now()}`,
-        sender: 'assistant',
-        content: response,
-        timestamp: new Date().toISOString()
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
+      if (queryMode === 'db') {
+        const response = await fetchBackend<any>(`/api/query/natural-language?query=${encodeURIComponent(text)}`, {
+          method: 'POST',
+        });
+        
+        let md = `### 📊 Database Query Results (Innovation 17)\n\n`;
+        md += `**Query Filters parsed:** Permit Type: \`${response.parsed_filters?.permit_type}\` | Gas check: \`${response.parsed_filters?.environmental_check}\` | Overlaps: \`${response.parsed_filters?.maintenance_overlap ? 'Yes' : 'No'}\`\n\n`;
+        md += `**Matches Found:** \`${response.matches_count}\` incident logs, \`${response.permits_count}\` active permit logs.\n\n`;
+        
+        if (response.matching_incidents?.length > 0) {
+          md += `| DATE | ZONE | RISK SCORE | FACTORS |\n`;
+          md += `|---|---|---|---|\n`;
+          response.matching_incidents.forEach((inc: any) => {
+            md += `| ${inc.date} | ${inc.zone} | ${inc.risk_score}% | ${inc.factors?.slice(0, 2).join(', ')} |\n`;
+          });
+          md += `\n`;
+        } else {
+          md += `*No historical safety breaches found matching filters.*\n\n`;
+        }
+
+        md += `### 💡 AI Recommendations\n`;
+        response.recommendations?.forEach((rec: string) => {
+          md += `- ${rec}\n`;
+        });
+
+        const assistantMsg: ChatMessage = {
+          id: `a_${Date.now()}`,
+          sender: 'assistant',
+          content: md,
+          timestamp: new Date().toISOString()
+        };
+        setMessages((prev) => [...prev, assistantMsg]);
+      } else {
+        const response = await chatbotService.sendMessage(text);
+        const assistantMsg: ChatMessage = {
+          id: `a_${Date.now()}`,
+          sender: 'assistant',
+          content: response,
+          timestamp: new Date().toISOString()
+        };
+        setMessages((prev) => [...prev, assistantMsg]);
+      }
     } catch (err) {
       addToast('Failed to retrieve response', 'error');
     } finally {
@@ -185,13 +221,33 @@ Try asking one of the suggested prompts below to start:`,
     <div className="flex flex-col gap-6 py-4 h-[82vh]">
       
       {/* Header */}
-      <div>
-        <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest block">
-          ASSISTANT TERMINAL
-        </span>
-        <h1 className="font-heading text-2xl font-bold text-white tracking-tight">
-          Safety Intelligence Chatbot
-        </h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest block">
+            ASSISTANT TERMINAL
+          </span>
+          <h1 className="font-heading text-2xl font-bold text-white tracking-tight">
+            Safety Intelligence Chatbot
+          </h1>
+        </div>
+        <div className="flex gap-2 bg-white/5 border border-white/10 rounded-xl p-1">
+          <button
+            onClick={() => setQueryMode('rag')}
+            className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold tracking-wider transition-all uppercase cursor-pointer border-0 ${
+              queryMode === 'rag' ? 'bg-safety-orange text-white' : 'text-slate-400 hover:text-slate-200 bg-transparent'
+            }`}
+          >
+            RAG Audit Manuals
+          </button>
+          <button
+            onClick={() => setQueryMode('db')}
+            className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold tracking-wider transition-all uppercase cursor-pointer border-0 ${
+              queryMode === 'db' ? 'bg-safety-orange text-white' : 'text-slate-400 hover:text-slate-200 bg-transparent'
+            }`}
+          >
+            NLP Database Query (Innovation 17)
+          </button>
+        </div>
       </div>
 
       {/* Main Terminal Shell */}

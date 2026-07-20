@@ -1,5 +1,8 @@
 from typing import List, Tuple
 from .models import RiskCheckRequest, FactorRisk, GasReadings, PermitInfo, CCTVAlert
+from .learning_risk_memory import LearningRiskMemory
+
+learning_memory = LearningRiskMemory()
 
 def calculate_gas_risk(gas: GasReadings) -> Tuple[float, List[FactorRisk]]:
     factors = []
@@ -346,6 +349,13 @@ def evaluate_rules(req: RiskCheckRequest) -> Tuple[float, str, List[FactorRisk],
                 f"but system predicts a High Probability of incident within the next shift if patterns continue."
             )
         ))
+
+    # 9. Learning Risk Memory (Innovation 15)
+    temp = req.gas_readings.temperature or 28.0
+    mem_risk, mem_factors = learning_memory.evaluate_memory_adjustments(req.zone, req.timestamp, temp)
+    if mem_factors:
+        factors.extend(mem_factors)
+        composite_score += mem_risk
 
     # Clamp composite score to 100
     composite_score = min(composite_score, 100.0)

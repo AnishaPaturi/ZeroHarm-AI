@@ -42,6 +42,7 @@ export default function Navbar() {
     { label: 'Safety AI', fullLabel: 'Safety Assistant', path: '/chatbot', icon: MessageSquare },
     { label: 'Analytics', fullLabel: 'Data Storytelling', path: '/analytics', icon: BarChart3 },
     { label: 'Compliance', fullLabel: 'Compliance Audits', path: '/compliance', icon: BookOpen },
+    { label: 'Handover', fullLabel: 'Shift Handover Summary', path: '/handover', icon: FileText },
   ];
 
   if (user && (user.role === 'Safety Officer' || user.role === 'Plant Manager')) {

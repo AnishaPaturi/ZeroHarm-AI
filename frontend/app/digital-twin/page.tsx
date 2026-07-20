@@ -152,12 +152,74 @@ function getEmergencyExits(zone: HeatmapZone): [number, number][] {
 }
 
 // ---- Main Component ----
+import { Cpu } from 'lucide-react';
+import { useNotifications } from '../../hooks/useNotifications';
+
 export default function DigitalTwin() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animFrameRef = useRef<number>(0);
   const wsRef = useRef<WebSocket | null>(null);
   const lastWorkerFetchRef = useRef<number>(0);
+
+  // Drone Inspection Simulator (Innovation 16)
+  const [droneActive, setDroneActive] = useState(false);
+  const [droneZone, setDroneZone] = useState<string | null>(null);
+  const [droneData, setDroneData] = useState<any>(null);
+
+  const dispatchDrone = async (zoneName: string) => {
+    try {
+      const res = await fetchBackend<any>(`/api/drone/dispatch?zone=${encodeURIComponent(zoneName)}`, {
+        method: 'POST',
+      });
+      setDroneActive(true);
+      setDroneZone(zoneName);
+      setDroneData(res);
+      useNotifications.getState().addToast(`Drone deployed to ${zoneName}. Scanning sensors...`, 'info');
+    } catch (err) {
+      console.warn("Drone backend offline, starting mock sweep flight.");
+      setDroneActive(true);
+      setDroneZone(zoneName);
+      setDroneData({
+        status: 'Hovering',
+        active_zone: zoneName,
+        battery_pct: 94.5,
+        video_stream_url: `rtsp://drone-cam.plant.local/stream/${zoneName.toLowerCase().replace(' ', '_')}`,
+        thermal_max_temp_c: 120.4,
+        gas_sniff_ch4_lfl: 4.8,
+        gas_sniff_co_ppm: 25.0,
+        aerial_workers_count: 2,
+        gps_coordinates: [40, 30],
+        flight_logs: [
+          `[${new Date().toLocaleTimeString()}] Drone checklist: OK`,
+          `[${new Date().toLocaleTimeString()}] Launching to ${zoneName}...`,
+          `[${new Date().toLocaleTimeString()}] Hovering and streaming infrared telemetry.`
+        ]
+      });
+    }
+  };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (droneActive && droneZone) {
+      interval = setInterval(async () => {
+        try {
+          const status = await fetchBackend<any>('/api/drone/status');
+          setDroneData(status);
+          if (status.status === 'Landed') {
+            setDroneActive(false);
+            setDroneZone(null);
+            useNotifications.getState().addToast(`Drone mission complete. Returned to base pad.`, 'success');
+          }
+        } catch (err) {
+          // If offline, let's keep mock state
+        }
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [droneActive, droneZone]);
 
   const [layout, setLayout] = useState<Record<string, ZoneLayout>>({});
   const [zones, setZones] = useState<HeatmapZone[]>([]);
@@ -588,6 +650,45 @@ export default function DigitalTwin() {
         }
       }
 
+      // Draw simulated drone hovering (Innovation 16)
+      if (droneActive && droneZone) {
+        const zoneCentroid = layout[droneZone]?.centroid || [40, 30];
+        const time = Date.now() / 1000;
+        const dp = worldToCanvas(zoneCentroid[0], zoneCentroid[1], w, h);
+        
+        ctx.beginPath();
+        ctx.arc(dp.x, dp.y + Math.sin(time * 6) * 4 - 25, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#f97316';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Draw rotor lines
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 1.5;
+        // Left rotor
+        ctx.beginPath();
+        ctx.moveTo(dp.x - 12, dp.y + Math.sin(time * 6) * 4 - 25);
+        ctx.lineTo(dp.x + 12, dp.y + Math.sin(time * 6) * 4 - 25);
+        ctx.stroke();
+        
+        // Laser scanning beam downwards
+        ctx.beginPath();
+        ctx.moveTo(dp.x, dp.y + Math.sin(time * 6) * 4 - 20);
+        ctx.lineTo(dp.x - 15, dp.y);
+        ctx.lineTo(dp.x + 15, dp.y);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(249, 115, 22, ${0.1 + 0.08 * Math.sin(time * 4)})`;
+        ctx.fill();
+        
+        // Text
+        ctx.fillStyle = '#f97316';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText("DRONE SWEEP", dp.x, dp.y + Math.sin(time * 6) * 4 - 35);
+      }
+
       // Emergency banner
       if (emergencyMode) {
         const bannerY = h - 60;
@@ -735,6 +836,76 @@ export default function DigitalTwin() {
                   <p className="text-[10px] text-slate-300 leading-relaxed">{selectedZoneData.action_required}</p>
                 </div>
               )}
+              
+              <button
+                onClick={() => dispatchDrone(selectedZoneData.zone)}
+                className="mt-3 w-full py-2 bg-gradient-to-r from-safety-orange to-amber-500 hover:from-safety-orange/95 hover:to-amber-500/95 text-white font-semibold rounded-xl text-[10px] tracking-wide transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer border-0"
+              >
+                <Cpu className="w-3.5 h-3.5" />
+                DISPATCH DRONE SWEEP
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Drone Stream Overlay (Innovation 16) */}
+        {droneActive && droneData && (
+          <div className="absolute top-4 left-4 w-80 glass-panel border border-white/15 rounded-3xl p-4 shadow-2xl flex flex-col gap-3 z-30">
+            <div className="flex justify-between items-center border-b border-white/5 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-safety-orange animate-pulse" />
+                <h4 className="font-heading text-xs font-bold text-white uppercase tracking-wider">
+                  Autonomous Drone Feed
+                </h4>
+              </div>
+              <span className="text-[9px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
+                BATTERY: {droneData.battery_pct}%
+              </span>
+            </div>
+
+            {/* Simulated Stream Viewport */}
+            <div className="relative h-32 rounded-xl bg-black overflow-hidden border border-white/5 flex items-center justify-center">
+              {/* Scanline / Grid overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(transparent_50%,rgba(0,0,0,0.6))] z-10 pointer-events-none" />
+              <div className="absolute top-2 left-2 text-[9px] font-mono text-green-400 z-10 bg-black/60 px-1.5 py-0.5 rounded">
+                REC • RTSP STREAM
+              </div>
+              <div className="absolute bottom-2 right-2 text-[9px] font-mono text-green-400 z-10 bg-black/60 px-1.5 py-0.5 rounded">
+                TEMP: {droneData.thermal_max_temp_c || 'Scanning...'}°C
+              </div>
+
+              {/* Thermal dispersion or raw video placeholder */}
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-xs text-slate-400 font-mono animate-pulse">
+                  {droneData.status === 'Hovering' ? 'THERMAL SCAN ACTIVE' : `TRANSITING TO ${droneData.active_zone?.toUpperCase()}`}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  GPS: {droneData.gps_coordinates?.[0]?.toFixed(4)}, {droneData.gps_coordinates?.[1]?.toFixed(4)}
+                </span>
+              </div>
+            </div>
+
+            {/* Flight telemetry readouts */}
+            <div className="flex flex-col gap-1.5 text-[10px] font-mono text-slate-300">
+              <div className="flex justify-between">
+                <span>CH4 SNIFFER:</span>
+                <span className="text-amber-400">{droneData.gas_sniff_ch4_lfl || '0.0'}% LFL</span>
+              </div>
+              <div className="flex justify-between">
+                <span>CO READOUT:</span>
+                <span className="text-amber-400">{droneData.gas_sniff_co_ppm || '0.0'} ppm</span>
+              </div>
+              <div className="flex justify-between">
+                <span>OBJECT COUNT (CV):</span>
+                <span className="text-green-400">{droneData.aerial_workers_count || 0} worker(s) seen</span>
+              </div>
+            </div>
+
+            {/* Flight logs */}
+            <div className="h-16 overflow-y-auto bg-black/40 border border-white/5 rounded-xl p-2 font-mono text-[9px] text-slate-400 flex flex-col gap-1">
+              {droneData.flight_logs?.map((log: string, idx: number) => (
+                <div key={idx}>{log}</div>
+              ))}
             </div>
           </div>
         )}

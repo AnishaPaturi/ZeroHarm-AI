@@ -54,16 +54,33 @@ class MultiAgentCollaborativeReasoning:
         # Determine weather conditions (dynamic simulation)
         weather_info = self._get_simulated_weather(zone, zone_state)
         
+        debate_res = None
         if self.openrouter_api_key:
             try:
-                response = self._run_llm_debate(zone, zone_state, weather_info, all_zone_states)
-                if response:
-                    return response
+                debate_res = self._run_llm_debate(zone, zone_state, weather_info, all_zone_states)
             except Exception as e:
                 logger.error(f"Error running LLM debate: {e}. Falling back to rule-based simulation.")
 
-        # Local Rule-based Fallback
-        return self._run_local_debate(zone, zone_state, weather_info)
+        if not debate_res:
+            debate_res = self._run_local_debate(zone, zone_state, weather_info)
+
+        # Apply Self-Improving weights scaling (Innovation 20)
+        try:
+            import json
+            weights_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "agent_weights.json")
+            if os.path.exists(weights_path):
+                with open(weights_path, "r") as f:
+                    weights = json.load(f)
+                
+                # We scale the probability based on the coordinator agent's confidence multiplier
+                coord_weight = weights.get("coordinator_agent", 1.0)
+                if coord_weight != 1.0:
+                    debate_res.risk_probability = round(min(100.0, max(0.0, debate_res.risk_probability * coord_weight)), 1)
+                    debate_res.final_consensus += f" (Confidence scaling: {coord_weight}x applied based on historical overrides)"
+        except Exception as e:
+            logger.error(f"Error applying feedback weight scaling to debate: {e}")
+
+        return debate_res
 
     def _get_simulated_weather(self, zone: str, zone_state: Dict[str, Any]) -> Dict[str, Any]:
         """Generates zone-specific microclimate / weather conditions."""
