@@ -260,7 +260,7 @@ export default function IncidentsPage() {
           </div>
 
           {/* Incident List */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 max-h-[65vh] overflow-y-auto pr-1">
             {isLoading && incidents.length === 0 ? (
               <div className="text-center py-10 text-xs text-slate-400 font-mono">
                 Loading incidents database...

@@ -203,6 +203,7 @@ function connectWebSocket() {
 
   ws.onopen = () => {
     console.log('ZeroHarm WebSocket connection established successfully.');
+    useIncident.setState({ wsConnected: true });
     // Trigger initial REST sync
     syncWorkers();
     syncAlerts();
@@ -349,9 +350,11 @@ function connectWebSocket() {
   ws.onerror = () => {
     // Silent error logging to avoid browser console spam when backend is down
     console.warn('ZeroHarm WebSocket connection offline (backend server not running on port 8000).');
+    useIncident.setState({ wsConnected: false });
   };
 
   ws.onclose = () => {
+    useIncident.setState({ wsConnected: false });
     reconnectTimeout = setTimeout(connectWebSocket, 5000);
   };
 }
@@ -391,6 +394,7 @@ export const initDecisionEngine = () => {
     if (reconnectTimeout) clearTimeout(reconnectTimeout);
     if (workersInterval) clearInterval(workersInterval);
     if (listRefreshInterval) clearInterval(listRefreshInterval);
+    useIncident.setState({ wsConnected: false });
     console.log('Cleaned up ZeroHarm backend synchronization sync engine loops.');
   };
 };

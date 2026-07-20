@@ -139,7 +139,7 @@ export default function CompliancePage() {
           </div>
 
           {/* Audit Standard List */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 max-h-[65vh] overflow-y-auto pr-1">
             {filteredRecords.length === 0 ? (
               <div className="text-slate-400 py-10 text-center text-xs">
                 No compliance standards match filters.
