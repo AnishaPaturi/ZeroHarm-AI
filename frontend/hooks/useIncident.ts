@@ -40,6 +40,7 @@ interface IncidentStore {
   setWorkers: (workers: typeof DEFAULT_WORKERS) => void;
   setPermits: (permits: typeof DEFAULT_PERMITS) => void;
   setComplianceRecords: (records: ComplianceRecord[]) => void;
+  toggleChecklistItem: (recordId: string, itemId: string, state: 'unmarked' | 'compliant' | 'non_compliant') => void;
   addAlert: (alert: SafetyAlert) => void;
   removeAlert: (id: string) => void;
   addIncident: (incident: Incident) => void;
@@ -90,6 +91,40 @@ export const useIncident = create<IncidentStore>((set, get) => ({
   setWorkers: (workers) => set({ workers }),
   setPermits: (permits) => set({ activePermits: permits }),
   setComplianceRecords: (records) => set({ complianceRecords: records }),
+  toggleChecklistItem: (recordId, itemId, state) => set((s) => ({
+    complianceRecords: s.complianceRecords.map((r) => {
+      if (r.id !== recordId || !r.checklist) return r;
+      const checklist = r.checklist.map((item) =>
+        item.id === itemId ? { ...item, state } : item
+      );
+      const total = checklist.length;
+      const compliantCount = checklist.filter((c) => c.state === 'compliant').length;
+      const nonCompliantCount = checklist.filter((c) => c.state === 'non_compliant').length;
+
+      // Rule: any red cross anywhere -> whole standard is Non-Compliant.
+      // Everything ticked green -> Compliant.
+      // Otherwise (still has unmarked/unopened items, no crosses) -> Pending Audit.
+      let recordStatus: ComplianceRecord['status'];
+      if (nonCompliantCount > 0) {
+        recordStatus = 'Non-Compliant';
+      } else if (total > 0 && compliantCount === total) {
+        recordStatus = 'Compliant';
+      } else {
+        recordStatus = 'Pending Audit';
+      }
+
+      const score = total > 0 ? Math.round((compliantCount / total) * 100) : r.score;
+
+      return {
+        ...r,
+        checklist,
+        score,
+        status: recordStatus,
+        criticalFindingsCount: nonCompliantCount,
+        lastAudited: new Date().toISOString().split('T')[0],
+      };
+    }),
+  })),
   addAlert: (alert) => set((s) => ({ alerts: [alert, ...s.alerts] })),
   removeAlert: (id) => set((s) => ({ alerts: s.alerts.filter((a) => a.id !== id) })),
   addIncident: (incident) => set((s) => ({ incidents: [incident, ...s.incidents] })),
@@ -667,5 +702,3 @@ export const selectIncidentFreeDays = (state: IncidentStore): { val: string; sub
   lastFreeDaysResult = result;
   return result;
 };
-
-

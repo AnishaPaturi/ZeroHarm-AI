@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useIncident } from '../hooks/useIncident';
 import { scenarioEngine, ScenarioType } from '../services/scenarioEngine';
 import { 
@@ -21,11 +21,6 @@ export default function ScenarioConsole() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeScenario, setActiveScenario] = useState<ScenarioType>('Normal');
   const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    // Start Normal operations by default
-    scenarioEngine.startScenario('Normal');
-  }, []);
 
   const handleStart = (type: ScenarioType) => {
     setActiveScenario(type);
