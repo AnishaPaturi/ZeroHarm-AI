@@ -59,6 +59,11 @@ htmlcov/
 *.pkl
 *.joblib
 
+# --- Database ---
+*.db
+*.sqlite
+*.sqlite3
+
 # ============================
 # --- Node / Frontend (React/Next.js/Vite) ---
 # ============================
