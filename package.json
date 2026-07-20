@@ -1,0 +1,19 @@
+{
+  "name": "zeroharm-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ZeroHarm AI - AI-Powered Industrial Safety Intelligence Platform",
+  "scripts": {
+    "install:frontend": "npm install --prefix frontend",
+    "install:backend": "python -m pip install -r backend/requirements.txt",
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "frontend": "npm run dev --prefix frontend",
+    "backend": "python backend/run.py",
+    "dev:full": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "build:frontend": "npm run build --prefix frontend",
+    "test:all": "python backend/run_all_tests.py"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}

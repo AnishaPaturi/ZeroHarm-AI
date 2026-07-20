@@ -124,7 +124,8 @@ class ScenarioEngine {
         } catch (err) {
           console.warn('Backend simulation tick failed:', err);
         }
-      }, 3000);
+      }, 300000);
+
 
       this.addLogToConsole(`Backend scenario ${type} running.`);
     } catch (error) {

@@ -363,53 +363,55 @@ Easily navigate to key implementation files in the project workspace:
 
 ## 🛡️ ZeroHarm AI Execution Guide
 
-### 🚀 1. Running the Backend Server
+### 📦 1. Installation of Dependencies
 
-#### virtualenv Activation
+ZeroHarm AI uses Next.js for the frontend and Python FastAPI for the backend. A virtual environment `.venv` is configured in the workspace root.
+
 Ensure your Python virtual environment is activated and dependencies are installed.
 
-**PowerShell:**
+**For PowerShell:**
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-**Command Prompt / CMD:**
+**For CMD:**
 ```cmd
 .venv\Scripts\activate.bat
 ```
 
-#### Run FastAPI
-From the workspace root directory:
+Install both frontend and backend dependencies in one command from the workspace root:
 ```bash
-python backend/run.py
+npm run install:all
 ```
-This runs the API server on **`http://127.0.0.1:8000`**. The interactive Swagger UI documentation is accessible at [http://localhost:8000/docs](http://localhost:8000/docs).
+*(Or install them individually via `npm run install:frontend` and `pip install -r backend/requirements.txt` inside your virtual environment).*
 
 ---
 
 ### 🚀 2. Running the Full Stack (Frontend + Backend)
 
-From the workspace root, you can start both the Next.js frontend and FastAPI backend with a single command:
+You can run both servers concurrently from the workspace root directory with a single command:
 
 ```bash
 npm run dev:full
 ```
 
-This uses `concurrently` to run:
-- **Frontend**: Next.js dev server on `http://localhost:3000`
-- **Backend**: FastAPI server on `http://localhost:8000`
+This starts:
+- **Frontend**: Next.js development server at `http://localhost:3000`
+- **Backend**: FastAPI development server at `http://localhost:8000` (API docs at `http://localhost:8000/docs`)
 
-Alternatively, run them in separate terminals:
+Alternatively, you can run them in separate terminals from the workspace root:
 
 **Terminal 1 (Backend):**
 ```bash
+# Start backend server
 npm run backend
-# or: python backend/run.py
+# or direct: python backend/run.py
 ```
 
 **Terminal 2 (Frontend):**
 ```bash
-npm run dev
+# Start frontend server
+npm run frontend
 # or: cd frontend && npm run dev
 ```
 
@@ -417,19 +419,22 @@ npm run dev
 
 ### 🧪 3. Executing the Test Suites
 
-ZeroHarm AI includes a comprehensive, automated testing suite covering rules engines, evacuations, RAG, and advanced telemetry integrations:
+ZeroHarm AI includes a comprehensive, automated testing suite. **Note: The backend server must be running first on `http://127.0.0.1:8000` before running any test suites.**
 
-| Script | Purpose / Testing Area | Command |
+With the backend server running, execute tests from the workspace root using:
+
+| Script / Test Runner | Description | Command |
 | :--- | :--- | :--- |
-| **All Tests Runner** | Run all tests in sequence | `python backend/run_all_tests.py` |
+| **All Tests Runner** | Run all tests in sequence | `npm run test:all` (or `python backend/run_all_tests.py`) |
 | **Test Client A** | Risk engine calculations & Random Forest/Isolation Forest anomalies | `python backend/test_api.py` |
 | **Test Client B** | SVG heatmaps, live worker logs, and evacuation dispatching | `python backend/test_api_b.py` |
-| **Test Client C** | OpenRouter/Local Fallback RAG questions and compliance audits | `python backend/test_api_c.py` |
+| **Test Client C** | Local Fallback RAG questions and compliance audits | `python backend/test_api_c.py` |
 | **Test Client D** | Permit overlaps, SIMOPs calculations, and multi-agent aggregate state | `python backend/test_api_d.py` |
 | **CCTV Test** | CCTV event metadata ingestion & frame analytics (PPE, occlusion, thermal flare detection) | `python backend/test_cctv.py` |
 | **Temporal Test** | Roll buffer gas concentration speed ($d[CO]/dt$) and warnings | `python backend/test_temporal.py` |
 | **Topology Test** | Network adjacency process loops cascading risk calculation | `python backend/test_topology.py` |
 | **Black Box Test** | Automatic telemetry flight logs serialization check | `python backend/test_blackbox.py` |
+
 
 ---
 
