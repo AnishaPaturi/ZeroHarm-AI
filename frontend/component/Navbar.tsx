@@ -101,15 +101,21 @@ export default function Navbar() {
           </div>
         )} */}
 
+
+      {/* Nav Links */}
+      <div className="flex-1 flex justify-center pl-6">
         {showNavLinks && (
-        <div className="flex justify-center ml-6">
           <div className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/5 rounded-xl p-1.5 backdrop-blur-md">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = pathname.startsWith(item.path);
 
               return (
-                <Link key={item.path} href={item.path} title={item.fullLabel}>
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  title={item.fullLabel}
+                >
                   <div
                     className={cn(
                       "flex items-center gap-1.5 px-2.5 py-1.5 lg:px-3.5 rounded-lg cursor-pointer transition-all select-none text-[11px] lg:text-xs font-semibold relative group whitespace-nowrap",
@@ -126,14 +132,16 @@ export default function Navbar() {
                           : "group-hover:scale-105"
                       )}
                     />
-                    <span className="hidden lg:inline">{item.label}</span>
+                    <span className="hidden lg:inline">
+                      {item.label}
+                    </span>
                   </div>
                 </Link>
               );
             })}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
 
         
