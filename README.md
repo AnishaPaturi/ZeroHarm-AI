@@ -207,6 +207,35 @@ Implements an interactive feedback system where safety coordinators score agent 
 
 ---
 
+## 🔄 Recent Enhancements & Robustness Features
+
+We have recently implemented a series of critical safety operations, backend persistence APIs, and frontend robustness upgrades:
+
+### 1. Unified Backend Persistence for Manual Incident Logging
+* **Server-Side Storage**: Added `POST /api/incidents` and `POST /api/incidents/resolve` endpoints to the FastAPI entrypoint ([main.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/main.py#L740-L790)). These endpoints persist manually reported incident files and resolution states in the server-side memory list `reports_list`.
+* **State Synchronization**: Re-engineered the frontend `addIncident` and `updateIncident` store actions ([useIncident.ts](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/hooks/useIncident.ts#L295-L330)) and incidents page ([page.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/incidents/page.tsx)) to write to `localStorage` and synchronize with the backend APIs. This prevents the 5-second background SCADA sync loop (`syncIncidents()`) from overwriting manually reported/resolved incident logs.
+
+### 2. Operational Dispatch Integration (Agent Debate Section)
+* **Directives Dispatch**: Integrated the **DISPATCH** action in the dashboard's Agent Debate modal ([dashboard/page.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/dashboard/page.tsx#L181-L235)). Dispatched recommendations dynamically trigger:
+  * **Emergency Evacuations**: Declares a plant-wide emergency, flashes alarms, and sets the store's evacuation mode.
+  * **Permit Revocations**: Automatically extracts permit IDs (e.g., `PTW-HW-202`) and revokes them via the event bus.
+  * **ESD Process Valve Isolation**: Shuts down process boundaries by emitting an equipment fault telemetry alert.
+  * **Rescue Crew Dispatch**: Logs a crew dispatch event to the SCADA telemetry terminal.
+  * **Autonomous Drone Sweeps**: POSTs to `/api/drone/dispatch` on the backend to launch the quadcopter sweep.
+
+### 3. Client-Side RAG & Precedent Fallback (Offline Mode)
+* **Offline Analysis**: Added catch-and-fallback logic to the RAG analysis actions ([useIncident.ts](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/hooks/useIncident.ts#L409-L425)) and incident diagnostics ([analysis/page.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/analysis/page.tsx#L45-L60)). When the safety server is offline, the pages warn the console, notify via warning toasts, and load comprehensive local RAG assessments and similarity matrices.
+* **Markdown Renderer**: Created a custom React [MarkdownRenderer](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/component/MarkdownRenderer.tsx) to parse and render RAG reports as styled HTML elements (headers, lists, tables, checklists, blockquotes, bold/code inline text) rather than raw monospaced code. Removed all unnecessary symbols/emojis from safety summaries.
+
+### 4. Compliant Handover Export & PDF Compilation
+* **Re-run Loading Overlay**: Added local loading indicators and glassmorphism blurs to handover panels during report re-compilation, locking inputs to prevent click-spamming.
+* **Print compilation**: Configured **Export Logbook** in [handover/page.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/handover/page.tsx#L529-L531) to compile active permits, isolations, gas logs, risk zones, and AI summaries into a structured HTML print document, appending official shift change signature lines before triggering `window.print()`.
+
+### 5. Plant Operations Simplification
+* Removed Plant B and Plant C tabs, hooks, and switcher panels from the dashboard, focusing the dashboard exclusively on Plant A's real-time SCADA telemetry.
+
+---
+
 ## 📂 Complete Workspace Folder Structure
 
 Below is the complete file and directory layout of the ZeroHarm AI project workspace:
