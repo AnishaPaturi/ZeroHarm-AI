@@ -101,6 +101,7 @@ export default function Navbar() {
               {/* Notifications */}
               <div className="relative">
                 <button
+                  suppressHydrationWarning
                   onClick={() => setShowNotifications(!showNotifications)}
                   className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-safety-orange/50"
                   aria-label="Toggle notifications"
@@ -130,6 +131,7 @@ export default function Navbar() {
                   {user.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <button
+                  suppressHydrationWarning
                   onClick={() => {
                     logout();
                     router.push('/');
