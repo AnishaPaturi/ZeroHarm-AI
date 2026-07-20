@@ -5,73 +5,77 @@ import { NearMissPrediction, WorkerSafetyProfile } from '../types/analytics';
 
 let ws: WebSocket | null = null;
 
-// Helper to map backend RAG documents to frontend ComplianceRecords
-function mapRAGToCompliance(docs: any[]): any[] {
-  return docs.map(doc => {
-    let category = 'OISD';
-    const titleLower = doc.title.toLowerCase();
-    if (titleLower.includes('factories act') || titleLower.includes('factory act')) {
-      category = 'Factory Act';
-    } else if (titleLower.includes('dgms')) {
-      category = 'DGMS';
-    }
+// Builds a brand-new ComplianceRecord for a RAG document we haven't seen before.
+// Every checklist item starts "unmarked" — untouched items are Pending Audit
+// until a real person actually reviews and marks them.
+function buildComplianceRecord(doc: any): any {
+  let category = 'OISD';
+  const titleLower = doc.title.toLowerCase();
+  if (titleLower.includes('factories act') || titleLower.includes('factory act')) {
+    category = 'Factory Act';
+  } else if (titleLower.includes('dgms')) {
+    category = 'DGMS';
+  }
 
-    const checklist: any[] = [];
-    const lines = doc.content.split('\n');
-    let itemId = 1;
-    
-    lines.forEach((line: string) => {
-      const trimmed = line.trim();
-      const match = trimmed.match(/^(\d+)[\.\)]\s*(.+)$/);
-      if (match) {
-        checklist.push({
-          id: `${doc.id}_item_${itemId++}`,
-          text: match[2],
-          checked: Math.random() > 0.4
-        });
+  const checklist: any[] = [];
+  const lines = doc.content.split('\n');
+  let itemId = 1;
+
+  lines.forEach((line: string) => {
+    const trimmed = line.trim();
+    const match = trimmed.match(/^(\d+)[\.\)]\s*(.+)$/);
+    if (match) {
+      checklist.push({ id: `${doc.id}_item_${itemId++}`, text: match[2], state: 'unmarked' });
+    }
+  });
+
+  if (checklist.length === 0) {
+    const sentences = doc.content.match(/[^.!?]+[.!?]+/g) || [doc.content];
+    sentences.slice(0, 4).forEach((sentence: string) => {
+      const text = sentence.trim();
+      if (text.length > 10) {
+        checklist.push({ id: `${doc.id}_item_${itemId++}`, text, state: 'unmarked' });
       }
     });
+  }
 
-    if (checklist.length === 0) {
-      const sentences = doc.content.match(/[^.!?]+[.!?]+/g) || [doc.content];
-      sentences.slice(0, 4).forEach((sentence: string) => {
-        const text = sentence.trim();
-        if (text.length > 10) {
-          checklist.push({
-            id: `${doc.id}_item_${itemId++}`,
-            text: text,
-            checked: Math.random() > 0.4
-          });
-        }
-      });
-    }
+  const inspectors = ['Sarah Jenkins', 'David Vance', 'Marcus Brody'];
+  let hash = 0;
+  for (let i = 0; i < doc.id.length; i++) hash = (hash * 31 + doc.id.charCodeAt(i)) | 0;
+  const inspector = inspectors[Math.abs(hash) % inspectors.length];
 
-    const checkedCount = checklist.filter(c => c.checked).length;
-    const score = checklist.length > 0 ? Math.round((checkedCount / checklist.length) * 100) : 100;
-    const status = score === 100 ? 'Compliant' : score > 50 ? 'Pending Audit' : 'Non-Compliant';
-
-    const inspectors = ['Sarah Jenkins', 'David Vance', 'Marcus Brody'];
-    const inspector = inspectors[Math.floor(Math.random() * inspectors.length)];
-
-    return {
-      id: doc.id,
-      standardName: doc.title,
-      category: category,
-      status: status,
-      lastAudited: new Date().toISOString().split('T')[0],
-      score: score,
-      inspector: inspector,
-      criticalFindingsCount: score < 50 ? 1 : 0,
-      checklist: checklist
-    };
-  });
+  // Brand-new record: nothing has been audited yet, so it's Pending Audit with a 0 score.
+  return {
+    id: doc.id,
+    standardName: doc.title,
+    category: category,
+    status: 'Pending Audit',
+    lastAudited: new Date().toISOString().split('T')[0],
+    score: 0,
+    inspector: inspector,
+    criticalFindingsCount: 0,
+    checklist: checklist
+  };
 }
 
-// Function to fetch compliance documents from the backend RAG store and map to checklists
+// Merges freshly-fetched RAG documents into the existing compliance records.
+// Documents we already have a record for keep their current checklist/score/
+// status/inspector untouched (so audits already in progress, and any checkbox
+// the user has ticked, survive every poll). Only documents seen for the first
+// time get a freshly-built record.
+function mapRAGToCompliance(docs: any[], existingRecords: any[]): any[] {
+  const existingById = new Map(existingRecords.map(r => [r.id, r]));
+  return docs.map(doc => existingById.get(doc.id) || buildComplianceRecord(doc));
+}
+
+// Function to fetch compliance documents from the backend RAG store and map to checklists.
+// Merges with existing state rather than replacing it outright, so this can safely
+// run on a polling interval without wiping out user-entered audit progress.
 async function syncCompliance() {
   try {
     const ragDocs = await fetchBackend<any[]>('/api/rag/documents');
-    const mappedCompliance = mapRAGToCompliance(ragDocs);
+    const existing = useIncident.getState().complianceRecords;
+    const mappedCompliance = mapRAGToCompliance(ragDocs, existing);
     useIncident.setState({ complianceRecords: mappedCompliance });
   } catch (err) {
     console.warn('Failed to sync compliance records from backend:', err);

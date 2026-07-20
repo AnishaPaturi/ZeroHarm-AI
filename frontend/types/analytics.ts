@@ -33,7 +33,7 @@ export interface ComplianceRecord {
   score: number;
   inspector: string;
   criticalFindingsCount: number;
-  checklist?: { id: string; text: string; checked: boolean }[];
+  checklist?: { id: string; text: string; state: 'unmarked' | 'compliant' | 'non_compliant' }[];
 }
 
 export interface NearMissPrediction {

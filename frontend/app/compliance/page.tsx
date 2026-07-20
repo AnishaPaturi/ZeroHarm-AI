@@ -10,7 +10,8 @@ import {
   User, 
   Layers,
   Search,
-  CheckSquare
+  CheckSquare,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,21 +33,31 @@ export default function CompliancePage() {
   const selectedRecord = complianceRecords.find(r => r.id === selectedRecordId) || null;
   const checklist = useIncident(useShallow(selectComplianceChecklist(selectedRecordId || '')));
 
-  const handleToggleCheck = (id: string) => {
+  const handleMarkItem = (id: string, mark: 'compliant' | 'non_compliant') => {
     const item = checklist.find(i => i.id === id);
     if (!item || !selectedRecord) return;
-    const nextState = !item.checked;
+    // Clicking the already-active mark clears it back to unmarked/pending
+    const nextState: 'unmarked' | 'compliant' | 'non_compliant' = item.state === mark ? 'unmarked' : mark;
 
+    // Persist the mark for real (this used to only publish an event nobody listened to)
+    useIncident.getState().toggleChecklistItem(selectedRecord.id, id, nextState);
+
+    // Keep the audit-trail log entry
     eventBus.publish({
       type: 'ComplianceChecklistToggled',
       payload: {
         recordId: selectedRecord.id,
         itemId: id,
-        checked: nextState
+        checked: nextState === 'compliant'
       }
     });
 
-    addToast(nextState ? 'Checklist task verified' : 'Checklist task marked pending', 'info');
+    addToast(
+      nextState === 'compliant' ? 'Item marked compliant' :
+      nextState === 'non_compliant' ? 'Item marked non-compliant' :
+      'Item reset to pending audit',
+      nextState === 'non_compliant' ? 'error' : 'info'
+    );
   };
 
   const filteredRecords = complianceRecords.filter(rec => {
@@ -229,27 +240,56 @@ export default function CompliancePage() {
                     {checklist.map((item) => (
                       <div 
                         key={item.id}
-                        onClick={() => handleToggleCheck(item.id)}
-                        className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer select-none transition-all ${
-                          item.checked 
-                            ? 'bg-emerald-950/5 border-emerald-500/10 text-slate-300' 
-                            : 'bg-white/[0.01] border-white/5 text-slate-400 hover:bg-white/[0.02]'
+                        className={`flex items-start gap-4 p-4 rounded-xl border select-none transition-all ${
+                          item.state === 'compliant'
+                            ? 'bg-emerald-950/5 border-emerald-500/10 text-slate-300'
+                            : item.state === 'non_compliant'
+                            ? 'bg-red-950/10 border-red-500/20 text-slate-300'
+                            : 'bg-white/[0.01] border-white/5 text-slate-400'
                         }`}
                       >
-                        <div className="mt-0.5">
-                          <div className={`w-4.5 h-4.5 rounded border flex items-center justify-center transition-all ${
-                            item.checked 
-                              ? 'bg-emerald-500 border-emerald-500 text-slate-950' 
-                              : 'border-white/20 hover:border-white/40'
-                          }`}>
-                            {item.checked && <CheckSquare className="w-3.5 h-3.5 text-black" />}
-                          </div>
+                        <div className="flex gap-1.5 mt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => handleMarkItem(item.id, 'compliant')}
+                            title="Mark compliant"
+                            className={`w-5 h-5 rounded border flex items-center justify-center transition-all cursor-pointer ${
+                              item.state === 'compliant'
+                                ? 'bg-emerald-500 border-emerald-500'
+                                : 'border-white/20 hover:border-emerald-400/60'
+                            }`}
+                          >
+                            <CheckSquare className={`w-3.5 h-3.5 ${item.state === 'compliant' ? 'text-black' : 'text-slate-600'}`} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMarkItem(item.id, 'non_compliant')}
+                            title="Mark non-compliant"
+                            className={`w-5 h-5 rounded border flex items-center justify-center transition-all cursor-pointer ${
+                              item.state === 'non_compliant'
+                                ? 'bg-red-500 border-red-500'
+                                : 'border-white/20 hover:border-red-400/60'
+                            }`}
+                          >
+                            <X className={`w-3.5 h-3.5 ${item.state === 'non_compliant' ? 'text-black' : 'text-slate-600'}`} />
+                          </button>
                         </div>
 
                         <div className="flex-1 min-w-0 text-xs">
-                          <p className={`leading-relaxed font-sans ${item.checked ? 'text-slate-200 font-medium' : 'text-slate-400'}`}>
+                          <p className={`leading-relaxed font-sans ${
+                            item.state === 'compliant' ? 'text-slate-200 font-medium' :
+                            item.state === 'non_compliant' ? 'text-red-300 font-medium' :
+                            'text-slate-400'
+                          }`}>
                             {item.text}
                           </p>
+                          <span className={`text-[9px] font-mono uppercase tracking-wider mt-1 block ${
+                            item.state === 'compliant' ? 'text-emerald-400' :
+                            item.state === 'non_compliant' ? 'text-red-400' :
+                            'text-amber-400'
+                          }`}>
+                            {item.state === 'compliant' ? 'Compliant' : item.state === 'non_compliant' ? 'Non-Compliant' : 'Pending Audit — not yet reviewed'}
+                          </span>
                         </div>
                       </div>
                     ))}
