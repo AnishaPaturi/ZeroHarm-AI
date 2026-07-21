@@ -23,6 +23,7 @@ import NotificationPanel from './NotificationPanel';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '../lib/utils';
+import { API_BASE_URL } from '../services/api';
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -48,7 +49,7 @@ export default function Navbar() {
   ];
 
   useEffect(() => {
-  fetch("http://localhost:8000/api/notifications/")
+  fetch(`${API_BASE_URL}/api/notifications/`)
     .then((res) => res.json())
     .then((data) => {
       const unread = data.filter(

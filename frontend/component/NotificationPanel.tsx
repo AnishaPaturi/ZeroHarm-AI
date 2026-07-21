@@ -6,6 +6,7 @@ import { SafetyAlert } from '../types/analytics';
 import { useIncident } from '../hooks/useIncident';
 import { useNotifications } from '../hooks/useNotifications';
 import { eventBus } from '../lib/eventBus';
+import { API_BASE_URL } from '../services/api';
 
 interface NotificationPanelProps {
   onClose: () => void;
@@ -25,7 +26,7 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
   // const alerts = useIncident(state => state.alerts);
   const [alerts, setAlerts] = useState<BackendNotification[]>([]);
   useEffect(() => {
-  fetch("http://localhost:8000/api/notifications/")
+  fetch(`${API_BASE_URL}/api/notifications/`)
     .then((res) => res.json())
     // .then((data) => setAlerts(data))
     .then((data) =>
@@ -69,7 +70,7 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
   const acknowledgeAlert = async (id: number, message: string) => {
   try {
     const response = await fetch(
-      `http://localhost:8000/api/notifications/${id}/read`,
+      `${API_BASE_URL}/api/notifications/${id}/read`,
       {
         method: "PATCH",
       }
