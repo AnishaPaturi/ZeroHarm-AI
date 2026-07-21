@@ -1,0 +1,171 @@
+{
+  "metadata": {
+    "incident_report_id": "INC-10EDBDB9",
+    "zone": "Coke Oven Battery 1",
+    "recorded_at": "2026-07-21T14:52:32.381647+00:00",
+    "record_count": 5,
+    "regulatory_mandate": "Factories Act Section 88 / OISD standards evidence preservation",
+    "description": "Sealed SCADA telemetry and risk factors recording for safety investigation."
+  },
+  "sensor_history": [
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.7,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-21T20:22:19.705112",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.7
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.7,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-21T20:22:19.801762",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.7
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.7,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-21T20:22:20.825163",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.7
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 19.7,
+      "risk_level": "Safe",
+      "rule_score": 25.0,
+      "ml_score": 11.8,
+      "factors": [
+        {
+          "name": "Hot Work Operations",
+          "score": 25.0,
+          "contribution": 100.0,
+          "details": "Active welding, grinding or other hot work. Sparks present. Flammable gases must remain < 4% LFL."
+        }
+      ],
+      "action_required": "ROUTINE MONITORING - Standard operating procedures apply. No corrective action needed.",
+      "suspend_permits": [],
+      "timestamp": "2026-07-21T20:22:20.985550",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 2.5,
+        "ch4_lfl": 0.1,
+        "h2s": 0.2,
+        "temperature": 29.5,
+        "pressure": 1.01,
+        "d_co_dt": 0.0,
+        "d_pressure_dt": 0.0
+      },
+      "composite_score": 19.7
+    },
+    {
+      "zone": "Coke Oven Battery 1",
+      "composite_risk_score": 100.0,
+      "risk_level": "Critical",
+      "rule_score": 100.0,
+      "ml_score": 64.7,
+      "factors": [
+        {
+          "name": "Explosion Hazard (CH4 Flammability)",
+          "score": 100.0,
+          "contribution": 42.6,
+          "details": "FLAMMABLE GAS DETECTED: Methane level is 22.4% LFL (Lower Flammable Limit). Explosion risk elevated."
+        },
+        {
+          "name": "CO Rapid Accumulation Anomaly",
+          "score": 39.6,
+          "contribution": 16.9,
+          "details": "TEMPORAL HAZARD: Carbon Monoxide is rising rapidly at 0.42 ppm/s. Indication of a process gas leak."
+        },
+        {
+          "name": "Hot Work Flammable Gas Overlap",
+          "score": 95.0,
+          "contribution": 40.5,
+          "details": "CRITICAL: Active Hot Work (ignition source) in area with 22.4% LFL Methane. High risk of immediate fire/explosion. Violation of OISD-STD-105 Work Permit standards."
+        }
+      ],
+      "action_required": "EVACUATE AREA & HALT PERMITS - Composite risk score is critical. Safety sirens should be activated. Emergency Response Orchestrator must coordinate evacuation.",
+      "suspend_permits": [
+        "PTW-2026-001"
+      ],
+      "timestamp": "2026-07-21T20:22:26.778711",
+      "gas_readings": {
+        "o2": 20.8,
+        "co": 5.0,
+        "ch4_lfl": 22.4,
+        "h2s": 0.1,
+        "temperature": 32.5,
+        "pressure": 1.02,
+        "d_co_dt": 0.42,
+        "d_pressure_dt": 0.0017
+      },
+      "composite_score": 100.0
+    }
+  ]
+}

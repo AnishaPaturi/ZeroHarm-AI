@@ -1,0 +1,8 @@
+{
+  "gas_agent": 1.0,
+  "permit_agent": 1.0,
+  "weather_agent": 1.0,
+  "cctv_agent": 1.0,
+  "maintenance_agent": 1.0,
+  "coordinator_agent": 1.14
+}

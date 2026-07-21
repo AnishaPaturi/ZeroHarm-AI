@@ -1,0 +1,18 @@
+[
+  {
+    "zone": "Blast Furnace A",
+    "incident_id": "inc_h1",
+    "disagreeing_agent_id": "gas_agent",
+    "supporting_agent_id": "coordinator_agent",
+    "outcome": "correct",
+    "supervisor_notes": "Manual feedback cycle"
+  },
+  {
+    "zone": "Blast Furnace A",
+    "incident_id": "inc_h1",
+    "disagreeing_agent_id": "maintenance_agent",
+    "supporting_agent_id": "coordinator_agent",
+    "outcome": "correct",
+    "supervisor_notes": "Manual feedback cycle"
+  }
+]

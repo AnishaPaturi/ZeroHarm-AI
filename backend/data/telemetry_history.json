@@ -358,5 +358,95 @@
     "h2s": 0.0,
     "temperature": 25.0,
     "pressure": 1.0
+  },
+  {
+    "timestamp": "2026-07-21T23:58:14.392560",
+    "zone": "Coke Oven Battery 1",
+    "o2": 20.8,
+    "co": 5,
+    "ch4": 22.4,
+    "h2s": 0.1,
+    "temperature": 32.5,
+    "pressure": 1.02
+  },
+  {
+    "timestamp": "2026-07-21T23:58:45.397229",
+    "zone": "Coke Oven Battery 1",
+    "o2": 20.8,
+    "co": 2.5,
+    "ch4": 0.1,
+    "h2s": 0.2,
+    "temperature": 29.5,
+    "pressure": 1.01
+  },
+  {
+    "timestamp": "2026-07-21T23:58:45.472362",
+    "zone": "Coke Oven Battery 1",
+    "o2": 20.8,
+    "co": 2.5,
+    "ch4": 0.1,
+    "h2s": 0.2,
+    "temperature": 29.5,
+    "pressure": 1.01
+  },
+  {
+    "timestamp": "2026-07-21T23:58:45.551077",
+    "zone": "Blast Furnace A",
+    "o2": 20.9,
+    "co": 5,
+    "ch4": 0.2,
+    "h2s": 0.1,
+    "temperature": 32,
+    "pressure": 1.05
+  },
+  {
+    "timestamp": "2026-07-21T23:58:45.613066",
+    "zone": "Blast Furnace A",
+    "o2": 20.9,
+    "co": 5,
+    "ch4": 0.2,
+    "h2s": 0.1,
+    "temperature": 32,
+    "pressure": 1.05
+  },
+  {
+    "timestamp": "2026-07-21T23:58:45.729431",
+    "zone": "Sinter Plant",
+    "o2": 20.8,
+    "co": 1,
+    "ch4": 0,
+    "h2s": 0,
+    "temperature": 27,
+    "pressure": 0.99
+  },
+  {
+    "timestamp": "2026-07-21T23:58:45.823796",
+    "zone": "Sinter Plant",
+    "o2": 20.8,
+    "co": 1,
+    "ch4": 0,
+    "h2s": 0,
+    "temperature": 27,
+    "pressure": 0.99
+  },
+  {
+    "timestamp": "2026-07-21T23:58:45.954940",
+    "zone": "Ammonia Storage Tank",
+    "o2": 20.8,
+    "co": 0.5,
+    "ch4": 0,
+    "h2s": 1.5,
+    "temperature": 25,
+    "pressure": 1.1
+  },
+  {
+    "timestamp": "2026-07-21T23:58:46.082989",
+    "zone": "Ammonia Storage Tank",
+    "o2": 20.8,
+    "co": 0.5,
+    "ch4": 0,
+    "h2s": 1.5,
+    "temperature": 25,
+    "pressure": 1.1
   }
 ]

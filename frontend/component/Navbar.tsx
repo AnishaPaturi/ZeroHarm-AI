@@ -29,12 +29,13 @@ export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const { toasts } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
-  // const unreadCount = useIncident(selectActiveAlertCount);
   const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
 
-  const showNavLinks = isAuthenticated && user && pathname !== '/' && pathname !== '/login';
+  // Operations (/dashboard) now uses the feature-card grid instead of the top nav links,
+  // so it gets the same minimal brand + bell + avatar bar as the landing page.
+  const showNavLinks = isAuthenticated && user && pathname !== '/' && pathname !== '/login' && pathname !== '/dashboard';
   const showOperationsTag = pathname === "/" && !isAuthenticated;
 
   const NAV_ITEMS = [
@@ -73,16 +74,12 @@ export default function Navbar() {
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer flex-shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-safety-orange to-amber-500 flex items-center justify-center shadow-lg shadow-safety-orange/20 transition-transform group-hover:scale-105">
-          {/* <div className="flex items-center flex-shrink-0"> */}
             <Shield className="w-4 h-4 text-white" />
           </div>
           <div>
             <span className="font-heading font-bold text-lg tracking-wide text-white">
               ZeroHarm<span className="text-safety-orange">.AI</span>
             </span>
-            {/* <span className="hidden sm:inline-block text-[10px] text-slate-400 font-mono ml-2 border border-white/10 px-1.5 py-0.5 rounded uppercase">
-              Operations Center
-            </span> */}
             {showOperationsTag && (
             <span className="hidden sm:inline-block text-[10px] text-slate-400 font-mono ml-2 border border-white/10 px-1.5 py-0.5 rounded uppercase">
               Operations Center
@@ -90,34 +87,6 @@ export default function Navbar() {
           )}
           </div>
         </Link>
-
-        {/* Nav Links (Desktop hovering top bar integrated) */}
-        {/* {showNavLinks && (
-        <div className="hidden md:flex items-center gap-1 bg-white/[0.03] border border-white/5 rounded-xl p-1.5 backdrop-blur-md flex-shrink-0">
-          {/* <div className="flex-1 flex justify-center px-8"> */}
-           {/* {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname.startsWith(item.path);
-
-              return (
-                <Link key={item.path} href={item.path} title={item.fullLabel}>
-                  <div
-                    className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 lg:px-3.5 rounded-lg cursor-pointer transition-all select-none text-[11px] lg:text-xs font-semibold relative group whitespace-nowrap",
-                      isActive
-                        ? "bg-white/10 text-white font-semibold shadow-md shadow-black/10 border-b border-safety-orange"
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
-                    )}
-                  >
-                    <Icon className={cn("w-3.5 h-3.5 flex-shrink-0 transition-transform", isActive ? "scale-110 text-safety-orange" : "group-hover:scale-105")} />
-                    <span className="hidden lg:inline">{item.label}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )} */}
-
 
       {/* Nav Links */}
       <div className="flex-1 flex justify-center pl-6">
@@ -160,11 +129,7 @@ export default function Navbar() {
         )}
       </div>
 
-
-        
-
         {/* Right Actions */}
-        {/* <div className="flex items-center gap-4 flex-shrink-0"> */}
         <div className="flex justify-end items-center gap-10">
           {isAuthenticated && user ? (
             <>
@@ -192,27 +157,6 @@ export default function Navbar() {
               </div>
 
               {/* Profile Pill */}
-              {/* <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl pl-3 pr-2 py-1.5">
-             
-                <div className="text-right hidden md:block">
-                  <div className="text-xs font-semibold text-white">{user.name}</div>
-                  <div className="text-[9px] text-slate-400 font-mono tracking-wider uppercase">{user.role}</div>
-                </div>
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-accentBlue to-indigo-500 flex items-center justify-center text-white text-xs font-bold font-mono">
-                  {user.name.split(' ').map(n => n[0]).join('')}
-                </div>
-                <button
-                  suppressHydrationWarning
-                  onClick={() => {
-                    logout();
-                    router.push('/');
-                  }}
-                  className="p-1 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors ml-1"
-                  title="Logout"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div> */}
               <div className="relative group">
                 {/* Avatar */}
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-accentBlue to-indigo-500 flex items-center justify-center text-white text-sm font-bold cursor-pointer">
