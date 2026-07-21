@@ -1,4 +1,6 @@
 import logging
+import os
+import json
 from typing import List, Dict, Any
 import numpy as np
 from .documents import ALL_DOCUMENTS
@@ -18,13 +20,26 @@ try:
 except ImportError:
     SKLEARN_AVAILABLE = False
 
+try:
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import Distance, VectorParams, PointStruct
+    HAS_QDRANT = True
+except ImportError:
+    HAS_QDRANT = False
+
+# Qdrant configurations
+QDRANT_ENABLED = os.getenv("QDRANT_ENABLED", "false").lower() == "true"
+QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
+QDRANT_PORT = int(os.getenv("QDRANT_PORT", 6333))
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "zeroharm_compliance")
+
 
 class ZeroHarmVectorStore:
     """
-    Local Vector Store for RAG retrieval with semantic embeddings.
-
-    Primary mode: sentence-transformers (all-MiniLM-L6-v2) for true semantic search.
-    Fallback mode: scikit-learn TF-IDF if sentence-transformers is unavailable.
+    Local & Dedicated Vector Store for RAG retrieval with semantic embeddings.
+    Primary mode: Qdrant DB (Option A) if enabled and available.
+    Fallback 1: sentence-transformers (all-MiniLM-L6-v2) for local memory semantic search.
+    Fallback 2: scikit-learn TF-IDF if sentence-transformers is unavailable.
     """
 
     def __init__(self):
@@ -35,6 +50,7 @@ class ZeroHarmVectorStore:
         self._vectorizer = None
         self._matrix = None
         self._sklearn_cosine = None
+        self.qdrant_client = None
 
         if SENTENCE_TRANSFORMERS_AVAILABLE:
             try:
@@ -56,6 +72,35 @@ class ZeroHarmVectorStore:
 
     def initialize_store(self):
         logger.info(f"Initializing vector store in mode: {self.mode}")
+        
+        # 1. Connect and initialize Qdrant if enabled (Option A)
+        if QDRANT_ENABLED and HAS_QDRANT:
+            try:
+                self.qdrant_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT, timeout=2.0)
+                # Check connection
+                self.qdrant_client.get_collections()
+                
+                # Check if collection exists
+                collections = [c.name for c in self.qdrant_client.get_collections().collections]
+                if QDRANT_COLLECTION not in collections:
+                    logger.info(f"Creating Qdrant collection: {QDRANT_COLLECTION}")
+                    # Dimension = 384 for all-MiniLM-L6-v2, or 1000/arbitrary for TF-IDF fallback dense matrix
+                    dim = 384 if self._model is not None else 1000
+                    self.qdrant_client.create_collection(
+                        collection_name=QDRANT_COLLECTION,
+                        vectors_config=VectorParams(size=dim, distance=Distance.COSINE)
+                    )
+                    self.mode = f"Qdrant DB ({QDRANT_COLLECTION})"
+                    self.upload_all_to_qdrant()
+                else:
+                    self.mode = f"Qdrant DB ({QDRANT_COLLECTION})"
+                    logger.info(f"Connected to existing Qdrant collection: {QDRANT_COLLECTION}")
+                return
+            except Exception as e:
+                logger.error(f"Failed to connect to Qdrant: {e}. Falling back to local in-memory store.")
+                self.qdrant_client = None
+
+        # 2. Local Fallback initialization
         texts = [
             f"{doc['title']} {doc.get('source', '')} {doc['content']}"
             for doc in self.documents
@@ -66,11 +111,99 @@ class ZeroHarmVectorStore:
             self._matrix = self._vectorizer.fit_transform(texts)
         logger.info(f"Vector store initialized with {len(self.documents)} documents.")
 
+    def upload_all_to_qdrant(self):
+        """Uploads all default documents to Qdrant collection."""
+        if not self.qdrant_client:
+            return
+            
+        texts = [
+            f"{doc['title']} {doc.get('source', '')} {doc['content']}"
+            for doc in self.documents
+        ]
+        
+        if self._model is not None:
+            embeddings = self._model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
+        else:
+            # TF-IDF dense matrix fallback
+            matrix = self._vectorizer.fit_transform(texts)
+            embeddings = matrix.toarray()
+            # If TF-IDF matrix has different shape, adjust it
+            if embeddings.shape[1] != 1000:
+                # pad or slice to match dimension 1000
+                padded = np.zeros((embeddings.shape[0], 1000))
+                col_limit = min(embeddings.shape[1], 1000)
+                padded[:, :col_limit] = embeddings[:, :col_limit]
+                embeddings = padded
+            
+        points = []
+        for idx, doc in enumerate(self.documents):
+            points.append(PointStruct(
+                id=idx,
+                vector=embeddings[idx].tolist(),
+                payload={
+                    "doc_id": doc["id"],
+                    "title": doc["title"],
+                    "source": doc["source"],
+                    "content": doc["content"]
+                }
+            ))
+            
+        self.qdrant_client.upsert(
+            collection_name=QDRANT_COLLECTION,
+            points=points
+        )
+        logger.info(f"Uploaded {len(self.documents)} documents to Qdrant collection.")
+
     def add_documents(self, docs: List[Dict[str, Any]]):
         """Append new documents to the store and update the index."""
         if not docs:
             return
 
+        # 1. Sync to Qdrant collection if active
+        if self.qdrant_client:
+            try:
+                start_idx = len(self.documents)
+                self.documents.extend(docs)
+                
+                texts = [
+                    f"{doc['title']} {doc.get('source', '')} {doc['content']}"
+                    for doc in docs
+                ]
+                
+                if self._model is not None:
+                    embeddings = self._model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
+                else:
+                    matrix = self._vectorizer.transform(texts)
+                    embeddings = matrix.toarray()
+                    if embeddings.shape[1] != 1000:
+                        padded = np.zeros((embeddings.shape[0], 1000))
+                        col_limit = min(embeddings.shape[1], 1000)
+                        padded[:, :col_limit] = embeddings[:, :col_limit]
+                        embeddings = padded
+                    
+                points = []
+                for idx, doc in enumerate(docs):
+                    points.append(PointStruct(
+                        id=start_idx + idx,
+                        vector=embeddings[idx].tolist(),
+                        payload={
+                            "doc_id": doc["id"],
+                            "title": doc["title"],
+                            "source": doc["source"],
+                            "content": doc["content"]
+                        }
+                    ))
+                self.qdrant_client.upsert(
+                    collection_name=QDRANT_COLLECTION,
+                    points=points
+                )
+                logger.info(f"Added {len(docs)} documents to Qdrant collection.")
+                return
+            except Exception as e:
+                logger.error(f"Failed to add documents to Qdrant: {e}. Falling back to local add.")
+                self.qdrant_client = None
+
+        # 2. Local Fallback add
         self.documents.extend(docs)
         texts = [
             f"{doc['title']} {doc.get('source', '')} {doc['content']}"
@@ -90,12 +223,51 @@ class ZeroHarmVectorStore:
             ]
             self._matrix = self._vectorizer.fit_transform(all_texts)
 
-        logger.info(f"Added {len(docs)} documents to vector store. Total: {len(self.documents)}")
+        logger.info(f"Added {len(docs)} documents to local vector store. Total: {len(self.documents)}")
 
     def search(self, query: str, k: int = 3) -> List[Dict[str, Any]]:
         if not query or len(self.documents) == 0:
             return []
 
+        # 1. Search Qdrant if active (Option A)
+        if self.qdrant_client:
+            try:
+                if self._model is not None:
+                    query_embedding = self._model.encode([query], show_progress_bar=False, convert_to_numpy=True)[0]
+                else:
+                    query_vec = self._vectorizer.transform([query])
+                    query_embedding = query_vec.toarray()[0]
+                    if len(query_embedding) != 1000:
+                        padded = np.zeros(1000)
+                        col_limit = min(len(query_embedding), 1000)
+                        padded[:col_limit] = query_embedding[:col_limit]
+                        query_embedding = padded
+                    
+                search_results = self.qdrant_client.search(
+                    collection_name=QDRANT_COLLECTION,
+                    query_vector=query_embedding.tolist(),
+                    limit=k
+                )
+                
+                results = []
+                for item in search_results:
+                    score = float(item.score)
+                    if score < 0.05:
+                        continue
+                    payload = item.payload
+                    results.append({
+                        "id": payload["doc_id"],
+                        "title": payload["title"],
+                        "source": payload["source"],
+                        "content": payload["content"],
+                        "score": round(score, 2)
+                    })
+                return results
+            except Exception as e:
+                logger.error(f"Failed to query Qdrant collection: {e}. Falling back to local search.")
+                self.qdrant_client = None
+
+        # 2. Local Fallback search
         if self._model is not None:
             query_embedding = self._model.encode([query], show_progress_bar=False, convert_to_numpy=True)
             query_norm = np.linalg.norm(query_embedding)

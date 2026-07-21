@@ -18,7 +18,8 @@ TEST_SCRIPTS = [
     ("Gatehouse Onboarding & Trust", "backend/test_gatehouse.py"),
     ("Ingestion Queue & Stream Processing", "backend/test_ingestion_queue.py"),
     ("Database Scalability Adapters", "backend/test_database_scalability.py"),
-    ("Compute & Agent Reasoning Layer", "backend/test_compute_layer.py")
+    ("Compute & Agent Reasoning Layer", "backend/test_compute_layer.py"),
+    ("Vector Search & RAG Scaling", "backend/test_vector_rag.py")
 ]
 
 def check_server_running():

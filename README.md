@@ -844,6 +844,8 @@ graph LR
 | `REDIS_HOST` / `PORT` | String / Int | `localhost` / `6379` | Connection endpoints for Redis database instances |
 | `NEO4J_URI` / `USER` / `PASSWORD` | String | (Local Bolt URI) | Host address and authentication details for Neo4j Graph DB |
 | `TIMESCALE_HOST` / `DB` | String | `localhost` / `zeroharm` | Connection coordinates for Postgres/TimescaleDB instance |
+| `QDRANT_ENABLED` | Boolean | `false` | Enable/disable connection to dedicated Qdrant vector database |
+| `QDRANT_HOST` / `PORT` / `COLLECTION` | String / Int | `localhost` / `6333` | Host coordinates and collection identifier for Qdrant collection |
 
 #### 5. Standalone Verification Suite
 To verify the database adapters, run:
@@ -893,6 +895,41 @@ To verify the task queue and semantic cache, run:
 ```bash
 # Standalone compute layer test suite
 python backend/test_compute_layer.py
+
+# Or through the unified test runner
+python backend/run_all_tests.py
+```
+
+### 🔍 Vector Search & RAG Scaling (Implemented)
+
+ZeroHarm AI implements a dedicated vector database integration and offline document indexing pipeline to scale the ingestion and hybrid search of OISD regulations, manual revisions, and standard operating procedures.
+
+```mermaid
+graph TD
+    A[Raw PDFs / TXT Manuals] -->|1. Offline Load| B[Offline Indexing Pipeline]
+    B -->|2. Semantic Chunking| C[ZeroHarm Vector Store]
+    C -->|3. Generate Dense Vectors| D[Sentence Transformers]
+    D -->|4. Bulk Upsert| E[Qdrant Database Cluster]
+    F[Live RAG Agent Query] -->|5. Hybrid Cosine Search| E
+    E -->|6. Retrieve Context Chunks| F
+```
+
+#### 1. Dedicated Vector Database (Option A)
+*   **How it works**: Connects to a dedicated **Qdrant** database instance via `ZeroHarmVectorStore`.
+*   **Collection Indexing**: Safety manual structures are loaded into the `zeroharm_compliance` collection with cosine similarity configurations.
+*   **Hybrid Query Matching**: Supports dense vector cosine similarity checks combined with exact metadata matches (filters by section, plant location, or standard id).
+*   **Local Fallback**: Automatically falls back to in-memory sentence-transformers or scikit-learn TF-IDF vectorizers if Qdrant is disabled or offline.
+
+#### 2. Offline Indexing Pipeline (Option B)
+*   **Decoupled Workload**: PDF extraction, semantic chunking, and embedding calculations are offloaded from the FastAPI runtime execution thread into the [offline_indexer.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/offline_indexer.py) pipeline.
+*   **File Parsing**: Scans the `backend/data/manuals/` directory to process newly updated compliance text files.
+*   **Bootstrapping**: Seeds the default regulatory ontology documents into the vector database collections automatically on first run.
+
+#### 3. Standalone Verification Suite
+To verify the vector search and offline indexing engine, run:
+```bash
+# Standalone vector and offline indexing test suite
+python backend/test_vector_rag.py
 
 # Or through the unified test runner
 python backend/run_all_tests.py
