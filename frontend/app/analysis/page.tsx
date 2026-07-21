@@ -368,9 +368,9 @@ export default function AnalysisPage() {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4">
                       <div>
                         <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest mb-1.5">ROOT CAUSE DETERMINATION</h4>
-                        <p className="text-xs text-slate-200 bg-white/[0.02] border border-white/5 rounded-xl p-3.5 leading-relaxed font-sans font-medium">
-                          {activeIncident.aiAnalysis.rootCause}
-                        </p>
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 leading-relaxed font-sans text-xs">
+                          <MarkdownRenderer content={activeIncident.aiAnalysis.rootCause} />
+                        </div>
                       </div>
 
                       <div>
@@ -476,9 +476,9 @@ export default function AnalysisPage() {
                                     </div>
                                     <span className="text-slate-500 font-bold">ROUND {msg.round}</span>
                                   </div>
-                                  <p className="text-xs text-slate-300 leading-relaxed font-sans font-medium mt-1">
-                                    {msg.message}
-                                  </p>
+                                  <div className="text-xs text-slate-300 leading-relaxed font-sans mt-1">
+                                    <MarkdownRenderer content={msg.message} />
+                                  </div>
                                 </div>
                               );
                             })
