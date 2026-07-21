@@ -94,25 +94,25 @@ class ZeroHarmSafetyAgent:
         #         }
         #     logger.error("OpenRouter query failed. Falling back to rule-based fallback engine.")
         #     active_mode = "Rule-Based Engine (Local Fallback)"
-        if self.openrouter_api_key:
+        from ..integration.circuit_breaker import rag_circuit_breaker
+
+        if self.openrouter_api_key and rag_circuit_breaker.allow_request():
             logger.info("Attempting OpenRouter response...")
-
             answer_text = self._call_openrouter(prompt)
-
             if answer_text:
                 logger.info("LLM response received successfully.")
-
+                rag_circuit_breaker.record_success()
                 return {
                     "answer": answer_text,
                     "sources": sources_list,
                     "mode": active_mode
                 }
-
-            logger.warning("=" * 60)
-            logger.warning("LLM call failed.")
-            logger.warning("Switching to Rule-Based Fallback Engine.")
-            logger.warning("=" * 60)
-
+            else:
+                rag_circuit_breaker.record_failure()
+                logger.warning("LLM call failed or returned empty response.")
+                active_mode = "Rule-Based Engine (Local Fallback)"
+        elif self.openrouter_api_key:
+            logger.warning("RAG OpenRouter Circuit Breaker is OPEN. Bypassing external call.")
             active_mode = "Rule-Based Engine (Local Fallback)"
 
         # Rule-based fallback if offline / key missing / API failed

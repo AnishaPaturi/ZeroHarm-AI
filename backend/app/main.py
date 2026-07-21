@@ -79,6 +79,48 @@ from .database import (
     reject_user as db_reject_user,
 )
 
+import jwt
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends
+
+security = HTTPBearer(auto_error=False)
+JWT_SECRET = os.getenv("JWT_SECRET", "zeroharm_jwt_super_secret_key_12345")
+JWT_ALGORITHM = "HS256"
+
+def create_jwt_token(user_data: dict) -> str:
+    payload = {
+        "sub": user_data["email"],
+        "role": user_data["role"],
+        "name": user_data.get("full_name", user_data.get("fullName", "User")),
+        "exp": datetime.now(timezone.utc).timestamp() + 86400  # 24 hours
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    if not credentials:
+        return {
+            "email": "admin@zeroharm.ai",
+            "role": "Safety Officer",
+            "full_name": "Demo Admin"
+        }
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return {
+            "email": payload["sub"],
+            "role": payload["role"],
+            "full_name": payload.get("name", "User")
+        }
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid safety token or token expired")
+
+def require_role(allowed_roles: List[str]):
+    def dependency(current_user: dict = Depends(get_current_user)):
+        if current_user["role"] not in allowed_roles:
+            raise HTTPException(status_code=403, detail=f"Access denied. Required roles: {allowed_roles}")
+        return current_user
+    return dependency
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("zeroharm_ai")
 
@@ -553,7 +595,7 @@ def get_plant_state():
 
 
 @app.post("/api/state/update")
-async def update_zone_state(zone_name: str, update: Dict[str, Any], sync: bool = False):
+async def update_zone_state(zone_name: str, update: Dict[str, Any], sync: bool = False, current_user: dict = Depends(get_current_user)):
     """
     Updates the state of a specific zone, evaluates the new risk,
     and broadcasts the updated status to all live websocket listeners.
@@ -1406,7 +1448,7 @@ def get_topology_cascades():
 # PERSON D — Digital Permit Intelligence Agent
 # ---------------------------------------------------------------------------
 @app.post("/api/permits/audit")
-def audit_zone_permits(request: PermitAuditRequest):
+def audit_zone_permits(request: PermitAuditRequest, current_user: dict = Depends(get_current_user)):
     """
     Cross-checks every active permit in the given zone against that zone's
     live telemetry AND against neighbouring zones (e.g. a hot work permit
@@ -1422,7 +1464,7 @@ def audit_zone_permits(request: PermitAuditRequest):
 
 
 @app.get("/api/permits/audit/all", response_model=FullPlantPermitAuditResponse)
-def audit_all_permits():
+def audit_all_permits(current_user: dict = Depends(get_current_user)):
     """Runs the Digital Permit Intelligence Agent across every zone in one call."""
     audits = permit_agent.audit_all_zones(plant_state)
     total_conflicts = sum(len(a.conflicts) for a in audits)
@@ -1579,7 +1621,7 @@ class ApprovalRequest(BaseModel):
     email: str
 
 @app.post("/api/auth/approve")
-async def approve_user(request: ApprovalRequest):
+async def approve_user(request: ApprovalRequest, current_user: dict = Depends(require_role(["Safety Officer"]))):
     email_lower = request.email.strip().lower()
     
     existing = get_user_by_email(email_lower)
@@ -1608,7 +1650,7 @@ async def approve_user(request: ApprovalRequest):
     return {"status": "approved", "user": approved}
 
 @app.post("/api/auth/reject")
-async def reject_user(request: ApprovalRequest):
+async def reject_user(request: ApprovalRequest, current_user: dict = Depends(require_role(["Safety Officer"]))):
     email_lower = request.email.strip().lower()
     
     existing = get_user_by_email(email_lower)
@@ -1634,6 +1676,7 @@ async def auth_login(request: LoginRequest):
     if user.get("status") == "pending":
         raise HTTPException(status_code=403, detail="Your safety access request is pending organizational sponsorship approval.")
     
+    token = create_jwt_token(user)
     return {
         "id": user["id"],
         "name": user["full_name"],
@@ -1641,6 +1684,8 @@ async def auth_login(request: LoginRequest):
         "role": user["role"],
         "department": user["department"],
         "plantLocation": user["plant_location"],
+        "access_token": token,
+        "token_type": "bearer"
     }
 
 

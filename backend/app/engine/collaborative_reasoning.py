@@ -168,17 +168,27 @@ class MultiAgentCollaborativeReasoning:
             "temperature": 0.3
         }
 
+        from ..integration.circuit_breaker import debate_circuit_breaker
         from ..integration.llm_cache import llm_cache
         cached_content = llm_cache.get_cached_response(prompt)
         if cached_content:
             content = cached_content
         else:
-            resp = requests.post(self.openrouter_url, headers=headers, json=payload, timeout=25)
-            if resp.status_code == 200:
-                res_json = resp.json()
-                content = res_json["choices"][0]["message"]["content"].strip()
-                llm_cache.set_cached_response(prompt, content)
-            else:
+            if not debate_circuit_breaker.allow_request():
+                logger.warning("Debate OpenRouter Circuit Breaker is OPEN. Bypassing external call.")
+                return None
+            try:
+                resp = requests.post(self.openrouter_url, headers=headers, json=payload, timeout=25)
+                if resp.status_code == 200:
+                    res_json = resp.json()
+                    content = res_json["choices"][0]["message"]["content"].strip()
+                    llm_cache.set_cached_response(prompt, content)
+                    debate_circuit_breaker.record_success()
+                else:
+                    debate_circuit_breaker.record_failure(Exception(f"HTTP {resp.status_code}"))
+                    return None
+            except Exception as e:
+                debate_circuit_breaker.record_failure(e)
                 return None
 
         # Strip markdown block wrappers if model outputs them
