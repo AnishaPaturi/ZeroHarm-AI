@@ -761,15 +761,37 @@ docker compose up --build
 # Frontend Dashboard: http://localhost:3000
 ```
 
-### Architecture for Multi-Plant Scaling
+### 🌊 Asynchronous Ingestion & Stream Processing Engine (Implemented)
 
-The current single-instance FastAPI server is designed for a single plant simulation. For multi-plant / multi-tenant deployment:
+ZeroHarm AI features a high-throughput async ingestion queue and real-time stream processing pipeline to handle telemetry streams from tens of thousands of IoT sensors and cameras without blocking the main HTTP execution thread.
 
-1. **Stateless API layer**: All risk scoring endpoints (`/risk-score`, `/api/cctv/event`, `/api/state/update`) are stateless and can be horizontally scaled behind a load balancer.
-2. **Shared data stores**: Replace the in-memory `plant_state` dictionary with a Redis or PostgreSQL instance per plant/tenant. The `plant_state` updates are already centralized in `update_zone_state()`, making the swap straightforward.
-3. **Message queue for telemetry**: IoT/SCADA ingestion points can publish to a Kafka or RabbitMQ topic; consumers update zone state and trigger risk evaluations asynchronously.
-4. **Container orchestration**: Each service (backend API, frontend, vector store indexer, ML inference) runs in its own container. Kubernetes or ECS can manage scaling based on telemetry throughput.
-5. **Persistent volumes**: Model artifacts (`rf_model.pkl`, `if_model.pkl`) and evidence archives (`data/evidence/`) are mounted as Docker volumes to survive container restarts.
+#### 1. Decoupled Ingestion Pipeline (Option A)
+*   **How it works**: Telemetry updates (`/api/state/update`) and CCTV event streams (`/api/cctv/event`) are published instantly to the `IngestionQueue` layer. The API responds with an immediate `202 Accepted` status containing a unique `task_id` (O(1) time complexity), offloading the risk evaluation, rules engine, and agent debate loop.
+*   **Supported Message Brokers**:
+    *   **Apache Kafka**: Enqueues events using Kafka Producer/Consumer instances mapping to a `zeroharm_telemetry` topic.
+    *   **RabbitMQ**: Routes messages to a durable queue using the `pika` library.
+    *   **asyncio.Queue**: An in-memory asynchronous queue fallback for local testing without external broker setups.
+*   **Configurable via `.env`**:
+    *   `ASYNC_INGESTION_ENABLED=true/false` (Toggle async queue-based processing vs. standard sync request flow).
+    *   `INGESTION_BROKER_TYPE=asyncio/rabbitmq/kafka` (Select background broker type).
+    *   `KAFKA_BOOTSTRAP_SERVERS` and `RABBITMQ_URL` connection strings.
+
+#### 2. Sliding Window Stream Processing (Option B)
+*   **How it works**: Incoming telemetry events are continuously processed inside the `TelemetryStreamProcessor` using sliding window buffers (default size = 10 events) for each zone and metric (e.g. CO, H2S, vessel pressure).
+*   **Window Aggregations**:
+    *   **Moving Average**: Tracks the rolling mean to filter out temporary reading noise and catch sustained build-ups.
+    *   **Variance / Standard Deviation**: Detects telemetry volatility (e.g., rapid sensor spikes or unstable readings indicating leaks).
+*   **Stream Alerts**: Triggers secondary system alarms (such as `stream_threshold_breach` and `stream_high_variance`) which are pushed back to the ingestion queue to flag risk score changes, update plant state, and broadcast live alerts over WebSockets.
+
+#### 3. Standalone Verification Suite
+To verify the queue and processor, run:
+```bash
+# Standalone ingestion and stream window test suite
+python backend/test_ingestion_queue.py
+
+# Or through the unified test runner
+python backend/run_all_tests.py
+```
 
 This design preserves the current single-server demo experience while providing a clear migration path to production multi-plant deployments.
 
