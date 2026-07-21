@@ -174,7 +174,7 @@ export default function NearMissesPage() {
               ) : detail ? (
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-4">
-                    <RiskGauge score={detail.predicted_incident_probability} size={120} />
+                    <RiskGauge score={detail.predicted_incident_probability} size={135} />
                     <div>
                       <span className={`text-[9px] font-bold font-mono uppercase px-2 py-0.5 rounded border ${SEVERITY_COLORS[detail.severity] || SEVERITY_COLORS.Low}`}>
                         {detail.severity}

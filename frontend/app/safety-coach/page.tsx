@@ -151,7 +151,7 @@ export default function SafetyCoachPage() {
             <div className="glass-panel border border-white/10 rounded-3xl p-6">
               <h3 className="font-heading text-base font-bold text-white tracking-wide mb-4">Worker Detail</h3>
               <div className="flex items-center gap-4 mb-6">
-                <RiskGauge score={detail.safety_score} size={120} />
+                <RiskGauge score={detail.safety_score} size={135} />
                 <div>
                   <span className={`text-[9px] font-bold font-mono uppercase px-2 py-0.5 rounded border ${
                     detail.safety_score >= 80 ? 'text-green-400 bg-green-500/10 border-green-500/20' :

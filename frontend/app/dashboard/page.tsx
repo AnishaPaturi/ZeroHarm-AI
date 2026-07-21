@@ -365,7 +365,7 @@ export default function Dashboard() {
             {/* Plant Stats display */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-black/35 border border-white/5 rounded-2xl p-5">
               <div className="flex flex-col items-center justify-center p-3 text-center border-b sm:border-b-0 sm:border-r border-white/5">
-                <RiskGauge score={plantStats[selectedPlant].safety} size={130} />
+                <RiskGauge score={plantStats[selectedPlant].safety} size={160} />
               </div>
 
               <div className="sm:col-span-2 flex flex-col justify-between py-2 pl-2">

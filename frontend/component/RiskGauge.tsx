@@ -11,8 +11,8 @@ interface RiskGaugeProps {
 
 export default function RiskGauge({ score, title = 'Safety Index', size = 180 }: RiskGaugeProps) {
   const [animatedScore, setAnimatedScore] = useState(0);
-  const radius = 60;
-  const strokeWidth = 10;
+  const radius = 70;
+  const strokeWidth = 8;
   const circumference = 2 * Math.PI * radius;
   // We only sweep a semi-circle or 3/4 circle
   const sweepAngle = 270; // 270 degrees sweep
