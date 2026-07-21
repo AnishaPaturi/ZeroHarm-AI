@@ -321,6 +321,10 @@ export default function DigitalTwin() {
 
     return () => {
       if (ws) {
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
         ws.close();
       }
       stopPolling();

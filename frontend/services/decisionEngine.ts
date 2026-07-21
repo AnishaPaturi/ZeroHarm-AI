@@ -206,6 +206,10 @@ async function syncIncidents() {
 function connectWebSocket() {
   if (ws) {
     try {
+      ws.onopen = null;
+      ws.onmessage = null;
+      ws.onerror = null;
+      ws.onclose = null;
       ws.close();
     } catch (e) {}
   }
@@ -401,11 +405,18 @@ export const initDecisionEngine = () => {
   return () => {
     if (ws) {
       try {
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
         ws.close();
       } catch (e) {}
       ws = null;
     }
-    if (reconnectTimeout) clearTimeout(reconnectTimeout);
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+      reconnectTimeout = null;
+    }
     if (workersInterval) clearInterval(workersInterval);
     if (listRefreshInterval) clearInterval(listRefreshInterval);
     useIncident.setState({ wsConnected: false });

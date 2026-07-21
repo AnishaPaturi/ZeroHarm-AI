@@ -851,7 +851,7 @@ async def websocket_endpoint(websocket: WebSocket):
     """Person A's raw risk feed (state + risk_update events)."""
     await manager.connect(websocket)
     try:
-        initial_payload = {"event": "initial_state", "state": plant_state, "history": risk_history[-10:]}
+        initial_payload = {"event": "initial_state", "state": {k: v for k, v in plant_state.items()}, "history": risk_history[-10:]}
         await websocket.send_json(initial_payload)
         while True:
             data = await websocket.receive_text()
