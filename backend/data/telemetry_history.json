@@ -318,5 +318,15 @@
     "h2s": 0.0,
     "temperature": 25.0,
     "pressure": 1.0
+  },
+  {
+    "timestamp": "2026-07-21T21:55:58.594661",
+    "zone": "Coke Oven Battery 1",
+    "o2": 20.8,
+    "co": 0.0,
+    "ch4": 0.0,
+    "h2s": 0.0,
+    "temperature": 25.0,
+    "pressure": 1.0
   }
 ]
