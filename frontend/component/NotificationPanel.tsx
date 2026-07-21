@@ -26,7 +26,7 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
   // const alerts = useIncident(state => state.alerts);
   const [alerts, setAlerts] = useState<BackendNotification[]>([]);
   useEffect(() => {
-  fetch(`${API_BASE_URL}/api/notifications/`)
+  fetch(`${API_BASE_URL}/api/notifications`)
     .then((res) => res.json())
     // .then((data) => setAlerts(data))
     .then((data) =>

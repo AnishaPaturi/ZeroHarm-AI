@@ -49,7 +49,7 @@ export default function Navbar() {
   ];
 
   useEffect(() => {
-  fetch(`${API_BASE_URL}/api/notifications/`)
+  fetch(`${API_BASE_URL}/api/notifications`)
     .then((res) => res.json())
     .then((data) => {
       const unread = data.filter(

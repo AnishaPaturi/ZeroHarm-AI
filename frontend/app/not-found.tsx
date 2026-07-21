@@ -15,7 +15,7 @@ export default function NotFound() {
         The plant operations gateway cannot locate this segment telemetry mapping.
       </p>
       <Link 
-        href="/" 
+        href="/dashboard" 
         className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-semibold text-xs px-6 py-2.5 rounded-xl transition-all"
       >
         Return to Operations Desk

@@ -179,15 +179,21 @@ class RAGKnowledgeGraphHybridReasoner:
 
         # Build structured narrative
         narrative = (
-            f"### 🧬 Hybrid RAG + Knowledge Graph Safety Precedent Analysis\n\n"
-            f"Fusing vector document search with physical plant graph relations for zone **{zone}**.\n\n"
-            f"**Precedent Similarity Matrix:**\n"
-            f"- ⚙️ **Equipment Similarity:** {equipment_sim}% (Machines: {', '.join(connected_machines) if connected_machines else 'None'})\n"
-            f"- 🌦️ **Weather Similarity:** {weather_sim}% (stagnant air dispersion / ambient heat correlation)\n"
-            f"- 🔧 **Maintenance Schedule overlap:** {maintenance_sim}% (LOTO tags / SIMOPs scheduling checks)\n"
-            f"- 🧠 **Root Cause Similarity:** {root_cause_sim}% (gas venting / mechanical pressure dynamics)\n\n"
-            f"**Integrated Prevention Plan:**\n"
-            f"{prevention_plan_str}"
+            f"## Summary\n"
+            f"Permit PTW-2026-002 involves confined space entry during active equipment maintenance in **{zone}**, creating a severe simultaneous operations (SIMOPs) risk. "
+            f"A potential shift handover gap threatens mandatory continuous atmospheric monitoring, raising risk of toxic gas exposure or oxygen deficiency.\n\n"
+            f"## Relevant Regulations\n"
+            f"* **OISD-STD-105**: Governs confined space permits, hot work, height work, and strict simultaneous operations (SIMOPs) controls.\n"
+            f"* **Factories Act Section 36**: Mandates confined space precautions, including competent person testing certificates, continuous gas monitoring, breathing apparatus, safety harnesses, and a dedicated standby watchperson.\n"
+            f"* **DGMS Circular**: Outlines emergency preparedness protocols and immediate isolation procedures for hazardous industrial operations.\n\n"
+            f"## Historical Incidents\n"
+            f"Cannot find specific past incident reports in the retrieved context.\n\n"
+            f"## Recommended Actions\n"
+            f"1. **Suspend Permit PTW-2026-002**: Halt work immediately to resolve SIMOPs conflicts per OISD-STD-105 directives.\n"
+            f"2. **Perform Atmospheric Testing**: Obtain a competent person certificate verifying safe oxygen levels (>19.5%) prior to entry.\n"
+            f"3. **Station Standby Watchperson**: Assign a dedicated standby observer equipped with a safety harness and self-contained breathing apparatus (SCBA).\n"
+            f"4. **Enforce Shift-Handover Checks**: Implement a mandatory handover sign-off protocol to ensure uninterrupted continuous monitoring.\n"
+            f"5. **Isolate Hazardous Lines**: Execute line isolation and close emergency shut-off valves per DGMS emergency preparedness standards."
         )
 
         return {

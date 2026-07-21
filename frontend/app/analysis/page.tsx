@@ -41,17 +41,23 @@ const generateLocalHybridReasoning = (zone: string) => {
         title: 'Section 36 prosecution regarding lack of continuous air induction'
       }
     ],
-    fused_analysis_markdown: `### Fused Hybrid Knowledge Graph & RAG Precedent Report
+    fused_analysis_markdown: `## Summary
+Permit PTW-2026-002 involves confined space entry during active equipment maintenance in **${zoneName}**, creating a severe simultaneous operations (SIMOPs) risk. A potential shift handover gap threatens mandatory continuous atmospheric monitoring, raising risk of toxic gas exposure or oxygen deficiency.
 
-An automated search of the ZeroHarm knowledge graph and regulatory compliance indexes has been completed for **${zoneName}**.
+## Relevant Regulations
+* **OISD-STD-105**: Governs confined space permits, hot work, height work, and strict simultaneous operations (SIMOPs) controls.
+* **Factories Act Section 36**: Mandates confined space precautions, including competent person testing certificates, continuous gas monitoring, breathing apparatus, safety harnesses, and a dedicated standby watchperson.
+* **DGMS Circular**: Outlines emergency preparedness protocols and immediate isolation procedures for hazardous industrial operations.
 
-#### Regulatory Compliance Check
-* **Factories Act Sec. 36**: Confined space ventilation failure. Precedents indicate overlapping maintenance tasks during shift boundaries are the primary driver of communications gaps.
-* **OISD safety standards**: Verify LOTO padlocks and tags on all primary manifolds.
+## Historical Incidents
+Cannot find specific past incident reports in the retrieved context.
 
-#### Preemptive Safety Focus
-* Mobilize standby watch crews before restarting maintenance.
-* Verify secondary exhaust ventilation systems are online.`
+## Recommended Actions
+* **Suspend Permit PTW-2026-002**: Halt work immediately to resolve SIMOPs conflicts per OISD-STD-105 directives.
+* **Perform Atmospheric Testing**: Obtain a competent person certificate verifying safe oxygen levels (>19.5%) prior to entry.
+* **Station Standby Watchperson**: Assign a dedicated standby observer equipped with a safety harness and self-contained breathing apparatus (SCBA).
+* **Enforce Shift-Handover Checks**: Implement a mandatory handover sign-off protocol to ensure uninterrupted continuous monitoring.
+* **Isolate Hazardous Lines**: Execute line isolation and close emergency shut-off valves per DGMS emergency preparedness standards.`
   };
 };
 

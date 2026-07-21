@@ -346,17 +346,20 @@ class ZeroHarmSafetyAgent:
             llm_cache.set_cached_response(prompt, answer)
             return answer
 
-        except requests.exceptions.HTTPError:
-            logger.exception("HTTP Error while calling OpenRouter")
+        except requests.exceptions.HTTPError as err:
+            if 'resp' in locals() and resp.status_code == 429:
+                logger.warning(f"OpenRouter Rate Limit (429) exceeded for model '{self.model}'. Falling back to local rule-based engine.")
+            else:
+                logger.error(f"HTTP Error while calling OpenRouter: {err}")
 
         except requests.exceptions.Timeout:
-            logger.exception("OpenRouter request timed out")
+            logger.warning("OpenRouter request timed out. Falling back to local rule-based engine.")
 
         except requests.exceptions.ConnectionError:
-            logger.exception("Could not connect to OpenRouter")
+            logger.warning("Could not connect to OpenRouter. Falling back to local rule-based engine.")
 
-        except Exception:
-            logger.exception("Unexpected error while calling OpenRouter")
+        except Exception as e:
+            logger.error(f"Unexpected error while calling OpenRouter: {e}")
 
         return ""
 
