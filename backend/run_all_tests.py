@@ -14,7 +14,8 @@ TEST_SCRIPTS = [
     ("Temporal Rate-of-Change Tracking", "backend/test_temporal.py"),
     ("Plant Topology cascading risk", "backend/test_topology.py"),
     ("Black Box Evidence Preservation", "backend/test_blackbox.py"),
-    ("Near Miss Prediction Engine", "backend/test_near_miss.py")
+    ("Near Miss Prediction Engine", "backend/test_near_miss.py"),
+    ("Gatehouse Onboarding & Trust", "backend/test_gatehouse.py")
 ]
 
 def check_server_running():
