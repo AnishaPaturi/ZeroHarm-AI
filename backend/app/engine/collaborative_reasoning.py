@@ -192,24 +192,23 @@ class MultiAgentCollaborativeReasoning:
             content = content.strip()
         
         data = json.loads(content)
-            
-            transcript_objs = []
-            for item in data.get("debate_transcript", []):
-                transcript_objs.append(DebateMessage(**item))
+        
+        transcript_objs = []
+        for item in data.get("debate_transcript", []):
+            transcript_objs.append(DebateMessage(**item))
 
-            return CollaborativeReasoningResponse(
-                zone=zone,
-                timestamp=datetime.now().isoformat(),
-                risk_probability=data.get("risk_probability", 50.0),
-                prediction=data.get("prediction", "No direct prediction available."),
-                compound_factors=data.get("compound_factors", []),
-                debate_transcript=transcript_objs,
-                final_consensus=data.get("final_consensus", ""),
-                recommendations=data.get("recommendations", []),
-                weather_info=weather_info,
-                mode=f"LLM Multi-Agent Debate ({self.model})"
-            )
-        return None
+        return CollaborativeReasoningResponse(
+            zone=zone,
+            timestamp=datetime.now().isoformat(),
+            risk_probability=data.get("risk_probability", 50.0),
+            prediction=data.get("prediction", "No direct prediction available."),
+            compound_factors=data.get("compound_factors", []),
+            debate_transcript=transcript_objs,
+            final_consensus=data.get("final_consensus", ""),
+            recommendations=data.get("recommendations", []),
+            weather_info=weather_info,
+            mode=f"LLM Multi-Agent Debate ({self.model})"
+        )
 
     def _run_local_debate(self, zone: str, zone_state: Dict[str, Any], weather_info: Dict[str, Any]) -> CollaborativeReasoningResponse:
         """Rule-based simulation fallback that dynamically generates the multi-agent debate based on the zone state."""
