@@ -25,7 +25,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const normalizedContent = content
     .replace(/([^\n])\s*(#{1,6}\s+)/g, '$1\n\n$2')
     .replace(/(#{1,6}\s+)(Summary|Relevant Regulations|Historical Incidents|Past Precedents|Near-Miss Records|Compliance Deviations|Recommended Actions|Immediate Actions|Integrated Prevention Plan|Regulatory Compliance Check|Preemptive Safety Focus|Industrial Safety Standards)\s+([^\n]+)/gi, '$1$2\n$3')
-    .replace(/([^\n])\s*([*\-]\s+)/g, '$1\n$2')
+    .replace(/([.\):;])\s*([*\-]\s+)([A-Z\*])/g, '$1\n- $3')
     .replace(/([^\n])\s*(\d+\.\s+)/g, '$1\n$2');
 
   const lines = normalizedContent.split('\n');
