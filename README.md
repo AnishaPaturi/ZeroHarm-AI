@@ -501,11 +501,13 @@ npm run frontend
 
 ZeroHarm AI includes a comprehensive, automated testing suite. **Note: The backend server must be running first on `http://127.0.0.1:8000` before running any test suites.**
 
-With the backend server running, execute tests from the workspace root using:
+With the backend server running (or using in-process TestClient for pytest), execute tests from the workspace root using:
 
 | Script / Test Runner | Description | Command |
 | :--- | :--- | :--- |
 | **All Tests Runner** | Run all tests in sequence | `npm run test:all` (or `python backend/run_all_tests.py`) |
+| **pytest & Contract Suite**| Run in-process unit, integration, and OpenAPI contract validation tests | `python -m pytest backend/test_pytest_all.py` |
+| **Locust Load Profiling** | Simulate concurrent SCADA telemetry ticks and client dashboard connections | `locust -f backend/locustfile.py` |
 | **Test Client A** | Risk engine calculations & Random Forest/Isolation Forest anomalies | `python backend/test_api.py` |
 | **Test Client B** | SVG heatmaps, live worker logs, and evacuation dispatching | `python backend/test_api_b.py` |
 | **Test Client C** | Local Fallback RAG questions and compliance audits | `python backend/test_api_c.py` |
@@ -942,6 +944,42 @@ python backend/test_vector_rag.py
 
 # Or through the unified test runner
 python backend/run_all_tests.py
+```
+
+### 🔐 Security Audits, RBAC & Operational Resilience (Implemented)
+
+ZeroHarm AI implements standard authorization tokens, role-based access controls, automated OpenAPI schema validations, and circuit breakers for external LLM API endpoints to shield operations under connectivity stress.
+
+```mermaid
+graph TD
+    User[Client User] -->|1. Authenticate| Auth[POST /api/auth/login]
+    Auth -->|2. Return JWT| User
+    User -->|3. Request Auth Route with JWT| Gateway[FastAPI Guard / Depends]
+    Gateway -->|4a. Role Mismatch| Err[403 Forbidden]
+    Gateway -->|4b. Authorized| Action[Execute Action]
+
+    LLMCall[RAG / Debate Call] -->|5. Check Circuit state| Breaker{Circuit Breaker CLOSED?}
+    Breaker -->|Yes| OpenRouter[Call OpenRouter API]
+    OpenRouter -->|Consecutive Failures| Trip[Trip Circuit to OPEN]
+    Breaker -->|No| Fallback[Bypass to Local Heuristics Fallback]
+```
+
+#### 1. JWT & Role-Based Access Control (RBAC)
+*   **Token Issuance**: Users authenticate via `/api/auth/login` to obtain a signed JWT token containing subject and role credentials.
+*   **Route Protections**: Bears token check validations via FastAPI `Depends` enforce authorization for telemetry updates (`/api/state/update`) and permit audits (`/api/permits/audit`).
+*   **Administrative Access Guard**: Enforces strict `"Safety Officer"` role verification to approve or reject gatehouse organizational access requests (`/api/auth/approve`, `/api/auth/reject`).
+*   **Demonstration Fallback**: Maintains a transparent fallback back-compatibility mechanism, authorizing requests automatically to `"Safety Officer"` when no bearer token is supplied to simplify hackathon demo deployments.
+
+#### 2. OpenRouter Circuit Breaker
+*   **Operational Protection**: Outgoing OpenRouter LLM queries in RAG agent ([agent.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/rag/agent.py)) and multi-agent debate ([collaborative_reasoning.py](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/backend/app/engine/collaborative_reasoning.py)) are wrapped inside `CircuitBreaker` states.
+*   **Trip Mechanics**: If 3 consecutive connection attempts fail or time out, the circuit breaker transitions to **OPEN**.
+*   **Immediate Local Fallback**: When open, subsequent requests immediately route to the offline local rule-based fallback system without initiating network connections, avoiding ingestion queue backlogs.
+
+#### 3. Standalone Verification Suite
+To verify the security configurations and circuit breaker states, run:
+```bash
+# Execute the comprehensive pytest contract validation suite
+python -m pytest backend/test_pytest_all.py
 ```
 
 This design preserves the current single-server demo experience while providing a clear migration path to production multi-plant deployments.
