@@ -22,32 +22,43 @@ ZeroHarm AI is a next-generation, AI-driven **Industrial Safety Intelligence (IS
 
 ## 🛠️ Tech Stack & Technologies Used
 
-ZeroHarm AI leverages a modern, robust, and highly integrated technology stack across the frontend user experience and the backend safety intelligence engine:
+ZeroHarm AI leverages a modern, robust, and highly integrated technology stack across the frontend user experience, the backend safety intelligence engine, and real-time data analytical pipelines:
 
 ### 💻 Frontend (User Interface)
-* **Core Framework**: **React 19** & **Next.js 16 (App Router)** for fast, optimized page compilation and server-side rendering support.
-* **State Management**: **Zustand** for lightweight, high-performance global state management across live SCADA telemetry, alerts, and authentication.
+* **Core Framework**: **React 19** & **Next.js 16 (App Router)** for fast, optimized page compilation, static optimization, and server-side rendering support.
+* **State Management**: **Zustand** for lightweight, high-performance global state management across live SCADA telemetry, active alerts, and authentication states.
+* **Type Safety**: **TypeScript** used throughout the client application to ensure code correctness and robust interfaces.
 * **Styling & Layout**: **Tailwind CSS** combined with custom **Vanilla CSS variables** for deep glassmorphism themes, glowing safety states, responsive charts, and printer-friendly PDF compliance layouts.
 * **Micro-Animations**: **Framer Motion** for smooth transition physics, fading alerts, dynamic progress bars, and modal slides.
 * **Data Visualization**: **Recharts** to compile and render live, high-frequency historical sensor graphs (oxygen depletion, carbon monoxide accumulation, gas LPG and ambient pressure trends).
+* **Forms & Validation**: **React Hook Form** for clean form handling, inputs, and validation across checklist sign-offs and incident reports.
 * **Iconography**: **Lucide React** for modern, high-contrast dashboard iconography.
 
 ### ⚙️ Backend (Safety Intelligence Engine)
 * **API Framework**: **FastAPI (Python 3.11+)** for high-performance, asynchronous REST API routes and low-latency bidirectional WebSockets streaming live telemetry.
+* **Web Server**: **Uvicorn** as the ASGI web server implementation to run the FastAPI application.
+* **Data Validation**: **Pydantic** for typed data parsing and validation in request/response payloads.
+* **Real-time Communication**: **WebSockets** for streaming continuous telemetry and badge tracker updates.
+* **File Processing**: 
+  * **PyPDF** to parse and extract text from compliance documents (like the Factories Act or OISD guidelines) for ingestion into the RAG vector store.
+  * **Python-Multipart** to handle upload streams of PDF documents and shift handovers.
+
+### 🧠 Data Science, Machine Learning & Artificial Intelligence
 * **Artificial Intelligence**:
-  * **OpenRouter API** integration linking safety reasoning models for collaborative agent debates, regulatory citations, and advisory compilation.
-  * **Dynamic TF-IDF Vector Store** (In-Memory) for fast semantic RAG query calculations across indexed Factories Act and OISD safety standard databases.
+  * **OpenRouter API** integration linking safety reasoning LLMs for collaborative agent debates, regulatory citations, and advisory compilation.
+  * **Dynamic TF-IDF Vector Store & Sentence-Transformers** for fast, local semantic RAG query calculations across indexed Factories Act and OISD safety standard databases.
 * **Machine Learning & Analytics**:
-  * **Scikit-Learn** implementing supervised **Random Forest Classifier** models for multi-sensor threat classification.
-  * **Isolation Forest Classifier** for unsupervised anomaly detection and scoring on raw SCADA feeds.
+  * **Scikit-Learn** implementing supervised **Random Forest Classifier** models for multi-sensor threat classification, alongside unsupervised **Isolation Forest Classifier** for anomaly detection and scoring on raw SCADA feeds.
+  * **Pandas & NumPy** for parsing, cleaning, and aggregating high-frequency sensor readings, telemetry logs, and rolling historical arrays.
 * **Geospatial & Adjacency Graphs**:
   * **NetworkX** to build process piping topology graphs, calculating cascading risk propagation between boilers, headers, and valve segments.
 * **Simulation Engine**: Custom background python thread loops to simulate realistic sensor drifts, gas anomalies, and worker badge GPS coordinate trails.
 
 ### 🐳 Infrastructure & Deployment
-* **Containerization**: **Docker** & **Docker Compose** to package the frontend and backend microservices for uniform staging.
+* **Containerization**: **Docker** & **Docker Compose** to package the frontend and backend microservices for uniform staging and simple cross-platform launching.
 * **Serialization**: **Joblib/Pickle** for automated disk serialization of trained ML anomaly scoring model weights, avoiding initialization delays during reboots.
-* **Testing & Diagnostics**: Automated REST client suites (`requests` & `pytest`) validating SCADA rules, rate-of-change temporal equations, black box logs, and permit logic.
+* **Task Running**: **Concurrently** in the root package configurations to run the frontend Next.js server and the backend FastAPI server concurrently with a single command (`npm run dev:full`).
+* **Testing & Diagnostics**: Automated REST client suites (**requests** & **pytest**) validating SCADA rules, rate-of-change temporal equations, black box logs, and permit logic.
 
 ---
 
