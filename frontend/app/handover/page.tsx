@@ -9,6 +9,161 @@ import { FileText, Clock, AlertTriangle, CheckCircle, ArrowRight, ShieldAlert, C
 import Loader from '../../component/Loader';
 import MarkdownRenderer from '../../component/MarkdownRenderer';
 
+const parseMarkdownToHtml = (content: string): string => {
+  if (!content) return '';
+
+  const parseInlineHtml = (text: string): string => {
+    let result = text;
+    // Basic inline HTML escaping
+    result = result
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    result = result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    result = result.replace(/`(.*?)`/g, '<code>$1</code>');
+    return result;
+  };
+
+  const lines = content.split('\n');
+  const htmlParts: string[] = [];
+  let currentTable: { headers: string[]; rows: string[][] } | null = null;
+  let currentList: { items: string[]; type: 'bullet' | 'checklist' } | null = null;
+  let currentQuote: string[] = [];
+
+  const flushTable = () => {
+    if (!currentTable) return;
+    let tableHtml = '<div class="table-container"><table><thead><tr>';
+    currentTable.headers.forEach(h => {
+      tableHtml += `<th>${parseInlineHtml(h)}</th>`;
+    });
+    tableHtml += '</tr></thead><tbody>';
+    currentTable.rows.forEach(row => {
+      tableHtml += '<tr>';
+      row.forEach(cell => {
+        tableHtml += `<td>${parseInlineHtml(cell)}</td>`;
+      });
+      tableHtml += '</tr>';
+    });
+    tableHtml += '</tbody></table></div>';
+    htmlParts.push(tableHtml);
+    currentTable = null;
+  };
+
+  const flushList = () => {
+    if (!currentList) return;
+    if (currentList.type === 'checklist') {
+      let listHtml = '<div class="checklist-container">';
+      currentList.items.forEach(item => {
+        const isChecked = item.startsWith('[x]') || item.startsWith('[X]');
+        const cleanText = item.replace(/^\[[ xX]\]\s*/, '');
+        listHtml += `
+          <div class="checklist-item">
+            <span class="checkbox">${isChecked ? '☑️' : '☐'}</span>
+            <span class="checklist-text">${parseInlineHtml(cleanText)}</span>
+          </div>`;
+      });
+      listHtml += '</div>';
+      htmlParts.push(listHtml);
+    } else {
+      let listHtml = '<ul>';
+      currentList.items.forEach(item => {
+        listHtml += `<li>${parseInlineHtml(item)}</li>`;
+      });
+      listHtml += '</ul>';
+      htmlParts.push(listHtml);
+    }
+    currentList = null;
+  };
+
+  const flushQuote = () => {
+    if (currentQuote.length === 0) return;
+    htmlParts.push(`<blockquote>${parseInlineHtml(currentQuote.join('\\n'))}</blockquote>`);
+    currentQuote = [];
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    // Check if we are inside a table
+    if (line.startsWith('|')) {
+      flushList();
+      flushQuote();
+      
+      const cells = line.split('|').map(c => c.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
+      
+      // Skip separator row (e.g. |---|---|)
+      if (cells.every(c => c.startsWith('-'))) {
+        continue;
+      }
+      
+      if (!currentTable) {
+        currentTable = { headers: cells, rows: [] };
+      } else {
+        currentTable.rows.push(cells);
+      }
+      continue;
+    } else if (currentTable) {
+      flushTable();
+    }
+
+    // Check if we are in a quote
+    if (line.startsWith('>')) {
+      flushList();
+      flushTable();
+      currentQuote.push(line.replace(/^>\s*/, ''));
+      continue;
+    } else if (currentQuote.length > 0) {
+      flushQuote();
+    }
+
+    // Check if we are in a list
+    const listMatch = line.match(/^([*\-]\s+)(.*)$/);
+    if (listMatch) {
+      flushTable();
+      flushQuote();
+      
+      const itemContent = listMatch[2].trim();
+      const isChecklist = itemContent.startsWith('[ ]') || itemContent.startsWith('[x]') || itemContent.startsWith('[X]');
+      
+      if (!currentList) {
+        currentList = { items: [itemContent], type: isChecklist ? 'checklist' : 'bullet' };
+      } else {
+        currentList.items.push(itemContent);
+      }
+      continue;
+    } else if (currentList) {
+      flushList();
+    }
+
+    // Header 3
+    if (line.startsWith('### ')) {
+      htmlParts.push(`<h3>${parseInlineHtml(line.slice(4))}</h3>`);
+      continue;
+    }
+
+    // Header 4
+    if (line.startsWith('#### ')) {
+      htmlParts.push(`<h4>${parseInlineHtml(line.slice(5))}</h4>`);
+      continue;
+    }
+
+    // Empty line or simple break
+    if (line === '') {
+      continue;
+    }
+
+    // Normal paragraph
+    htmlParts.push(`<p>${parseInlineHtml(line)}</p>`);
+  }
+
+  // Flush remaining
+  flushTable();
+  flushList();
+  flushQuote();
+
+  return htmlParts.join('\n');
+};
+
 const generateLocalHandoverSummary = () => {
   const now = new Date();
   return {
@@ -165,7 +320,7 @@ export default function ShiftHandover() {
       ? data.recommendations.map((rec: string) => `<li>[ ] ${rec}</li>`).join('')
       : '<li>[ ] Continue routine safety rounds and monitor SCADA feeds.</li>';
 
-    const formattedNarrative = data.handover_narrative || '';
+    const formattedNarrative = parseMarkdownToHtml(data.handover_narrative || '');
 
     printWindow.document.write(`
       <html>
@@ -256,13 +411,96 @@ export default function ShiftHandover() {
               background-color: #fafafa;
               border: 1px solid #e2e8f0;
               border-left: 4px solid #0f172a;
-              padding: 15px;
-              font-family: monospace;
+              padding: 15px 20px;
               font-size: 12px;
-              white-space: pre-wrap;
-              line-height: 1.5;
+              line-height: 1.6;
               border-radius: 4px;
               margin-top: 10px;
+            }
+            .narrative-box p {
+              margin: 0 0 10px 0;
+              color: #334155;
+            }
+            .narrative-box p:last-child {
+              margin-bottom: 0;
+            }
+            .narrative-box h3 {
+              font-size: 13px;
+              font-weight: 700;
+              color: #0f172a;
+              margin: 18px 0 8px 0;
+              border-bottom: 1px solid #e2e8f0;
+              padding-bottom: 4px;
+              text-transform: uppercase;
+            }
+            .narrative-box h3:first-child {
+              margin-top: 0;
+            }
+            .narrative-box h4 {
+              font-size: 11px;
+              font-weight: 600;
+              color: #1e293b;
+              margin: 12px 0 6px 0;
+            }
+            .narrative-box blockquote {
+              border-left: 3px solid #f97316;
+              background-color: #fffbeb;
+              margin: 12px 0;
+              padding: 8px 12px;
+              font-style: italic;
+              color: #451a03;
+            }
+            .narrative-box code {
+              background-color: #f1f5f9;
+              padding: 2px 4px;
+              border-radius: 4px;
+              font-family: monospace;
+              font-size: 11px;
+              color: #ea580c;
+            }
+            .narrative-box ul {
+              margin: 0 0 12px 0;
+              padding-left: 20px;
+            }
+            .narrative-box li {
+              margin-bottom: 4px;
+            }
+            .narrative-box table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 12px 0;
+            }
+            .narrative-box th, .narrative-box td {
+              border: 1px solid #cbd5e1;
+              padding: 6px 10px;
+              font-size: 11px;
+            }
+            .narrative-box th {
+              background-color: #f1f5f9;
+              font-weight: 600;
+            }
+            .checklist-container {
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+              margin: 12px 0;
+            }
+            .checklist-item {
+              display: flex;
+              align-items: flex-start;
+              gap: 8px;
+              background-color: #ffffff;
+              border: 1px solid #e2e8f0;
+              padding: 8px 12px;
+              border-radius: 6px;
+            }
+            .checklist-item .checkbox {
+              font-size: 14px;
+              line-height: 1;
+            }
+            .checklist-item .checklist-text {
+              font-size: 11px;
+              color: #334155;
             }
             .signatures {
               margin-top: 50px;

@@ -32,7 +32,9 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
     .then((data) =>
   setAlerts(data.filter((notification: BackendNotification) => notification.is_read === 0))
 )
-    .catch((err) => console.error(err));
+    .catch((err) => {
+      console.warn("Could not load notifications panel alerts:", err.message || err);
+    });
 }, []);
   const { addToast } = useNotifications();
 

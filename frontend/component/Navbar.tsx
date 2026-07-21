@@ -58,7 +58,9 @@ export default function Navbar() {
 
       setUnreadCount(unread);
     })
-    .catch(console.error);
+    .catch((err) => {
+      console.warn("Could not fetch notifications from backend (server offline?):", err.message || err);
+    });
 }, []);
 
   if (user && (user.role === 'Safety Officer' || user.role === 'Plant Manager')) {
