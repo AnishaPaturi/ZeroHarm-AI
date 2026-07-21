@@ -765,6 +765,18 @@ docker compose up --build
 
 ZeroHarm AI features a high-throughput async ingestion queue and real-time stream processing pipeline to handle telemetry streams from tens of thousands of IoT sensors and cameras without blocking the main HTTP execution thread.
 
+```mermaid
+graph TD
+    A[IoT / CCTV Clients] -->|1. Event Influx| B[FastAPI Endpoints]
+    B -->|2. Instant 202 Accepted| A
+    B -->|3. Async Publish| C[Ingestion Queue Broker]
+    C -->|Kafka / RabbitMQ / asyncio.Queue| D[Background Consumer Daemon]
+    D -->|4. Sliding Window Check| E[Telemetry Stream Processor]
+    E -->|5. Compute Moving Avg & Variance| F{Anomaly Detected?}
+    F -->|Yes: Raise Event| C
+    F -->|No / Complete| G[State & Storage Layer]
+```
+
 #### 1. Decoupled Ingestion Pipeline (Option A)
 *   **How it works**: Telemetry updates (`/api/state/update`) and CCTV event streams (`/api/cctv/event`) are published instantly to the `IngestionQueue` layer. The API responds with an immediate `202 Accepted` status containing a unique `task_id` (O(1) time complexity), offloading the risk evaluation, rules engine, and agent debate loop.
 *   **Supported Message Brokers**:
@@ -793,11 +805,17 @@ python backend/test_ingestion_queue.py
 python backend/run_all_tests.py
 ```
 
-This design preserves the current single-server demo experience while providing a clear migration path to production multi-plant deployments.
-
 ### 💾 Distributed State & Storage Layer (Implemented)
 
 ZeroHarm AI includes distributed database adapters to migrate runtime state, worker coordinates, the knowledge graph, and telemetry logs out of server memory into high-performance external databases.
+
+```mermaid
+graph LR
+    A[PlantStateProxy] -->|Active State| B[Redis Cache]
+    A -->|Worker Locations| C[Redis Geospatial index]
+    D[RiskKnowledgeGraph] -->|Ontology Relationships| E[Neo4j Graph Database]
+    F[TelemetryLogger] -->|Historical Readings| G[TimescaleDB Hypertables]
+```
 
 #### 1. Distributed Zone & Geospatial Cache (Redis)
 *   **Active Plant State Proxy**: Zone states are accessed via a transparent proxy class (`PlantStateProxy`). If Redis is enabled, active state reads/writes map directly to Redis hashes (`zeroharm:zone:{zone_name}`).
@@ -813,7 +831,18 @@ ZeroHarm AI includes distributed database adapters to migrate runtime state, wor
 *   **Hypertables**: Sensor readings are logged chronologically by the `TimescaleDBTelemetryLogger`. The database creates a `telemetry_history` table and converts it into a TimescaleDB hypertable partitioned by time.
 *   **Local Fallback**: Logs records into a rolling local JSON file (`backend/data/telemetry_history.json`) up to 500 lines if Postgres is not configured.
 
-#### 4. Standalone Verification Suite
+#### 4. Environment Scalability Variables Reference
+
+| Variable | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `ASYNC_INGESTION_ENABLED` | Boolean | `false` | Enable/disable decoupled background ingestion and stream processing |
+| `INGESTION_BROKER_TYPE` | String | `asyncio` | Core message broker style (`asyncio`, `rabbitmq`, or `kafka`) |
+| `DISTRIBUTED_STORAGE_ENABLED` | Boolean | `false` | Toggle distributed cache (Redis), Neo4j graph database, and TimescaleDB |
+| `REDIS_HOST` / `PORT` | String / Int | `localhost` / `6379` | Connection endpoints for Redis database instances |
+| `NEO4J_URI` / `USER` / `PASSWORD` | String | (Local Bolt URI) | Host address and authentication details for Neo4j Graph DB |
+| `TIMESCALE_HOST` / `DB` | String | `localhost` / `zeroharm` | Connection coordinates for Postgres/TimescaleDB instance |
+
+#### 5. Standalone Verification Suite
 To verify the database adapters, run:
 ```bash
 # Standalone database scalability test suite
@@ -822,4 +851,6 @@ python backend/test_database_scalability.py
 # Or through the unified test runner
 python backend/run_all_tests.py
 ```
+
+This design preserves the current single-server demo experience while providing a clear migration path to production multi-plant deployments.
 
