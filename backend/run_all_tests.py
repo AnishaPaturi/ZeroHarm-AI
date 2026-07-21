@@ -15,7 +15,8 @@ TEST_SCRIPTS = [
     ("Plant Topology cascading risk", "backend/test_topology.py"),
     ("Black Box Evidence Preservation", "backend/test_blackbox.py"),
     ("Near Miss Prediction Engine", "backend/test_near_miss.py"),
-    ("Gatehouse Onboarding & Trust", "backend/test_gatehouse.py")
+    ("Gatehouse Onboarding & Trust", "backend/test_gatehouse.py"),
+    ("Ingestion Queue & Stream Processing", "backend/test_ingestion_queue.py")
 ]
 
 def check_server_running():

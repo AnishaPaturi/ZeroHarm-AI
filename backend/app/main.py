@@ -51,6 +51,9 @@ from .integration.pipeline import ZeroHarmIntegrationPipeline
 from .integration.models import FullAssessmentResponse, DemoScenarioResponse
 from .integration.demo_script import get_demo_scenario
 from .geospatial.topology import PlantTopology
+from .integration.ingestion_queue import ingestion_pipeline
+
+ASYNC_INGESTION_ENABLED = os.getenv("ASYNC_INGESTION_ENABLED", "false").lower() == "true"
 
 # ---------------------------------------------------------------------------
 # Innovation 7 — Dynamic Risk Graph (Knowledge Graph)
@@ -249,6 +252,47 @@ async def worker_tick_loop():
         await asyncio.sleep(config.WORKER_TICK_INTERVAL_SECONDS)
 
 
+async def handle_queued_message(payload: Dict[str, Any]):
+    try:
+        event_type = payload["event_type"]
+        data = payload["data"]
+        logger.info(f"Asynchronously processing queued event: {event_type} (Task: {payload['task_id']})")
+        
+        if event_type == "state_update":
+            await update_zone_state(zone_name=data["zone_name"], update=data["update"], sync=True)
+        elif event_type == "cctv_event":
+            req = CCTVAlertRequest(**data)
+            await trigger_cctv_event(req, sync=True)
+        elif event_type == "stream_anomaly":
+            zone_name = data["zone"]
+            if zone_name in plant_state:
+                zone_state = plant_state[zone_name]
+                if "cctv_alerts" not in zone_state:
+                    zone_state["cctv_alerts"] = []
+                
+                alert_payload = {
+                    "zone": zone_name,
+                    "event_type": data["event_type"],
+                    "confidence": 0.95,
+                    "timestamp": data["timestamp"],
+                    "worker_id": "SYSTEM",
+                    "worker_name": f"Stream Processor: {data['details']}"
+                }
+                
+                replaced = False
+                for i, active_alert in enumerate(zone_state["cctv_alerts"]):
+                    if active_alert["event_type"] == data["event_type"] and active_alert.get("worker_id") == "SYSTEM":
+                        zone_state["cctv_alerts"][i] = alert_payload
+                        replaced = True
+                        break
+                if not replaced:
+                    zone_state["cctv_alerts"].append(alert_payload)
+                    
+                await update_zone_state(zone_name, {"cctv_alerts": zone_state["cctv_alerts"]}, sync=True)
+    except Exception as e:
+        logger.error(f"Error processing async queued message: {e}", exc_info=True)
+
+
 @app.on_event("startup")
 async def startup_event():
     logger.info("Initializing risk engine ML models...")
@@ -257,6 +301,10 @@ async def startup_event():
     
     init_db()
     seed_default_users()
+    
+    # Connect and start the ingestion consumer worker daemon
+    ingestion_pipeline.connect()
+    asyncio.create_task(ingestion_pipeline.start_consumer(handle_queued_message))
     
     asyncio.create_task(worker_tick_loop())
     
@@ -446,11 +494,22 @@ def get_plant_state():
 
 
 @app.post("/api/state/update")
-async def update_zone_state(zone_name: str, update: Dict[str, Any]):
+async def update_zone_state(zone_name: str, update: Dict[str, Any], sync: bool = False):
     """
     Updates the state of a specific zone, evaluates the new risk,
     and broadcasts the updated status to all live websocket listeners.
     """
+    if ASYNC_INGESTION_ENABLED and not sync:
+        task_id = await ingestion_pipeline.publish_event(
+            "state_update",
+            {"zone_name": zone_name, "update": update}
+        )
+        return {
+            "status": "queued",
+            "task_id": task_id,
+            "message": "Telemetry update successfully queued for stream processing & ingestion."
+        }
+
     if zone_name not in plant_state:
         raise HTTPException(status_code=404, detail=f"Zone '{zone_name}' not found.")
 
@@ -951,13 +1010,24 @@ class CCTVAlertRequest(BaseModel):
     worker_name: Optional[str] = Field(None, description="Optional name of the worker")
 
 @app.post("/api/cctv/event")
-async def trigger_cctv_event(request: CCTVAlertRequest):
+async def trigger_cctv_event(request: CCTVAlertRequest, sync: bool = False):
     """
     Receives CCTV analytics event metadata from camera streams or external CV systems.
     Supported event types: no_ppe, smoke_detected, fire_detected, unauthorized_entry.
     Saves the alert into zone state, triggers a compound risk re-evaluation,
     and broadcasts the updated risk metrics to connected dashboard clients.
     """
+    if ASYNC_INGESTION_ENABLED and not sync:
+        task_id = await ingestion_pipeline.publish_event(
+            "cctv_event",
+            request.dict()
+        )
+        return {
+            "status": "queued",
+            "task_id": task_id,
+            "message": "CCTV alert successfully queued for stream processing & ingestion."
+        }
+
     import random
     zone_name = request.zone
     if zone_name not in plant_state:
@@ -1020,7 +1090,7 @@ async def trigger_cctv_event(request: CCTVAlertRequest):
         "cctv_alerts": zone_state["cctv_alerts"],
         "restricted_entry_count": zone_state["restricted_entry_count"],
         "restricted_entry_history": zone_state["restricted_entry_history"]
-    })
+    }, sync=True)
     return {
         "status": "alert_processed",
         "zone": zone_name,
@@ -1170,7 +1240,7 @@ async def analyze_cctv_frame(zone: str, file: UploadFile = File(...)):
                 "cctv_alerts": zone_state["cctv_alerts"],
                 "restricted_entry_count": zone_state["restricted_entry_count"],
                 "restricted_entry_history": zone_state["restricted_entry_history"]
-            })
+            }, sync=True)
             
             return {
                 "status": "frame_analyzed_with_detections",
@@ -1224,7 +1294,7 @@ async def clear_cctv_events(zone: str = None, payload: Dict[str, Any] = None):
         "cctv_alerts": [],
         "restricted_entry_count": 0,
         "restricted_entry_history": []
-    })
+    }, sync=True)
     return {
         "status": "alerts_cleared",
         "zone": target_zone,
