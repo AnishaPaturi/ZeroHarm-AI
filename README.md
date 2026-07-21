@@ -795,3 +795,31 @@ python backend/run_all_tests.py
 
 This design preserves the current single-server demo experience while providing a clear migration path to production multi-plant deployments.
 
+### 💾 Distributed State & Storage Layer (Implemented)
+
+ZeroHarm AI includes distributed database adapters to migrate runtime state, worker coordinates, the knowledge graph, and telemetry logs out of server memory into high-performance external databases.
+
+#### 1. Distributed Zone & Geospatial Cache (Redis)
+*   **Active Plant State Proxy**: Zone states are accessed via a transparent proxy class (`PlantStateProxy`). If Redis is enabled, active state reads/writes map directly to Redis hashes (`zeroharm:zone:{zone_name}`).
+*   **Geospatial Worker Tracking**: Worker telemetry updates call `redis_state_cache.add_worker_location` using **Redis GEOADD** under key `zeroharm:workers:locations`. Proximity queries (e.g. finding workers in a zone) use **Redis GEORADIUS** for sub-millisecond lookups.
+*   **Local Fallback**: Automatically reverts to local-memory dict caches and a Haversine distance solver if Redis is offline or `DISTRIBUTED_STORAGE_ENABLED=false`.
+
+#### 2. Enterprise Graph Sync (Neo4j)
+*   **Neo4j Risk Ontology**: Seeding, node additions, relationship additions, and properties updates are handled by `Neo4jRiskKnowledgeGraph` (inheriting from the base `RiskKnowledgeGraph` class).
+*   **Cypher Integration**: When enabled, the graph engine automatically detach-deletes the active namespace and syncs the entire plant ontology to a Neo4j cluster using Cypher statements.
+*   **Local Fallback**: Runs on a local Python NetworkX `DiGraph` if the Neo4j bolt driver is offline.
+
+#### 3. Time-Series Telemetry Aggregator (TimescaleDB)
+*   **Hypertables**: Sensor readings are logged chronologically by the `TimescaleDBTelemetryLogger`. The database creates a `telemetry_history` table and converts it into a TimescaleDB hypertable partitioned by time.
+*   **Local Fallback**: Logs records into a rolling local JSON file (`backend/data/telemetry_history.json`) up to 500 lines if Postgres is not configured.
+
+#### 4. Standalone Verification Suite
+To verify the database adapters, run:
+```bash
+# Standalone database scalability test suite
+python backend/test_database_scalability.py
+
+# Or through the unified test runner
+python backend/run_all_tests.py
+```
+

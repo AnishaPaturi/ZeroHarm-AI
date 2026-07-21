@@ -1,0 +1,22 @@
+[
+  {
+    "timestamp": "2026-07-21T14:12:33.407236",
+    "zone": "Sinter Plant",
+    "o2": 20.8,
+    "co": 12.5,
+    "ch4": null,
+    "h2s": null,
+    "temperature": 32.0,
+    "pressure": 1.05
+  },
+  {
+    "timestamp": "2026-07-21T14:12:45.906705",
+    "zone": "Sinter Plant",
+    "o2": 20.8,
+    "co": 12.5,
+    "ch4": null,
+    "h2s": null,
+    "temperature": 32.0,
+    "pressure": 1.05
+  }
+]

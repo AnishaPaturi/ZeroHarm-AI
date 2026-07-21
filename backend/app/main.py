@@ -58,7 +58,7 @@ ASYNC_INGESTION_ENABLED = os.getenv("ASYNC_INGESTION_ENABLED", "false").lower() 
 # ---------------------------------------------------------------------------
 # Innovation 7 — Dynamic Risk Graph (Knowledge Graph)
 # ---------------------------------------------------------------------------
-from .knowledge_graph.graph import RiskKnowledgeGraph
+from .database_scalability import Neo4jRiskKnowledgeGraph as RiskKnowledgeGraph, redis_state_cache, timescale_telemetry_logger
 
 # ---------------------------------------------------------------------------
 # Unimplemented/Partially Implemented Innovations (Innovations 11, 15, 16, 17, 18, 20)
@@ -191,7 +191,34 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 # In-Memory Plant State for Simulation (Person A)
-plant_state: Dict[str, Dict[str, Any]] = {
+class PlantStateProxy:
+    def __getitem__(self, key):
+        state = redis_state_cache.get_zone_state(key)
+        if state is None:
+            raise KeyError(key)
+        return state
+
+    def __setitem__(self, key, value):
+        redis_state_cache.update_zone_state_direct(key, value)
+
+    def __contains__(self, key):
+        return redis_state_cache.get_zone_state(key) is not None
+
+    def get(self, key, default=None):
+        state = redis_state_cache.get_zone_state(key)
+        return state if state is not None else default
+
+    def items(self):
+        return redis_state_cache.get_all_states().items()
+
+    def values(self):
+        return redis_state_cache.get_all_states().values()
+
+    def keys(self):
+        return redis_state_cache.get_all_states().keys()
+
+
+INITIAL_PLANT_STATE: Dict[str, Dict[str, Any]] = {
     "Coke Oven Battery 1": {
         "zone": "Coke Oven Battery 1",
         "gas_readings": {"o2": 20.8, "co": 2.5, "ch4_lfl": 0.1, "h2s": 0.2, "temperature": 29.5, "pressure": 1.01},
@@ -241,6 +268,11 @@ plant_state: Dict[str, Dict[str, Any]] = {
         "timestamp": datetime.now().isoformat()
     }
 }
+
+# Seed Redis state cache
+redis_state_cache.initialize_state(INITIAL_PLANT_STATE)
+
+plant_state = PlantStateProxy()
 
 
 # ---------------------------------------------------------------------------
@@ -520,6 +552,7 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any], sync: bool =
         zone_state["gas_readings"].update(update["gas_readings"])
         zone_state["gas_readings"]["d_co_dt"] = d_co_dt
         zone_state["gas_readings"]["d_pressure_dt"] = d_pressure_dt
+        timescale_telemetry_logger.log_telemetry(zone_name, update["gas_readings"])
     if "permits" in update:
         zone_state["permits"] = update["permits"]
     if "maintenance_active" in update:
@@ -534,6 +567,7 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any], sync: bool =
         zone_state["restricted_entry_history"] = update["restricted_entry_history"]
 
     zone_state["timestamp"] = datetime.now().isoformat()
+    plant_state[zone_name] = zone_state
 
     try:
         req = RiskCheckRequest(
@@ -549,6 +583,7 @@ async def update_zone_state(zone_name: str, update: Dict[str, Any], sync: bool =
 
         eval_result = await evaluate_risk_score(req)
         zone_state["risk_score"] = eval_result.composite_risk_score
+        plant_state[zone_name] = zone_state
 
         payload = {
             "event": "risk_update",

@@ -16,7 +16,8 @@ TEST_SCRIPTS = [
     ("Black Box Evidence Preservation", "backend/test_blackbox.py"),
     ("Near Miss Prediction Engine", "backend/test_near_miss.py"),
     ("Gatehouse Onboarding & Trust", "backend/test_gatehouse.py"),
-    ("Ingestion Queue & Stream Processing", "backend/test_ingestion_queue.py")
+    ("Ingestion Queue & Stream Processing", "backend/test_ingestion_queue.py"),
+    ("Database Scalability Adapters", "backend/test_database_scalability.py")
 ]
 
 def check_server_running():
