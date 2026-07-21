@@ -7,7 +7,7 @@ import numpy as np
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Tuple, Optional
 from pydantic import BaseModel, Field
-
+from app.notifications.routes import router as notification_router
 # Load environment variables from backend/.env before any component reads them.
 try:
     from dotenv import load_dotenv
@@ -95,6 +95,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(notification_router)
 
 # --- Person A globals ---
 ml_model = CompoundRiskMLModel()

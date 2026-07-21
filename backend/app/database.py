@@ -39,7 +39,23 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE_INDEX_EMAIL = "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);"
 CREATE_INDEX_STATUS = "CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);"
+CREATE_NOTIFICATIONS_TABLE = """
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
+    title TEXT NOT NULL,
+
+    message TEXT NOT NULL,
+
+    category TEXT NOT NULL,
+
+    severity TEXT NOT NULL,
+
+    created_at TEXT NOT NULL,
+
+    is_read INTEGER DEFAULT 0
+);
+"""
 
 def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
@@ -53,6 +69,7 @@ def init_db():
         conn.execute(CREATE_USERS_TABLE)
         conn.execute(CREATE_INDEX_EMAIL)
         conn.execute(CREATE_INDEX_STATUS)
+        conn.execute(CREATE_NOTIFICATIONS_TABLE)
         conn.commit()
         logger.info(f"Database initialized at {DB_PATH}")
     finally:
