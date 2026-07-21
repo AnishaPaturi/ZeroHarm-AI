@@ -276,13 +276,19 @@ We have recently implemented a series of critical safety operations, backend per
 
 ### 3. Client-Side RAG & Precedent Fallback (Offline Mode)
 * **Offline Analysis**: Added catch-and-fallback logic to the RAG analysis actions ([useIncident.ts](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/hooks/useIncident.ts#L409-L425)) and incident diagnostics ([analysis/page.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/analysis/page.tsx#L45-L60)). When the safety server is offline, the pages warn the console, notify via warning toasts, and load comprehensive local RAG assessments and similarity matrices.
-* **Markdown Renderer**: Created a custom React [MarkdownRenderer](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/component/MarkdownRenderer.tsx) to parse and render RAG reports as styled HTML elements (headers, lists, tables, checklists, blockquotes, bold/code inline text) rather than raw monospaced code. Removed all unnecessary symbols/emojis from safety summaries.
+* **Enhanced Markdown Normalization Engine**: Upgraded [MarkdownRenderer.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/component/MarkdownRenderer.tsx#L24-L30) with a multi-pass text normalizer. Automatically transforms raw, single-line, or unformatted markdown text into structured visual preview components (`## Headers`, `* ` / `- ` bullet points, inline code badges, bold tags, and GitHub-style `> [!IMPORTANT]` callout banners) without breaking in-text hyphens.
+* **Universal AI Workspace Preview Integration**: Integrated `<MarkdownRenderer />` into Root Cause Determination (`rootCause`) cards and Safety Committee debate transcripts in [analysis/page.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/analysis/page.tsx#L370-L482), ensuring all tabs render styled visual cards rather than raw `.md` code.
 
-### 4. Compliant Handover Export & PDF Compilation
+### 4. Client Auth Resilience & Gateway Navigation
+* **Offline Auth Fallback**: Enhanced [auth.ts](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/services/auth.ts#L15-L29) (`authService.login`) to gracefully fall back to a local demo session if the backend API is offline during login, ensuring smooth authentication and direct redirection to `/dashboard`.
+* **Operations Desk Navigation**: Fixed the 404 handler ("Sector Offline") in [not-found.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/not-found.tsx#L18) so that "Return to Operations Desk" correctly routes to `/dashboard`.
+* **API Endpoint Normalization**: Cleaned notification API fetch URLs in [Navbar.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/component/Navbar.tsx#L52) and [NotificationPanel.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/component/NotificationPanel.tsx#L29) from `/api/notifications/` to `/api/notifications` to prevent trailing-slash redirect or 404 status errors.
+
+### 5. Compliant Handover Export & PDF Compilation
 * **Re-run Loading Overlay**: Added local loading indicators and glassmorphism blurs to handover panels during report re-compilation, locking inputs to prevent click-spamming.
 * **Print compilation**: Configured **Export Logbook** in [handover/page.tsx](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/frontend/app/handover/page.tsx#L529-L531) to compile active permits, isolations, gas logs, risk zones, and AI summaries into a structured HTML print document, appending official shift change signature lines before triggering `window.print()`.
 
-### 5. Plant Operations Simplification
+### 6. Plant Operations Simplification
 * Removed Plant B and Plant C tabs, hooks, and switcher panels from the dashboard, focusing the dashboard exclusively on Plant A's real-time SCADA telemetry.
 
 ---
