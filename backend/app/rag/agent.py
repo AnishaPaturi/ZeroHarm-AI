@@ -275,6 +275,11 @@ class ZeroHarmSafetyAgent:
         """
         try:
             import requests
+            from ..integration.llm_cache import llm_cache
+
+            cached = llm_cache.get_cached_response(prompt)
+            if cached:
+                return cached
 
             headers = {
                 "Authorization": f"Bearer {self.openrouter_api_key}",
@@ -338,6 +343,7 @@ class ZeroHarmSafetyAgent:
                 return ""
 
             logger.info("OpenRouter response generated successfully.")
+            llm_cache.set_cached_response(prompt, answer)
             return answer
 
         except requests.exceptions.HTTPError:

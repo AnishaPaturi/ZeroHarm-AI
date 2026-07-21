@@ -52,6 +52,7 @@ from .integration.models import FullAssessmentResponse, DemoScenarioResponse
 from .integration.demo_script import get_demo_scenario
 from .geospatial.topology import PlantTopology
 from .integration.ingestion_queue import ingestion_pipeline
+from .integration.task_queue import distributed_task_queue, ASYNC_COMPUTE_ENABLED
 
 ASYNC_INGESTION_ENABLED = os.getenv("ASYNC_INGESTION_ENABLED", "false").lower() == "true"
 
@@ -325,6 +326,23 @@ async def handle_queued_message(payload: Dict[str, Any]):
         logger.error(f"Error processing async queued message: {e}", exc_info=True)
 
 
+async def handle_async_collaborative_debate(payload: Dict[str, Any]) -> Dict[str, Any]:
+    zone = payload["zone"]
+    zone_state = plant_state[zone]
+    debate_result = collaborative_engine.run_debate(zone, zone_state, plant_state)
+    # Broadcast the debate notification event so the front-end can log it in the console
+    await manager.broadcast({
+        "event": "collaborative_debate",
+        "zone": zone,
+        "debate": debate_result.dict()
+    })
+    return debate_result.dict()
+
+
+async def handle_task_broadcast(payload: Dict[str, Any]):
+    await manager.broadcast(payload)
+
+
 @app.on_event("startup")
 async def startup_event():
     logger.info("Initializing risk engine ML models...")
@@ -337,6 +355,15 @@ async def startup_event():
     # Connect and start the ingestion consumer worker daemon
     ingestion_pipeline.connect()
     asyncio.create_task(ingestion_pipeline.start_consumer(handle_queued_message))
+    
+    # Start the compute task queue worker daemon (Option A)
+    if ASYNC_COMPUTE_ENABLED:
+        asyncio.create_task(distributed_task_queue.start_worker(
+            handlers={
+                "collaborative_debate": handle_async_collaborative_debate
+            },
+            broadcast_callback=handle_task_broadcast
+        ))
     
     asyncio.create_task(worker_tick_loop())
     
@@ -1454,7 +1481,7 @@ class CollaborativeReasoningRequest(BaseModel):
     zone: str
 
 
-@app.post("/api/collaborative-reasoning/debate", response_model=CollaborativeReasoningResponse)
+@app.post("/api/collaborative-reasoning/debate")
 async def run_collaborative_debate(request: CollaborativeReasoningRequest):
     """
     Innovation 1: Multi-Agent Collaborative Reasoning.
@@ -1466,6 +1493,17 @@ async def run_collaborative_debate(request: CollaborativeReasoningRequest):
     if zone not in plant_state:
         raise HTTPException(status_code=404, detail=f"Unknown zone '{zone}'. Known zones: {config.KNOWN_ZONES}")
     
+    if ASYNC_COMPUTE_ENABLED:
+        task_id = await distributed_task_queue.enqueue_task(
+            "collaborative_debate",
+            {"zone": zone}
+        )
+        return {
+            "status": "queued",
+            "task_id": task_id,
+            "message": "Collaborative safety debate successfully enqueued for asynchronous background execution."
+        }
+
     zone_state = plant_state[zone]
     try:
         debate_result = collaborative_engine.run_debate(zone, zone_state, plant_state)
@@ -1479,6 +1517,15 @@ async def run_collaborative_debate(request: CollaborativeReasoningRequest):
     except Exception as e:
         logger.error(f"Error running collaborative debate for zone '{zone}': {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/tasks/{task_id}/status")
+def get_task_status(task_id: str):
+    """Fetches the status and results of an enqueued task."""
+    status = distributed_task_queue.get_task_status(task_id)
+    if not status:
+        raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found.")
+    return status
 
 
 @app.get("/api/integration/demo-scenario", response_model=DemoScenarioResponse)

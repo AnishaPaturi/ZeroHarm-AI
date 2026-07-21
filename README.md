@@ -838,6 +838,9 @@ graph LR
 | `ASYNC_INGESTION_ENABLED` | Boolean | `false` | Enable/disable decoupled background ingestion and stream processing |
 | `INGESTION_BROKER_TYPE` | String | `asyncio` | Core message broker style (`asyncio`, `rabbitmq`, or `kafka`) |
 | `DISTRIBUTED_STORAGE_ENABLED` | Boolean | `false` | Toggle distributed cache (Redis), Neo4j graph database, and TimescaleDB |
+| `ASYNC_COMPUTE_ENABLED` | Boolean | `false` | Enable/disable background task queuing for heavy agent debates |
+| `LLM_CACHE_ENABLED` | Boolean | `true` | Enable prompt and semantic Jaccard cache matching for LLM calls |
+| `SEMANTIC_MATCH_THRESHOLD` | Float | `0.70` | Cosine similarity/Jaccard threshold for semantic LLM cache hits |
 | `REDIS_HOST` / `PORT` | String / Int | `localhost` / `6379` | Connection endpoints for Redis database instances |
 | `NEO4J_URI` / `USER` / `PASSWORD` | String | (Local Bolt URI) | Host address and authentication details for Neo4j Graph DB |
 | `TIMESCALE_HOST` / `DB` | String | `localhost` / `zeroharm` | Connection coordinates for Postgres/TimescaleDB instance |
@@ -847,6 +850,49 @@ To verify the database adapters, run:
 ```bash
 # Standalone database scalability test suite
 python backend/test_database_scalability.py
+
+# Or through the unified test runner
+python backend/run_all_tests.py
+```
+
+### 🧠 Asynchronous Compute & Agent Reasoning Layer (Implemented)
+
+ZeroHarm AI offloads heavy compute operations (like multi-round LLM debates and predictive timeline simulations) to background queues, uses semantic caching to prevent redundant LLM api calls, and scales backend APIs horizontally.
+
+```mermaid
+graph TD
+    A[User Request] -->|Debate Request| B[Stateless API replica]
+    B -->|ASYNC_COMPUTE_ENABLED=true| C[Distributed Task Queue]
+    B -->|Immediate Response| D[Task ID returned to Client]
+    C -->|Worker Thread| E[LLM Semantic Cache Check]
+    E -->|Cache Hit| F[Return Cached Verdict]
+    E -->|Cache Miss| G[Call OpenRouter LLM API]
+    G -->|Store Response| E
+    F & G -->|Broadcast Completion| H[WebSocket Broadcast to Clients]
+```
+
+#### 1. Distributed Task Queues (Option A)
+*   **Asynchronous Tasks**: Compute-heavy RAG evaluations and coordinator agent debate sessions are enqueued to the `DistributedTaskQueue` (backing Redis or asyncio.Queue broker).
+*   **Immediate Response**: API routes return a `202 Accepted` status with a `task_id` immediately, freeing the FastAPI thread.
+*   **Websocket Events**: Emits `task_started` and `task_completed` events via WebSockets, and exposes a lookup route: `/api/tasks/{task_id}/status`.
+
+#### 2. Horizontal API Scaling (Option B)
+*   **Stateless Architecture**: By delegating active state to Redis and history to TimescaleDB, FastAPI replicas are 100% stateless and can scale horizontally.
+*   **Kubernetes Manifests**: Includes a production deployment manifest ([deployment.yaml](file:///C:/Users/anish/OneDrive/College/Hackathon/ET-Hackathon/k8s/deployment.yaml)) defining:
+    *   **Deployment**: 3 replica configuration mapping to standard CPU/Memory requests.
+    *   **Service**: A stateless LoadBalancer/ClusterIP routing traffic across pods.
+    *   **Horizontal Pod Autoscaler (HPA)**: Dynamically scales pods (2 to 10 replicas) based on a 70% CPU threshold.
+
+#### 3. Semantic LLM Caching (Option C)
+*   **How it works**: Queries to OpenRouter are wrapped inside `LLMSemanticCache`.
+*   **Exact Matching**: Fast lookup using SHA-256 hashes of standard system prompts/guidelines.
+*   **Semantic Overlap Checking**: Tokenizes input text, filters out minor stopwords, and runs a **Jaccard Similarity** calculation against cached queries. Hits above the configured `SEMANTIC_MATCH_THRESHOLD` are resolved directly from memory or Redis without querying the LLM provider.
+
+#### 4. Standalone Verification Suite
+To verify the task queue and semantic cache, run:
+```bash
+# Standalone compute layer test suite
+python backend/test_compute_layer.py
 
 # Or through the unified test runner
 python backend/run_all_tests.py

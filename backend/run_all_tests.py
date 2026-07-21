@@ -17,7 +17,8 @@ TEST_SCRIPTS = [
     ("Near Miss Prediction Engine", "backend/test_near_miss.py"),
     ("Gatehouse Onboarding & Trust", "backend/test_gatehouse.py"),
     ("Ingestion Queue & Stream Processing", "backend/test_ingestion_queue.py"),
-    ("Database Scalability Adapters", "backend/test_database_scalability.py")
+    ("Database Scalability Adapters", "backend/test_database_scalability.py"),
+    ("Compute & Agent Reasoning Layer", "backend/test_compute_layer.py")
 ]
 
 def check_server_running():

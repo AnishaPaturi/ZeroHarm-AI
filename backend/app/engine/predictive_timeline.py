@@ -111,22 +111,30 @@ class PredictiveTimelineEngine:
             "temperature": 0.2
         }
 
-        resp = requests.post(self.openrouter_url, headers=headers, json=payload, timeout=25)
-        if resp.status_code == 200:
-            res_json = resp.json()
-            content = res_json["choices"][0]["message"]["content"].strip()
+        from ..integration.llm_cache import llm_cache
+        cached_content = llm_cache.get_cached_response(prompt)
+        if cached_content:
+            content = cached_content
+        else:
+            resp = requests.post(self.openrouter_url, headers=headers, json=payload, timeout=25)
+            if resp.status_code == 200:
+                res_json = resp.json()
+                content = res_json["choices"][0]["message"]["content"].strip()
+                llm_cache.set_cached_response(prompt, content)
+            else:
+                return None
             
-            # Strip markdown block wrappers if present
-            if content.startswith("```"):
-                content = content.split("```")[1]
-                if content.startswith("json"):
-                    content = content[4:]
-                content = content.strip()
-                if content.endswith("```"):
-                    content = content[:-3]
-                content = content.strip()
+        # Strip markdown block wrappers if present
+        if content.startswith("```"):
+            content = content.split("```")[1]
+            if content.startswith("json"):
+                content = content[4:]
+            content = content.strip()
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
 
-            data = json.loads(content)
+        data = json.loads(content)
             timeline_steps = []
             for item in data.get("timeline", []):
                 timeline_steps.append(TimelineStep(**item))
