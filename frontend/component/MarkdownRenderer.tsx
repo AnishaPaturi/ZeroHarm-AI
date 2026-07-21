@@ -25,6 +25,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const elements: React.ReactNode[] = [];
   let currentTable: { headers: string[]; rows: string[][] } | null = null;
   let currentList: { items: string[]; type: 'bullet' | 'checklist' } | null = null;
+  let currentNumList: { items: { prefix: string; text: string }[] } | null = null;
   let currentQuote: string[] = [];
 
   const flushTable = (key: number) => {
@@ -78,32 +79,151 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       );
     } else {
       elements.push(
-        <ul key={`list-${key}`} className="list-disc list-inside flex flex-col gap-1.5 my-3 pl-2 text-slate-300 text-xs">
+        <div key={`list-${key}`} className="flex flex-col gap-1.5 my-3 pl-2 text-slate-300 text-xs">
           {currentList.items.map((item, i) => (
-            <li key={i} className="leading-relaxed">{parseInline(item)}</li>
+            <div key={i} className="flex items-start gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-safety-orange mt-1.5 flex-shrink-0" />
+              <span className="leading-relaxed">{parseInline(item)}</span>
+            </div>
           ))}
-        </ul>
+        </div>
       );
     }
     currentList = null;
   };
 
+  const flushNumList = (key: number) => {
+    if (!currentNumList) return;
+    elements.push(
+      <div key={`numlist-${key}`} className="flex flex-col gap-1.5 my-3 pl-2 text-slate-300 text-xs">
+        {currentNumList.items.map((item, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="font-semibold text-safety-orange flex-shrink-0 font-mono w-5 text-right">{item.prefix}.</span>
+            <span className="leading-relaxed">{parseInline(item.text)}</span>
+          </div>
+        ))}
+      </div>
+    );
+    currentNumList = null;
+  };
+
   const flushQuote = (key: number) => {
     if (currentQuote.length === 0) return;
-    elements.push(
-      <blockquote key={`quote-${key}`} className="border-l-4 border-safety-orange bg-white/5 p-4 rounded-r-xl my-4 text-xs italic text-slate-300 leading-relaxed">
-        {parseInline(currentQuote.join('\n'))}
-      </blockquote>
-    );
+    const firstLine = currentQuote[0].trim();
+    const alertTags = ['[!WARNING]', '[!TIP]', '[!NOTE]', '[!IMPORTANT]', '[!CAUTION]'] as const;
+    let detectedTag: typeof alertTags[number] | null = null;
+    let inlineText = '';
+    
+    for (const tag of alertTags) {
+      if (firstLine.startsWith(tag)) {
+        detectedTag = tag;
+        inlineText = firstLine.slice(tag.length).trim();
+        break;
+      }
+    }
+
+    if (detectedTag) {
+      const contentLines = inlineText ? [inlineText, ...currentQuote.slice(1)] : currentQuote.slice(1);
+      let bg = '';
+      let border = '';
+      let text = '';
+      let titleColor = '';
+      let titleText = '';
+      
+      if (detectedTag === '[!WARNING]') {
+        bg = 'bg-red-500/10';
+        border = 'border-red-500/20';
+        text = 'text-red-300';
+        titleColor = 'text-red-400';
+        titleText = '⚠️ Warning';
+      } else if (detectedTag === '[!TIP]') {
+        bg = 'bg-emerald-500/10';
+        border = 'border-emerald-500/20';
+        text = 'text-emerald-300';
+        titleColor = 'text-emerald-400';
+        titleText = '💡 Pro Tip';
+      } else if (detectedTag === '[!NOTE]') {
+        bg = 'bg-blue-500/10';
+        border = 'border-blue-500/20';
+        text = 'text-blue-300';
+        titleColor = 'text-blue-400';
+        titleText = 'ℹ️ Note';
+      } else if (detectedTag === '[!IMPORTANT]') {
+        bg = 'bg-amber-500/10';
+        border = 'border-amber-500/20';
+        text = 'text-amber-300';
+        titleColor = 'text-amber-400';
+        titleText = '⚠️ Important';
+      } else if (detectedTag === '[!CAUTION]') {
+        bg = 'bg-red-600/15';
+        border = 'border-red-600/30';
+        text = 'text-red-300';
+        titleColor = 'text-red-500';
+        titleText = '🛑 Caution';
+      }
+      
+      elements.push(
+        <div key={`quote-${key}`} className={`my-4 p-4 ${bg} border ${border} rounded-2xl ${text} font-sans text-xs leading-relaxed`}>
+          <div className={`font-bold flex items-center gap-1.5 mb-2 ${titleColor} uppercase tracking-wider text-[10px]`}>
+            <span>{titleText}</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {contentLines.map((l, index) => (
+              <p key={index}>{parseInline(l)}</p>
+            ))}
+          </div>
+        </div>
+      );
+    } else {
+      elements.push(
+        <blockquote key={`quote-${key}`} className="border-l-4 border-safety-orange bg-white/5 p-4 rounded-r-xl my-4 text-xs italic text-slate-300 leading-relaxed">
+          {currentQuote.map((l, index) => (
+            <p key={index}>{parseInline(l)}</p>
+          ))}
+        </blockquote>
+      );
+    }
     currentQuote = [];
   };
+
+  let inCodeBlock = false;
+  let codeBlockLines: string[] = [];
+  let codeBlockLang = '';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
+    // Check if we are inside a code block
+    if (inCodeBlock) {
+      if (line.startsWith('```')) {
+        inCodeBlock = false;
+        elements.push(
+          <pre key={`code-${i}`} className="bg-black/40 border border-white/10 p-4 rounded-xl font-mono text-[11px] text-slate-300 overflow-x-auto my-3">
+            <code className="block whitespace-pre">{codeBlockLines.join('\n')}</code>
+          </pre>
+        );
+        codeBlockLines = [];
+        codeBlockLang = '';
+      } else {
+        codeBlockLines.push(lines[i]); // Keep original spaces and tabs
+      }
+      continue;
+    }
+
+    if (line.startsWith('```')) {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
+      inCodeBlock = true;
+      codeBlockLang = line.slice(3).trim();
+      continue;
+    }
+
     // Check if we are inside a table
     if (line.startsWith('|')) {
       flushList(i);
+      flushNumList(i);
       flushQuote(i);
       
       const cells = line.split('|').map(c => c.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
@@ -126,6 +246,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // Check if we are in a quote
     if (line.startsWith('>')) {
       flushList(i);
+      flushNumList(i);
       flushTable(i);
       currentQuote.push(line.replace(/^>\s*/, ''));
       continue;
@@ -133,9 +254,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       flushQuote(i);
     }
 
-    // Check if we are in a list
+    // Check if we are in a bullet list
     const listMatch = line.match(/^([*\-]\s+)(.*)$/);
     if (listMatch) {
+      flushNumList(i);
       flushTable(i);
       flushQuote(i);
       
@@ -149,12 +271,63 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       }
       continue;
     } else if (currentList) {
-      // If next line is not a list, flush the current list
       flushList(i);
+    }
+
+    // Check if we are in a numbered list
+    const numListMatch = line.match(/^(\d+)\.\s+(.*)$/);
+    if (numListMatch) {
+      flushList(i);
+      flushTable(i);
+      flushQuote(i);
+      
+      const numPrefix = numListMatch[1];
+      const content = numListMatch[2].trim();
+      
+      if (!currentNumList) {
+        currentNumList = { items: [{ prefix: numPrefix, text: content }] };
+      } else {
+        currentNumList.items.push({ prefix: numPrefix, text: content });
+      }
+      continue;
+    } else if (currentNumList) {
+      flushNumList(i);
+    }
+
+    // Header 1
+    if (line.startsWith('# ')) {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
+      elements.push(
+        <h1 key={i} className="font-heading text-lg font-bold text-white mt-6 mb-3 pb-1 border-b border-white/10 flex items-center gap-1.5">
+          {parseInline(line.slice(2))}
+        </h1>
+      );
+      continue;
+    }
+
+    // Header 2
+    if (line.startsWith('## ')) {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
+      elements.push(
+        <h2 key={i} className="font-heading text-base font-bold text-white mt-5 mb-2.5 pb-1 border-b border-white/5 flex items-center gap-1.5">
+          {parseInline(line.slice(3))}
+        </h2>
+      );
+      continue;
     }
 
     // Header 3
     if (line.startsWith('### ')) {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
       elements.push(
         <h3 key={i} className="font-heading text-sm font-bold text-white mt-4 mb-2 pb-1 border-b border-white/5 flex items-center gap-1.5">
           {parseInline(line.slice(4))}
@@ -165,6 +338,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
     // Header 4
     if (line.startsWith('#### ')) {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
       elements.push(
         <h4 key={i} className="font-heading text-xs font-semibold text-slate-200 mt-3 mb-1.5">
           {parseInline(line.slice(5))}
@@ -173,12 +350,58 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       continue;
     }
 
+    // Header 5
+    if (line.startsWith('##### ')) {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
+      elements.push(
+        <h5 key={i} className="font-heading text-[11px] font-semibold text-slate-300 mt-2.5 mb-1">
+          {parseInline(line.slice(6))}
+        </h5>
+      );
+      continue;
+    }
+
+    // Header 6
+    if (line.startsWith('###### ')) {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
+      elements.push(
+        <h6 key={i} className="font-heading text-[10px] font-semibold text-slate-400 mt-2 mb-1 uppercase tracking-wider">
+          {parseInline(line.slice(7))}
+        </h6>
+      );
+      continue;
+    }
+
+    // Horizontal rule
+    if (line === '---') {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
+      elements.push(<hr key={i} className="border-white/10 my-4" />);
+      continue;
+    }
+
     // Empty line or simple break
     if (line === '') {
+      flushList(i);
+      flushNumList(i);
+      flushTable(i);
+      flushQuote(i);
       continue;
     }
 
     // Normal paragraph
+    flushList(i);
+    flushNumList(i);
+    flushTable(i);
+    flushQuote(i);
     elements.push(
       <p key={i} className="text-xs text-slate-300 leading-relaxed mb-3">
         {parseInline(line)}
@@ -189,7 +412,15 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   // Flush any remaining blocks
   flushTable(lines.length);
   flushList(lines.length);
+  flushNumList(lines.length);
   flushQuote(lines.length);
+  if (inCodeBlock && codeBlockLines.length > 0) {
+    elements.push(
+      <pre key={`code-end`} className="bg-black/40 border border-white/10 p-4 rounded-xl font-mono text-[11px] text-slate-300 overflow-x-auto my-3">
+        <code className="block whitespace-pre">{codeBlockLines.join('\n')}</code>
+      </pre>
+    );
+  }
 
   return <div className="flex flex-col gap-1 text-slate-300 font-sans">{elements}</div>;
 }

@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
 import { chatbotService, ChatMessage } from '../../services/chatbot';
 import { fetchBackend } from '../../services/api';
+import MarkdownRenderer from '../../component/MarkdownRenderer';
 import { 
   Send, 
   Sparkles, 
@@ -119,88 +120,7 @@ Try asking one of the suggested prompts below to start:`,
     }
   };
 
-  // Basic custom formatter to render basic markdown elements: headings, tables, blocks, bullet lists
-  const formatContent = (content: string) => {
-    const lines = content.split('\n');
-    return lines.map((line, idx) => {
-      // 1. Alert boxes
-      if (line.startsWith('> [!WARNING]')) {
-        return (
-          <div key={idx} className="my-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 font-medium">
-            {line.replace('> [!WARNING]', '⚠️ Warning:')}
-          </div>
-        );
-      }
-      if (line.startsWith('> [!TIP]')) {
-        return (
-          <div key={idx} className="my-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-300 font-medium">
-            {line.replace('> [!TIP]', '💡 Pro Tip:')}
-          </div>
-        );
-      }
-      if (line.startsWith('>')) {
-        return (
-          <blockquote key={idx} className="border-l-2 border-safety-orange pl-3 text-slate-400 italic my-2">
-            {line.replace('>', '')}
-          </blockquote>
-        );
-      }
 
-      // 2. Headings
-      if (line.startsWith('### ')) {
-        return (
-          <h3 key={idx} className="font-heading font-bold text-sm text-white mt-4 mb-2 tracking-wide uppercase">
-            {line.replace('### ', '')}
-          </h3>
-        );
-      }
-      if (line.startsWith('#### ')) {
-        return (
-          <h4 key={idx} className="font-heading font-bold text-xs text-slate-200 mt-3 mb-1.5 tracking-wide uppercase">
-            {line.replace('#### ', '')}
-          </h4>
-        );
-      }
-
-      // 3. Table Rows (Simple visual layout for tables)
-      if (line.startsWith('|')) {
-        if (line.includes('---')) return null; // skip divider lines
-        const cells = line.split('|').filter(c => c.trim() !== '');
-        const colCount = cells.length;
-        return (
-          <div key={idx} className={`grid gap-2.5 border-b border-white/5 py-2 font-mono text-[10px]`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
-            {cells.map((cell, cIdx) => (
-              <span key={cIdx} className="text-slate-300 truncate">{cell.trim()}</span>
-            ))}
-          </div>
-        );
-      }
-
-      // 4. Bullet lists
-      if (line.startsWith('- ')) {
-        return (
-          <div key={idx} className="flex items-start gap-2 ml-2 my-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-safety-orange mt-1.5 flex-shrink-0" />
-            <span className="text-slate-300">{line.replace('- ', '')}</span>
-          </div>
-        );
-      }
-      if (/^\d+\./.test(line)) {
-        return (
-          <div key={idx} className="flex items-start gap-2 ml-2 my-1">
-            <span className="font-bold text-safety-orange flex-shrink-0">{line.match(/^\d+\./)?.[0]}</span>
-            <span className="text-slate-300">{line.replace(/^\d+\.\s*/, '')}</span>
-          </div>
-        );
-      }
-
-      // 5. Standard line
-      if (line.trim() === '---') {
-        return <hr key={idx} className="border-white/10 my-4" />;
-      }
-      return <p key={idx} className="my-1 text-slate-300 leading-relaxed font-sans">{line}</p>;
-    });
-  };
 
   if (authLoading) {
     return (
@@ -308,7 +228,7 @@ Try asking one of the suggested prompts below to start:`,
                     </span>
                   )}
 
-                  {isUser ? <p>{msg.content}</p> : formatContent(msg.content)}
+                  {isUser ? <p className="whitespace-pre-wrap">{msg.content}</p> : <MarkdownRenderer content={msg.content} />}
                   
                   {!isUser && msg.sources && msg.sources.length > 0 && (
                     <div className="mt-3 pt-2.5 border-t border-white/5">
