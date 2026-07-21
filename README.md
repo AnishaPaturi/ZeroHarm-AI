@@ -35,18 +35,26 @@ ZeroHarm AI leverages a modern, robust, and highly integrated technology stack a
 * **Iconography**: **Lucide React** for modern, high-contrast dashboard iconography.
 
 ### ⚙️ Backend (Safety Intelligence Engine)
-* **API Framework**: **FastAPI (Python 3.11+)** for high-performance, asynchronous REST API routes and low-latency bidirectional WebSockets streaming live telemetry.
-* **Web Server**: **Uvicorn** as the ASGI web server implementation to run the FastAPI application.
-* **Data Validation**: **Pydantic** for typed data parsing and validation in request/response payloads.
-* **Real-time Communication**: **WebSockets** for streaming continuous telemetry and badge tracker updates.
+* **Core API Framework**: **FastAPI (Python 3.11+)** for high-performance, asynchronous REST API routes and low-latency bidirectional WebSockets streaming live telemetry.
+* **Stateless Replica Server**: Stateless API execution to support horizontal scaling under **Uvicorn** ASGI.
+* **Message Broker Queues (Ingestion)**: Integration with **Apache Kafka** and **RabbitMQ** durably enqueues incoming SCADA telemetry and cameraVision alerts, decoupling the main thread (with `asyncio.Queue` local fallback).
+* **Distributed Task Queue**: A background task runner daemon that offloads heavy multi-round agent debates and compliance analysis asynchronously to worker processes.
+* **Real-time Communication**: **WebSockets** for streaming continuous telemetry and worker badge tracking updates.
 * **File Processing**: 
-  * **PyPDF** to parse and extract text from compliance documents (like the Factories Act or OISD guidelines) for ingestion into the RAG vector store.
+  * **PyPDF** to parse and extract text from compliance documents for RAG indexing.
   * **Python-Multipart** to handle upload streams of PDF documents and shift handovers.
+
+### 💾 Scalable Storage, Cache & Databases
+* **Distributed Cache & Geo Index**: **Redis / Redis Enterprise** stores active zone telemetry, active permit details, and uses **Redis Geospatial Indexing (GEOADD/GEORADIUS)** to locate and track active workers within safety radii in sub-milliseconds.
+* **Enterprise Graph Database**: **Neo4j Graph Database** replaces NetworkX memory graphs with a connected graph database using **Cypher** queries to identify SIMOP conflicts and safety rule violations across zones.
+* **Time-Series Database**: **TimescaleDB / PostgreSQL** processes high-volume, chronological sensor feeds and locks them in partitioned hypertables for historical risk analytics.
+* **Dedicated Vector Database**: **Qdrant** houses compliance guidelines and safety standards, executing high-speed hybrid search combining exact keyword matches with semantic cosine distance calculations.
 
 ### 🧠 Data Science, Machine Learning & Artificial Intelligence
 * **Artificial Intelligence**:
-  * **OpenRouter API** integration linking safety reasoning LLMs for collaborative agent debates, regulatory citations, and advisory compilation.
-  * **Dynamic TF-IDF Vector Store & Sentence-Transformers** for fast, local semantic RAG query calculations across indexed Factories Act and OISD safety standard databases.
+  * **OpenRouter API** integration linking safety reasoning LLMs for collaborative agent debates, OISD compliance citations, and advisory compilation.
+  * **LLM Semantic Cache**: Exact SHA-256 prompt hashing and tokenized **Jaccard Similarity** word-overlap check caching (backed by Redis or local memory) to skip redundant OpenRouter API hits.
+  * **ZeroHarm Vector Store & Sentence-Transformers** generating dense embeddings (`all-MiniLM-L6-v2`) mapped to Qdrant collections.
 * **Machine Learning & Analytics**:
   * **Scikit-Learn** implementing supervised **Random Forest Classifier** models for multi-sensor threat classification, alongside unsupervised **Isolation Forest Classifier** for anomaly detection and scoring on raw SCADA feeds.
   * **Pandas & NumPy** for parsing, cleaning, and aggregating high-frequency sensor readings, telemetry logs, and rolling historical arrays.
@@ -55,7 +63,8 @@ ZeroHarm AI leverages a modern, robust, and highly integrated technology stack a
 * **Simulation Engine**: Custom background python thread loops to simulate realistic sensor drifts, gas anomalies, and worker badge GPS coordinate trails.
 
 ### 🐳 Infrastructure & Deployment
-* **Containerization**: **Docker** & **Docker Compose** to package the frontend and backend microservices for uniform staging and simple cross-platform launching.
+* **Orchestration & Autoscaling**: **Kubernetes (K8s)** manifests defining Pod Deployments, ClusterIP load-balancer Services, and **Horizontal Pod Autoscalers (HPA)** to scale stateless backend API replicas from 2 to 10 instances based on CPU utilization.
+* **Containerization**: **Docker** & **Docker Compose** packaging the Next.js frontend, FastAPI backend, and vector database collection configurations.
 * **Serialization**: **Joblib/Pickle** for automated disk serialization of trained ML anomaly scoring model weights, avoiding initialization delays during reboots.
 * **Task Running**: **Concurrently** in the root package configurations to run the frontend Next.js server and the backend FastAPI server concurrently with a single command (`npm run dev:full`).
 * **Testing & Diagnostics**: Automated REST client suites (**requests** & **pytest**) validating SCADA rules, rate-of-change temporal equations, black box logs, and permit logic.
