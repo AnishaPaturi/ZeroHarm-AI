@@ -21,7 +21,13 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     });
   };
 
-  const lines = content.split('\n');
+  // Pre-process raw markdown text to fix missing linebreaks before headers, after section titles, and before list items
+  const normalizedContent = content
+    .replace(/(#{1,6}\s+)(Summary|Relevant Regulations|Historical Incidents|Recommended Actions|Integrated Prevention Plan|Regulatory Compliance Check|Preemptive Safety Focus)\s+([^#\n]+)/gi, '$1$2\n$3')
+    .replace(/([^\n])\s*(#{1,6}\s+)/g, '$1\n\n$2')
+    .replace(/([^\n])\s*([*\-]\s+)/g, '$1\n$2');
+
+  const lines = normalizedContent.split('\n');
   const elements: React.ReactNode[] = [];
   let currentTable: { headers: string[]; rows: string[][] } | null = null;
   let currentList: { items: string[]; type: 'bullet' | 'checklist' } | null = null;
