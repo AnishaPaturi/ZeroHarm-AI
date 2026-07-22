@@ -10,21 +10,22 @@ logger = logging.getLogger("zeroharm_ai.rag.vector_store")
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
+except Exception as e:
+    logger.warning(f"SentenceTransformers unavailable ({e}). Falling back to sklearn TF-IDF vectorizer.")
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 try:
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.metrics.pairwise import cosine_similarity
     SKLEARN_AVAILABLE = True
-except ImportError:
+except Exception as e:
     SKLEARN_AVAILABLE = False
 
 try:
     from qdrant_client import QdrantClient
     from qdrant_client.models import Distance, VectorParams, PointStruct
     HAS_QDRANT = True
-except ImportError:
+except Exception as e:
     HAS_QDRANT = False
 
 # Qdrant configurations

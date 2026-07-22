@@ -1098,5 +1098,15 @@
     "h2s": 0.0,
     "temperature": 25.0,
     "pressure": 1.0
+  },
+  {
+    "timestamp": "2026-07-22T11:57:18.013519",
+    "zone": "Sinter Plant",
+    "o2": 20.8,
+    "co": 12.5,
+    "ch4": null,
+    "h2s": null,
+    "temperature": 32.0,
+    "pressure": 1.05
   }
 ]
