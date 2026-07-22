@@ -135,6 +135,18 @@ const parseMarkdownToHtml = (content: string): string => {
       flushList();
     }
 
+    // Header 1
+    if (line.startsWith('# ')) {
+      htmlParts.push(`<h3>${parseInlineHtml(line.slice(2))}</h3>`);
+      continue;
+    }
+
+    // Header 2
+    if (line.startsWith('## ')) {
+      htmlParts.push(`<h3>${parseInlineHtml(line.slice(3))}</h3>`);
+      continue;
+    }
+
     // Header 3
     if (line.startsWith('### ')) {
       htmlParts.push(`<h3>${parseInlineHtml(line.slice(4))}</h3>`);
@@ -147,13 +159,21 @@ const parseMarkdownToHtml = (content: string): string => {
       continue;
     }
 
+    // Header 5 & 6
+    if (line.startsWith('##### ') || line.startsWith('###### ')) {
+      const cleanHeader = line.replace(/^#{5,6}\s*/, '');
+      htmlParts.push(`<h4>${parseInlineHtml(cleanHeader)}</h4>`);
+      continue;
+    }
+
     // Empty line or simple break
     if (line === '') {
       continue;
     }
 
-    // Normal paragraph
-    htmlParts.push(`<p>${parseInlineHtml(line)}</p>`);
+    // Normal paragraph (strip any leftover unparsed leading hashes)
+    const cleanParagraph = line.replace(/^#{1,6}\s*/, '');
+    htmlParts.push(`<p>${parseInlineHtml(cleanParagraph)}</p>`);
   }
 
   // Flush remaining
@@ -197,7 +217,7 @@ const generateLocalHandoverSummary = () => {
       "Ensure forced-draft ventilation is active at maximum capacity in affected gas zones.",
       "Verify all Lock-Out Tag-Out (LOTO) isolations on the fuel gas line block valves."
     ],
-    handover_narrative: `### AI Generated Shift Handover Report (Offline Preview Mode)
+    handover_narrative: `Statutory AI Shift Handover Report (Offline Preview Mode)
 
 **Generation Timestamp:** ${now.toUTCString()}
 

@@ -111,7 +111,7 @@ class ShiftHandoverGenerator:
         selected_reminder = random.choice(safety_reminders)
 
         narrative = (
-            "### Statutory AI Shift Handover Report\n\n"
+            "Statutory AI Shift Handover Report\n\n"
             f"**Generation Timestamp:** {now.strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
             "**Operational Status Overview:**\n"
             f"- **Active Permits:** {len(active_permits_summary)} authorized permit(s) in progress.\n"
