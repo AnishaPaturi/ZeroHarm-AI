@@ -522,7 +522,6 @@ export interface ExecutiveReport {
   size: string;
   description: string;
 }
-
 // 1. Safety Index (0-100) calculated with a 50% threshold baseline and 2% step adjustments
 export const selectPlantSafetyRating = (state: IncidentStore): number => {
   const SAFETY_THRESHOLD = 50; // 50% Statutory Safety Threshold
@@ -543,45 +542,39 @@ export const selectPlantSafetyRating = (state: IncidentStore): number => {
     totalDeduction += Math.ceil((state.telemetry.temperature - 30) / 5) * 2;
   }
 
-  // Deduction 4: Active Alerts (2% to 8% per alert)
+  // Deduction 4: Active Alerts (4% to 15% per alert)
   state.alerts.forEach(alert => {
-    if (alert.severity === 'Critical') totalDeduction += 8;
-    else if (alert.severity === 'Warning') totalDeduction += 4;
+    if (alert.severity === 'Critical') totalDeduction += 15;
+    else if (alert.severity === 'Warning') totalDeduction += 8;
     else totalDeduction += 2;
   });
 
-  // Deduction 5: Open Incidents (2% to 16% per incident)
+  // Deduction 5: Emergency Mode Active - 50% immediate drop
+  if (state.emergencyMode) {
+    totalDeduction += 50;
+  }
+
+  // Deduction 6: Open Critical/High Safety Incidents
   const openIncidents = state.incidents.filter(i => i.status !== 'Resolved');
   openIncidents.forEach(inc => {
-    if (inc.severity === 'Critical') totalDeduction += 16;
-    else if (inc.severity === 'High') totalDeduction += 10;
-    else if (inc.severity === 'Medium') totalDeduction += 6;
-    else totalDeduction += 2;
+    if (inc.severity === 'Critical') totalDeduction += 20;
+    else if (inc.severity === 'High') totalDeduction += 12;
   });
 
-  // Deduction 6: Worker PPE Violations (2% per non-compliant worker)
+  // Deduction 7: Worker PPE Violations (2% per non-compliant worker)
   const activePPEBreaches = state.workers.filter(w => w.ppeOk === false).length;
   totalDeduction += activePPEBreaches * 2;
 
-  // Deduction 7: Statutory Audit Findings (2% per failing checklist item)
-  const nonCompliantChecklists = state.complianceRecords.reduce(
-    (acc, r) => acc + (r.criticalFindingsCount || 0), 0
-  );
-  totalDeduction += nonCompliantChecklists * 2;
+  // Calculate score starting from 98% nominal baseline
+  const nowSec = typeof window !== 'undefined' ? Math.floor(Date.now() / 1000) : 0;
+  const nominalBaseline = 98 - (nowSec % 3); // 96% - 98% dynamic baseline
 
-  // Calculate score starting from 100%
-  let score = 100 - totalDeduction;
+  let score = nominalBaseline - totalDeduction;
 
   // Rule: Once risk deductions push score past the 50% threshold limit, decrease an extra 2% per step
   if (score < SAFETY_THRESHOLD) {
     const breachAmount = SAFETY_THRESHOLD - score;
     score = SAFETY_THRESHOLD - (breachAmount * 2);
-  }
-
-  // Nominal baseline micro-fluctuation (96% - 98%) so index is not frozen at 100%
-  if (score >= 100) {
-    const nowSec = typeof window !== 'undefined' ? Math.floor(Date.now() / 1000) : 0;
-    score = 98 - (nowSec % 3);
   }
 
   return Math.max(5, Math.min(100, Math.round(score)));
