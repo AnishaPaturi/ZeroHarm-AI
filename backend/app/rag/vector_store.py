@@ -45,14 +45,22 @@ class ZeroHarmVectorStore:
 
     def __init__(self):
         self.documents: List[Dict[str, Any]] = list(ALL_DOCUMENTS)
-        self.mode = "TF-IDF (Local Retrieval)"
+        self.mode = "Lazy Initialization Pending"
         self._model = None
         self._embeddings = None
         self._vectorizer = None
         self._matrix = None
         self._sklearn_cosine = None
         self.qdrant_client = None
+        self._initialized = False
 
+    def _ensure_initialized(self):
+        if self._initialized:
+            return
+        self._initialized = True
+        self.initialize_store()
+
+    def initialize_store(self):
         if SENTENCE_TRANSFORMERS_AVAILABLE:
             try:
                 self._model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -69,9 +77,6 @@ class ZeroHarmVectorStore:
             self._vectorizer = TfidfVectorizer(stop_words="english")
             self._sklearn_cosine = cosine_similarity
 
-        self.initialize_store()
-
-    def initialize_store(self):
         logger.info(f"Initializing vector store in mode: {self.mode}")
         
         # 1. Connect and initialize Qdrant if enabled (Option A)
@@ -159,6 +164,7 @@ class ZeroHarmVectorStore:
         """Append new documents to the store and update the index."""
         if not docs:
             return
+        self._ensure_initialized()
 
         # 1. Sync to Qdrant collection if active
         if self.qdrant_client:
@@ -227,6 +233,7 @@ class ZeroHarmVectorStore:
         logger.info(f"Added {len(docs)} documents to local vector store. Total: {len(self.documents)}")
 
     def search(self, query: str, k: int = 3) -> List[Dict[str, Any]]:
+        self._ensure_initialized()
         if not query or len(self.documents) == 0:
             return []
 

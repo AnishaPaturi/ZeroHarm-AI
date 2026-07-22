@@ -7,11 +7,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 if __name__ == "__main__":
     print("Starting ZeroHarm AI backend server...")
     reload = os.getenv("RELOAD", "true").lower() == "true"
+    port = int(os.getenv("PORT", "8000"))
     backend_dir = os.path.dirname(os.path.abspath(__file__))
     if reload:
-        uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True, reload_dirs=[backend_dir])
+        uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True, reload_dirs=[backend_dir])
     else:
-        uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=False)
+        uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)
 
 
 
