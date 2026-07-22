@@ -109,6 +109,15 @@ def create_documentation_docx(output_path):
     add_body("According to DGFASLI, over 6,500 fatal workplace accidents were recorded in India in FY2023 alone. In January 2025, eight workers tragically lost their lives at Visakhapatnam Steel Plant when entrapped gas triggered a coke oven battery explosion. This facility had working gas sensors, permits-to-work, and SCADA systems, but lacked a unified cognitive intelligence layer to correlate gas pressure sensor spikes with active hot-work permits in the vicinity.")
     add_body("ZeroHarm AI addresses this vulnerability by acting as the plant's central nervous system, fusing SCADA sensor telemetry, digital permit-to-work (PTW) logs, worker locations, and CCTV visual analytics into a 100% closed-loop cognitive safety engine.")
 
+    # Core Technology Stack
+    add_h1("1.1 Core Technology Stack")
+    add_body("ZeroHarm AI focuses on a streamlined, production-proven architecture centered around four core innovation pillars:")
+    add_bullet("React 19 & Next.js 16 (App Router) with Zustand state management, TypeScript, and Framer Motion glassmorphism physics.", "1. Frontend: ")
+    add_bullet("FastAPI (Python 3.11+), Uvicorn ASGI, bidirectional WebSockets, and NetworkX process topology graphs.", "2. Backend: ")
+    add_bullet("Scikit-Learn (Random Forest & Isolation Forest), Sentence-Transformers & Qdrant vector store, Multi-Agent Collaborative Reasoning.", "3. AI / ML Engine: ")
+    add_bullet("Docker & Kubernetes (K8s) HPA, Redis GEO worker tracking (GEOADD), and TimescaleDB partitioned time-series logging.", "4. Infrastructure & Database: ")
+    add_bullet("Pandas, NumPy, PyPDF, Recharts, Lucide Icons, Apache Kafka, RabbitMQ, Neo4j Cypher, pytest.", "Supporting Libraries Appendix: ")
+
     # 2. Enterprise Business Viability
     add_h1("2. Enterprise Business Viability & Financial ROI (The Tata Steel Case)")
     add_body("ZeroHarm AI is engineered to deliver immediate, quantifiable financial returns for Tier-1 industrial conglomerates (e.g., Tata Steel, JSW Steel, Indian Oil Corporation, Reliance Industries, Vedanta).")

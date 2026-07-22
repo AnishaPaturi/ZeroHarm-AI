@@ -20,54 +20,39 @@ ZeroHarm AI is a next-generation, AI-driven **Industrial Safety Intelligence (IS
 
 ---
 
-## 🛠️ Tech Stack & Technologies Used
+---
 
-ZeroHarm AI leverages a modern, robust, and highly integrated technology stack across the frontend user experience, the backend safety intelligence engine, and real-time data analytical pipelines:
+## 🛠️ Core Technology Stack
 
-### 💻 Frontend (User Interface)
-* **Core Framework**: **React 19** & **Next.js 16 (App Router)** for fast, optimized page compilation, static optimization, and server-side rendering support.
-* **State Management**: **Zustand** for lightweight, high-performance global state management across live SCADA telemetry, active alerts, and authentication states.
-* **Type Safety**: **TypeScript** used throughout the client application to ensure code correctness and robust interfaces.
-* **Styling & Layout**: **Tailwind CSS** combined with custom **Vanilla CSS variables** for deep glassmorphism themes, glowing safety states, responsive charts, and printer-friendly PDF compliance layouts.
-* **Micro-Animations**: **Framer Motion** for smooth transition physics, fading alerts, dynamic progress bars, and modal slides.
-* **Data Visualization**: **Recharts** to compile and render live, high-frequency historical sensor graphs (oxygen depletion, carbon monoxide accumulation, gas LPG and ambient pressure trends).
-* **Forms & Validation**: **React Hook Form** for clean form handling, inputs, and validation across checklist sign-offs and incident reports.
-* **Iconography**: **Lucide React** for modern, high-contrast dashboard iconography.
+ZeroHarm AI focuses on a streamlined, production-proven architecture centered around four core innovation pillars:
 
-### ⚙️ Backend (Safety Intelligence Engine)
-* **Core API Framework**: **FastAPI (Python 3.11+)** for high-performance, asynchronous REST API routes and low-latency bidirectional WebSockets streaming live telemetry.
-* **Stateless Replica Server**: Stateless API execution to support horizontal scaling under **Uvicorn** ASGI.
-* **Message Broker Queues (Ingestion)**: Integration with **Apache Kafka** and **RabbitMQ** durably enqueues incoming SCADA telemetry and cameraVision alerts, decoupling the main thread (with `asyncio.Queue` local fallback).
-* **Distributed Task Queue**: A background task runner daemon that offloads heavy multi-round agent debates and compliance analysis asynchronously to worker processes.
-* **Real-time Communication**: **WebSockets** for streaming continuous telemetry and worker badge tracking updates.
-* **File Processing**: 
-  * **PyPDF** to parse and extract text from compliance documents for RAG indexing.
-  * **Python-Multipart** to handle upload streams of PDF documents and shift handovers.
+### 1. 💻 Frontend
+* **React 19 & Next.js 16 (App Router)**: Fast, server-optimized user interface rendering live SCADA heatmaps and digital twin layouts.
+* **Zustand & TypeScript**: High-performance, type-safe global state management for WebSockets telemetry feeds.
+* **Tailwind CSS & Framer Motion**: Custom glassmorphism safety aesthetics with smooth alert transition physics.
 
-### 💾 Scalable Storage, Cache & Databases
-* **Distributed Cache & Geo Index**: **Redis / Redis Enterprise** stores active zone telemetry, active permit details, and uses **Redis Geospatial Indexing (GEOADD/GEORADIUS)** to locate and track active workers within safety radii in sub-milliseconds.
-* **Enterprise Graph Database**: **Neo4j Graph Database** replaces NetworkX memory graphs with a connected graph database using **Cypher** queries to identify SIMOP conflicts and safety rule violations across zones.
-* **Time-Series Database**: **TimescaleDB / PostgreSQL** processes high-volume, chronological sensor feeds and locks them in partitioned hypertables for historical risk analytics.
-* **Dedicated Vector Database**: **Qdrant** houses compliance guidelines and safety standards, executing high-speed hybrid search combining exact keyword matches with semantic cosine distance calculations.
+### 2. ⚙️ Backend
+* **FastAPI (Python 3.11+)**: Async ASGI REST & WebSockets engine delivering sub-15ms packet processing.
+* **Uvicorn & WebSockets**: High-frequency streaming for real-time SCADA gas feeds and worker RFID positions.
+* **NetworkX**: In-memory process topology graphs tracing cascading pipeline overpressure hazards.
 
-### 🧠 Data Science, Machine Learning & Artificial Intelligence
-* **Artificial Intelligence**:
-  * **OpenRouter API** integration linking safety reasoning LLMs for collaborative agent debates, OISD compliance citations, and advisory compilation.
-  * **LLM Semantic Cache**: Exact SHA-256 prompt hashing and tokenized **Jaccard Similarity** word-overlap check caching (backed by Redis or local memory) to skip redundant OpenRouter API hits.
-  * **ZeroHarm Vector Store & Sentence-Transformers** generating dense embeddings (`all-MiniLM-L6-v2`) mapped to Qdrant collections.
-* **Machine Learning & Analytics**:
-  * **Scikit-Learn** implementing supervised **Random Forest Classifier** models for multi-sensor threat classification, alongside unsupervised **Isolation Forest Classifier** for anomaly detection and scoring on raw SCADA feeds.
-  * **Pandas & NumPy** for parsing, cleaning, and aggregating high-frequency sensor readings, telemetry logs, and rolling historical arrays.
-* **Geospatial & Adjacency Graphs**:
-  * **NetworkX** to build process piping topology graphs, calculating cascading risk propagation between boilers, headers, and valve segments.
-* **Simulation Engine**: Custom background python thread loops to simulate realistic sensor drifts, gas anomalies, and worker badge GPS coordinate trails.
+### 3. 🧠 AI / ML Engine
+* **Scikit-Learn (Random Forest & Isolation Forest)**: Supervised threat classifier + unsupervised SCADA anomaly detection.
+* **Sentence-Transformers & Qdrant**: Hybrid dense vector embeddings (`all-MiniLM-L6-v2`) for RAG regulatory compliance retrieval over OISD & Factories Act.
+* **Multi-Agent Collaborative Reasoning**: 3-round consensus debate engine resolving SIMOPs domain conflicts.
 
-### 🐳 Infrastructure & Deployment
-* **Orchestration & Autoscaling**: **Kubernetes (K8s)** manifests defining Pod Deployments, ClusterIP load-balancer Services, and **Horizontal Pod Autoscalers (HPA)** to scale stateless backend API replicas from 2 to 10 instances based on CPU utilization.
-* **Containerization**: **Docker** & **Docker Compose** packaging the Next.js frontend, FastAPI backend, and vector database collection configurations.
-* **Serialization**: **Joblib/Pickle** for automated disk serialization of trained ML anomaly scoring model weights, avoiding initialization delays during reboots.
-* **Task Running**: **Concurrently** in the root package configurations to run the frontend Next.js server and the backend FastAPI server concurrently with a single command (`npm run dev:full`).
-* **Testing & Diagnostics**: Automated REST client suites (**requests** & **pytest**) validating SCADA rules, rate-of-change temporal equations, black box logs, and permit logic.
+### 4. 🐳 Infrastructure & Database
+* **Docker & Kubernetes (K8s)**: Containerized microservices with HPA autoscaling (2 to 10 replicas).
+* **Redis & TimescaleDB**: Sub-millisecond geospatial worker tracking (`GEOADD`) + partitioned time-series sensor logging.
+
+<details>
+<summary>📋 View Additional Supporting Libraries & Tools</summary>
+
+* **Data Processing**: Pandas, NumPy, PyPDF
+* **Visualization**: Recharts, Lucide Icons, React Hook Form
+* **Messaging & Storage Adapters**: Apache Kafka, RabbitMQ, Neo4j Cypher
+* **Testing & Diagnostics**: pytest, requests, Joblib/Pickle
+</details>
 
 ---
 
