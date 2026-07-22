@@ -344,6 +344,48 @@ def create_documentation_docx(output_path):
     add_bullet("Heavy steam/smoke flares can trigger minor visual anomaly alerts (mitigated by requiring telemetry correlation).", "Known Issues: ")
     add_bullet("On-device 4-bit GGML quantization for NVIDIA Orin edge boxes ($<15W$) and multi-camera 3D pose estimation.", "Future Roadmap: ")
 
+    # 16. Architectural Transparency & Source Code Verification Index
+    add_h1("16. Architectural Transparency & Source Code Verification Index")
+    add_body("To guarantee 100% engineering transparency, below is the complete implementation index classifying every claimed module into Core Native Local Engine, Pluggable Enterprise Adapter, or Demo UI Simulation, along with the exact source file path and verification command:")
+
+    table4 = doc.add_table(rows=1, cols=4)
+    table4.alignment = WD_TABLE_ALIGNMENT.CENTER
+    hdr4 = table4.rows[0].cells
+    hdr4[0].text = "Technology / Feature"
+    hdr4[1].text = "Implementation Category"
+    hdr4[2].text = "Source Code File Path"
+    hdr4[3].text = "Verification Command"
+    for cell in hdr4:
+        set_cell_background(cell, '0F172A')
+        cell.paragraphs[0].runs[0].font.bold = True
+        cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+
+    verify_matrix = [
+        ("Random Forest Anomaly Classifier", "Core Native Code", "backend/app/engine/ml_anomaly.py", "python backend/test_api.py"),
+        ("Isolation Forest Anomaly Model", "Core Native Code", "backend/app/engine/ml_anomaly.py", "python backend/test_api.py"),
+        ("3-Round Multi-Agent Debate", "Core Native Code", "backend/app/engine/collaborative_reasoning.py", "python backend/test_compute_layer.py"),
+        ("Contextual RAG Retrieval Engine", "Core Native Code", "backend/app/rag/vector_store.py", "python backend/test_vector_rag.py"),
+        ("Explainable AI (XAI) Attribution", "Core Native Code", "backend/app/engine/rules.py", "python backend/test_api.py"),
+        ("Near-Miss Shift Prediction", "Core Native Code", "backend/app/engine/near_miss_predictor.py", "python backend/test_near_miss.py"),
+        ("CCTV Frame & Flare Analyzer", "Core Native Code", "backend/app/cctv/analyzer.py", "python backend/test_cctv.py"),
+        ("Federated Learning (FedAvg)", "Core Native Code", "backend/app/engine/federated_learning.py", "python -m pytest backend/test_pytest_all.py"),
+        ("Sensor Interoperability Layer", "Core Native Code", "backend/app/engine/sensor_interoperability.py", "python -m pytest backend/test_pytest_all.py"),
+        ("Process Graph & Topology", "Core Native Code", "backend/app/geospatial/topology.py", "python backend/test_topology.py"),
+        ("Black Box Flight Data Recorder", "Core Native Code", "backend/app/blackbox/preservation.py", "python backend/test_blackbox.py"),
+        ("Redis GEO Cache", "Pluggable Adapter (Local Fallback)", "backend/app/storage/redis_cache.py", "python backend/test_database_scalability.py"),
+        ("Qdrant Vector Database", "Pluggable Adapter (Local Fallback)", "backend/app/storage/qdrant_store.py", "python backend/test_vector_rag.py"),
+        ("Neo4j Cypher Graph", "Pluggable Adapter (Local Fallback)", "backend/app/storage/neo4j_graph.py", "python backend/test_database_scalability.py"),
+        ("TimescaleDB Time-Series", "Pluggable Adapter (Local Fallback)", "backend/app/storage/timescale_logger.py", "python backend/test_database_scalability.py"),
+        ("Kafka / RabbitMQ Broker", "Pluggable Adapter (Local Fallback)", "backend/app/ingestion/broker.py", "python backend/test_ingestion_queue.py"),
+        ("2D Spatial Digital Twin Canvas", "Interactive Next.js UI", "frontend/app/digital-twin/page.tsx", "npm run dev -> /digital-twin"),
+        ("Drone Flight Sweep Physics", "UI Physics Simulation", "backend/app/drone/drone_simulation.py", "python backend/test_api_b.py")
+    ]
+
+    for row_data in verify_matrix:
+        cells = table4.add_row().cells
+        for i, val in enumerate(row_data):
+            cells[i].text = val
+
     # Save to path
     doc.save(output_path)
     print(f"Successfully generated {output_path}")
@@ -353,5 +395,6 @@ if __name__ == '__main__':
     target_2 = r"C:\Users\anish\OneDrive\College\Hackathon\ET-Hackathon\Documentation.docx"
     create_documentation_docx(target_1)
     create_documentation_docx(target_2)
+
 
 
