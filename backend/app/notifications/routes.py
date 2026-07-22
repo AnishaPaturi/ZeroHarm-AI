@@ -1,6 +1,11 @@
 from fastapi import APIRouter
 from app.notifications.service import notification_service
-
+from pydantic import BaseModel
+class NotificationCreate(BaseModel):
+    title: str
+    message: str
+    category: str
+    severity: str = "info"
 router = APIRouter(
     prefix="/api/notifications",
     tags=["Notifications"],
@@ -20,6 +25,19 @@ def create_test_notification():
         severity="info",
     )
     return {"message": "Test notification created"}
+
+@router.post("/")
+def create_notification(notification: NotificationCreate):
+    notification_service.create_notification(
+        title=notification.title,
+        message=notification.message,
+        category=notification.category,
+        severity=notification.severity,
+    )
+
+    return {
+        "message": "Notification created successfully"
+    }
 
 
 @router.patch("/{notification_id}/read")

@@ -51,6 +51,35 @@ export default function CompliancePage() {
       }
     });
 
+    fetch("http://localhost:8000/api/notifications", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    title:
+      nextState === "compliant"
+        ? "Compliance Updated"
+        : nextState === "non_compliant"
+        ? "Compliance Alert"
+        : "Compliance Reset",
+
+    message:
+      nextState === "compliant"
+        ? `${item.text} marked as compliant.`
+        : nextState === "non_compliant"
+        ? `${item.text} marked as non-compliant.`
+        : `${item.text} reset to pending audit.`,
+
+    category: "compliance",
+    severity:
+      nextState === "non_compliant"
+        ? "warning"
+        : "info",
+  }),
+}).catch(console.error);
+
+
     addToast(
       nextState === 'compliant' ? 'Item marked compliant' :
       nextState === 'non_compliant' ? 'Item marked non-compliant' :
