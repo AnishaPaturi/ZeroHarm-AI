@@ -177,14 +177,14 @@ Try asking one of the suggested prompts below to start:`,
           >
             RAG Audit Manuals
           </button>
-          <button
+          {/* <button
             onClick={() => setQueryMode('db')}
             className={`px-3 py-1.5 rounded-lg text-[10px] font-semibold tracking-wider transition-all uppercase cursor-pointer border-0 ${
               queryMode === 'db' ? 'bg-safety-orange text-white' : 'text-slate-400 hover:text-slate-200 bg-transparent'
             }`}
           >
             NLP Database Query (Innovation 17)
-          </button>
+          </button> */}
         </div>
       </div>
 

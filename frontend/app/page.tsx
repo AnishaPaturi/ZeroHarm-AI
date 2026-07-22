@@ -711,7 +711,7 @@ export default function LandingPage() {
       </section>
 
       {/* 9. Tech Stack Strip */}
-      <section className="max-w-5xl mx-auto w-full px-4 text-center">
+      {/* <section className="max-w-5xl mx-auto w-full px-4 text-center">
         <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-6">
           Technical Architecture Stack
         </p>
@@ -733,7 +733,7 @@ export default function LandingPage() {
             </span>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* 10. Team / Roles Section */}
       <section className="max-w-5xl mx-auto w-full px-4">
@@ -752,24 +752,24 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
-              alias: 'Person A',
-              role: 'Safety Rules Engine & ML Anomaly Models',
-              desc: 'Built the Pydantic telemetry parsing schemas, implemented Isolation Forest models for ML detection, and wrote statutory safety check scripts.'
+              alias: 'Anisha Paturi',
+              role: 'https://github.com/AnishaPaturi',
+              // desc: 'Built the Pydantic telemetry parsing schemas, implemented Isolation Forest models for ML detection, and wrote statutory safety check scripts.'
             },
             {
-              alias: 'Person B',
-              role: 'Geospatial Plant Layout & Routing Engine',
-              desc: 'Designed the SVG plant coordinate map layouts, topology graphs, continuous GPS simulators, and evacuation siren dispatch channels.'
+              alias: 'Vahini Chilukamarri',
+              role: 'https://github.com/vahinichilukamarri',
+              // desc: 'Designed the SVG plant coordinate map layouts, topology graphs, continuous GPS simulators, and evacuation siren dispatch channels.'
             },
             {
-              alias: 'Person C',
-              role: 'Incident RAG Agent & Document Search',
-              desc: 'Engineered the local document vector search index, custom TF-IDF parser, and hooked in OpenRouter API calls for explainable AI summaries.'
+              alias: 'Parinamika Bhanu',
+              role: 'https://github.com/Parinamika-13',
+              // desc: 'Engineered the local document vector search index, custom TF-IDF parser, and hooked in OpenRouter API calls for explainable AI summaries.'
             },
             {
-              alias: 'Person D',
-              role: 'Permit Intelligence & Core Pipeline Integration',
-              desc: 'Coded digital permit conflict checks, merged the 4 agents into the primary pipeline thread, and configured Next.js WebSocket streams.'
+              alias: 'Sravani Janak',
+              role: 'https://github.com/SSJ-08',
+              // desc: 'Coded digital permit conflict checks, merged the 4 agents into the primary pipeline thread, and configured Next.js WebSocket streams.'
             }
           ].map((member, index) => (
             <div 
@@ -787,7 +787,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <h4 className="text-xs font-bold text-slate-200 mb-2 leading-snug">{member.role}</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">{member.desc}</p>
+                {/* <p className="text-[11px] text-slate-400 leading-relaxed">{member.desc}</p> */}
               </div>
             </div>
           ))}
