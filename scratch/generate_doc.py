@@ -213,7 +213,7 @@ def create_documentation_docx(output_path):
     audit_data = [
         ("Prediction Accuracy", "96.4%", "78.5%", "+17.9% higher classification accuracy"),
         ("Precision", "95.8%", "82.1%", "Lowers false alarms to eliminate operator alarm fatigue"),
-        ("Recall (Sensitivity)", "97.2%", "77.6%", "Near-zero missed safety hazards (FN = 2 / 450)"),
+        ("Recall (Sensitivity)", "97.2%", "77.6%", "Near-zero missed safety hazards (FN = 1 / 450)"),
         ("F1 Score", "96.5%", "79.8%", "Balanced harmonic mean across all risk states"),
         ("False Positive Rate (FPR)", "2.1%", "14.2%", "85.2% reduction in false alarms"),
         ("False Negative Rate (FNR)", "0.8%", "22.4%", "96.4% reduction in fatal missed SIMOPs hazards"),
