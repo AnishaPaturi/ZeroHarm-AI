@@ -523,49 +523,76 @@ export interface ExecutiveReport {
   description: string;
 }
 
-// 1. Safety Index (0-100) calculated from active parameters
+// 1. Safety Index (0-100) calculated with a 50% threshold baseline and 2% step adjustments
 export const selectPlantSafetyRating = (state: IncidentStore): number => {
-  let score = 100;
+  const SAFETY_THRESHOLD = 50; // 50% Statutory Safety Threshold
+  let totalDeduction = 0;
 
-  // Penalize open incidents
+  // Deduction 1: Gas LEL Flammability (> 0% LEL) - 2% per 1% LEL
+  if (state.telemetry.gasLpgLEL > 0) {
+    totalDeduction += Math.ceil(state.telemetry.gasLpgLEL) * 2;
+  }
+
+  // Deduction 2: Pipeline Pressure (> 1.0 bar) - 2% per 0.1 bar
+  if (state.telemetry.segmentDPressure > 1.0) {
+    totalDeduction += Math.ceil((state.telemetry.segmentDPressure - 1.0) * 10) * 2;
+  }
+
+  // Deduction 3: Temperature (> 30°C) - 2% per 5°C
+  if (state.telemetry.temperature > 30) {
+    totalDeduction += Math.ceil((state.telemetry.temperature - 30) / 5) * 2;
+  }
+
+  // Deduction 4: Active Alerts (2% to 8% per alert)
+  state.alerts.forEach(alert => {
+    if (alert.severity === 'Critical') totalDeduction += 8;
+    else if (alert.severity === 'Warning') totalDeduction += 4;
+    else totalDeduction += 2;
+  });
+
+  // Deduction 5: Open Incidents (2% to 16% per incident)
   const openIncidents = state.incidents.filter(i => i.status !== 'Resolved');
   openIncidents.forEach(inc => {
-    if (inc.severity === 'Critical') score -= 15;
-    else if (inc.severity === 'High') score -= 10;
-    else if (inc.severity === 'Medium') score -= 5;
-    else score -= 2;
+    if (inc.severity === 'Critical') totalDeduction += 16;
+    else if (inc.severity === 'High') totalDeduction += 10;
+    else if (inc.severity === 'Medium') totalDeduction += 6;
+    else totalDeduction += 2;
   });
 
-  // Penalize active alerts
-  state.alerts.forEach(alert => {
-    if (alert.severity === 'Critical') score -= 8;
-    else if (alert.severity === 'Warning') score -= 4;
-    else score -= 1;
-  });
+  // Deduction 6: Worker PPE Violations (2% per non-compliant worker)
+  const activePPEBreaches = state.workers.filter(w => w.ppeOk === false).length;
+  totalDeduction += activePPEBreaches * 2;
 
-  // Penalize high gas LEL
-  if (state.telemetry.gasLpgLEL > 10) {
-    score -= (state.telemetry.gasLpgLEL - 10) * 1.5;
+  // Deduction 7: Statutory Audit Findings (2% per failing checklist item)
+  const nonCompliantChecklists = state.complianceRecords.reduce(
+    (acc, r) => acc + (r.criticalFindingsCount || 0), 0
+  );
+  totalDeduction += nonCompliantChecklists * 2;
+
+  // Calculate score starting from 100%
+  let score = 100 - totalDeduction;
+
+  // Rule: Once risk deductions push score past the 50% threshold limit, decrease an extra 2% per step
+  if (score < SAFETY_THRESHOLD) {
+    const breachAmount = SAFETY_THRESHOLD - score;
+    score = SAFETY_THRESHOLD - (breachAmount * 2);
   }
 
-  // Penalize high pressure
-  if (state.telemetry.segmentDPressure > 11.5) {
-    score -= (state.telemetry.segmentDPressure - 11.5) * 8;
+  // Nominal baseline micro-fluctuation (96% - 98%) so index is not frozen at 100%
+  if (score >= 100) {
+    const nowSec = typeof window !== 'undefined' ? Math.floor(Date.now() / 1000) : 0;
+    score = 98 - (nowSec % 3);
   }
 
-  // Penalize active PPE violations
-  const activePPEBreaches = state.workers.filter(w => !w.ppeOk).length;
-  score -= activePPEBreaches * 5;
-
-  return Math.max(10, Math.min(100, Math.round(score)));
+  return Math.max(5, Math.min(100, Math.round(score)));
 };
 
-// 2. Derived Overall Risk Categorization
+// 2. Derived Overall Risk Categorization anchored around the 50% threshold
 export const selectOverallRisk = (state: IncidentStore): 'Low' | 'Medium' | 'High' | 'Critical' => {
   const rating = selectPlantSafetyRating(state);
-  if (rating >= 90) return 'Low';
-  if (rating >= 75) return 'Medium';
-  if (rating >= 60) return 'High';
+  if (rating >= 75) return 'Low';
+  if (rating >= 50) return 'Medium';
+  if (rating >= 30) return 'High';
   return 'Critical';
 };
 

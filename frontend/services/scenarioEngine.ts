@@ -116,7 +116,7 @@ class ScenarioEngine {
         }, 1500);
       }
 
-      // Start continuous backend ticking to simulate live fluctuations and worker movements
+      // Start continuous backend ticking to simulate live fluctuations and worker movements (30 sec interval)
       this.activeInterval = setInterval(async () => {
         if (this.isPaused) return;
         try {
@@ -124,7 +124,7 @@ class ScenarioEngine {
         } catch (err) {
           console.warn('Backend simulation tick failed:', err);
         }
-      }, 60000);
+      }, 30000);
 
 
       this.addLogToConsole(`Backend scenario ${type} running.`);
