@@ -11,7 +11,7 @@ import UploadBox from '../../component/UploadBox';
 import Modal from '../../component/Modal';
 import { eventBus } from '../../lib/eventBus';
 import { incidentService } from '../../services/incident';
-import { fetchBackend } from '../../services/api';
+import { fetchBackend, API_BASE_URL } from '../../services/api';
 import { 
   Plus, 
   Search, 
@@ -77,7 +77,7 @@ export default function IncidentsPage() {
       addIncident(backendReport);
       if(backendReport.status!=="Resolved"){
         try{
-            await fetch("http://localhost:8000/api/notifications", {
+            await fetch(`${API_BASE_URL}/api/notifications`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

@@ -1,10 +1,11 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined'
-  ? `${window.location.protocol}//${window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname}:8000`
-  : 'http://127.0.0.1:8000');
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-export const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || (typeof window !== 'undefined'
-  ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname === 'localhost' ? '127.0.0.1' : window.location.hostname}:8000`
-  : 'ws://127.0.0.1:8000');
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (isLocalhost ? `${window.location.protocol}//127.0.0.1:8000` : 'https://zeroharm-ai-77m2.onrender.com');
+
+export const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 
+  (isLocalhost ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//127.0.0.1:8000` : 'wss://zeroharm-ai-77m2.onrender.com');
 
 export async function fetchBackend<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;

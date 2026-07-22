@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../../services/api';
 
 export default function CompliancePage() {
   const { addToast } = useNotifications();
