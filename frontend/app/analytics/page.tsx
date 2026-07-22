@@ -229,7 +229,7 @@ export default function AnalyticsPage() {
 
           <div className="border-t border-white/5 pt-4 mt-6 flex justify-between items-center text-xs">
             <span className="text-slate-400 font-mono text-[10px]">CURRENT SAFETY INDEX:</span>
-            <span className={`font-bold px-2 py-0.5 rounded ${safetyRating >= 90 ? 'text-green-400 bg-green-500/10 border border-green-500/20' : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'}`}>
+            <span suppressHydrationWarning className={`font-bold px-2 py-0.5 rounded ${safetyRating >= 90 ? 'text-green-400 bg-green-500/10 border border-green-500/20' : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'}`}>
               {safetyRating}% Score
             </span>
           </div>

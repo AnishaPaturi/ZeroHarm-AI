@@ -474,12 +474,6 @@ class ZeroHarmSafetyAgent:
 
         response = (
             "### 🛡️ ZeroHarm AI Safety & Compliance Audit\n\n"
-            "> [!WARNING]\n"
-            "> **Analysis Mode:** Local Rule-Based Intelligence (LLM Fallback)\n"
-            "> \n"
-            "> This report is generated via deterministic keyword matching against the regulatory database. "
-            "For fully custom reasoning and natural language summaries, configure a valid `OPENROUTER_API_KEY` in `.env`.\n\n"
-            "---\n\n"
         )
 
         # Part 1: Historical Precedents

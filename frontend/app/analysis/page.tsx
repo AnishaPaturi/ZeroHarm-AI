@@ -195,11 +195,11 @@ export default function AnalysisPage() {
         <div className="flex gap-4 flex-shrink-0 self-end md:self-auto border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
           <div className="text-right">
             <span className="text-[9px] text-slate-500 font-mono block">COMPOUND INDEX</span>
-            <span className="text-lg font-bold text-white block mt-0.5">{100 - safetyRating}% Risk</span>
+            <span suppressHydrationWarning className="text-lg font-bold text-white block mt-0.5">{100 - safetyRating}% Risk</span>
           </div>
           <div className="text-right border-l border-white/5 pl-4">
             <span className="text-[9px] text-slate-500 font-mono block">RAG STATUS</span>
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border block mt-1 ${getSeverityColor(overallRisk)}`}>
+            <span suppressHydrationWarning className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border block mt-1 ${getSeverityColor(overallRisk)}`}>
               {overallRisk}
             </span>
           </div>

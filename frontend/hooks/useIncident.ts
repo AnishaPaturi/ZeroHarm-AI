@@ -566,10 +566,7 @@ export const selectPlantSafetyRating = (state: IncidentStore): number => {
   totalDeduction += activePPEBreaches * 2;
 
   // Calculate score starting from 98% nominal baseline
-  const nowSec = typeof window !== 'undefined' ? Math.floor(Date.now() / 1000) : 0;
-  const nominalBaseline = 98 - (nowSec % 3); // 96% - 98% dynamic baseline
-
-  let score = nominalBaseline - totalDeduction;
+  let score = 98 - totalDeduction;
 
   // Rule: Once risk deductions push score past the 50% threshold limit, decrease an extra 2% per step
   if (score < SAFETY_THRESHOLD) {

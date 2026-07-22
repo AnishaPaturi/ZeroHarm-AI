@@ -183,7 +183,7 @@ export default function Dashboard() {
             overallRisk === 'High' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
             'bg-red-500/10 border-red-500/20 text-red-400'
           }`}>
-            <span>OVERALL RISK: {overallRisk.toUpperCase()}</span>
+            <span suppressHydrationWarning>OVERALL RISK: {overallRisk.toUpperCase()}</span>
           </div>
         </div>
       </div>
@@ -203,7 +203,7 @@ export default function Dashboard() {
                 <span className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">{kpi.label}</span>
                 <Icon className={`w-4 h-4 ${kpi.color}`} />
               </div>
-              <h2 className="font-heading text-2xl font-bold text-white tracking-tight">
+              <h2 suppressHydrationWarning className="font-heading text-2xl font-bold text-white tracking-tight">
                 {kpi.val}
               </h2>
             </div>
