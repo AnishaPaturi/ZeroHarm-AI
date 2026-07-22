@@ -301,87 +301,41 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       flushNumList(i);
     }
 
-    // Header 1
-    if (line.startsWith('# ')) {
+    // Header matching (handles `# `, `## `, `### `, etc. or unspaced `#Heading`)
+    const headerMatch = line.match(/^(#{1,6})\s*(.*)$/);
+    if (headerMatch) {
       flushList(i);
       flushNumList(i);
       flushTable(i);
       flushQuote(i);
-      elements.push(
-        <h1 key={i} className="font-heading text-lg font-bold text-white mt-6 mb-3 pb-1 border-b border-white/10 flex items-center gap-1.5">
-          {parseInline(line.slice(2))}
-        </h1>
-      );
-      continue;
-    }
+      const level = headerMatch[1].length;
+      const cleanHeaderTitle = headerMatch[2].replace(/^#{1,6}\s*/, '').trim();
 
-    // Header 2
-    if (line.startsWith('## ')) {
-      flushList(i);
-      flushNumList(i);
-      flushTable(i);
-      flushQuote(i);
-      elements.push(
-        <h2 key={i} className="font-heading text-base font-bold text-white mt-5 mb-2.5 pb-1 border-b border-white/5 flex items-center gap-1.5">
-          {parseInline(line.slice(3))}
-        </h2>
-      );
-      continue;
-    }
-
-    // Header 3
-    if (line.startsWith('### ')) {
-      flushList(i);
-      flushNumList(i);
-      flushTable(i);
-      flushQuote(i);
-      elements.push(
-        <h3 key={i} className="font-heading text-sm font-bold text-white mt-4 mb-2 pb-1 border-b border-white/5 flex items-center gap-1.5">
-          {parseInline(line.slice(4))}
-        </h3>
-      );
-      continue;
-    }
-
-    // Header 4
-    if (line.startsWith('#### ')) {
-      flushList(i);
-      flushNumList(i);
-      flushTable(i);
-      flushQuote(i);
-      elements.push(
-        <h4 key={i} className="font-heading text-xs font-semibold text-slate-200 mt-3 mb-1.5">
-          {parseInline(line.slice(5))}
-        </h4>
-      );
-      continue;
-    }
-
-    // Header 5
-    if (line.startsWith('##### ')) {
-      flushList(i);
-      flushNumList(i);
-      flushTable(i);
-      flushQuote(i);
-      elements.push(
-        <h5 key={i} className="font-heading text-[11px] font-semibold text-slate-300 mt-2.5 mb-1">
-          {parseInline(line.slice(6))}
-        </h5>
-      );
-      continue;
-    }
-
-    // Header 6
-    if (line.startsWith('###### ')) {
-      flushList(i);
-      flushNumList(i);
-      flushTable(i);
-      flushQuote(i);
-      elements.push(
-        <h6 key={i} className="font-heading text-[10px] font-semibold text-slate-400 mt-2 mb-1 uppercase tracking-wider">
-          {parseInline(line.slice(7))}
-        </h6>
-      );
+      if (level === 1) {
+        elements.push(
+          <h1 key={i} className="font-heading text-lg font-bold text-white mt-6 mb-3 pb-1 border-b border-white/10 flex items-center gap-1.5">
+            {parseInline(cleanHeaderTitle)}
+          </h1>
+        );
+      } else if (level === 2) {
+        elements.push(
+          <h2 key={i} className="font-heading text-base font-bold text-white mt-5 mb-2.5 pb-1 border-b border-white/5 flex items-center gap-1.5">
+            {parseInline(cleanHeaderTitle)}
+          </h2>
+        );
+      } else if (level === 3) {
+        elements.push(
+          <h3 key={i} className="font-heading text-sm font-bold text-white mt-4 mb-2 pb-1 border-b border-white/5 flex items-center gap-1.5">
+            {parseInline(cleanHeaderTitle)}
+          </h3>
+        );
+      } else {
+        elements.push(
+          <h4 key={i} className="font-heading text-xs font-semibold text-slate-200 mt-3 mb-1.5">
+            {parseInline(cleanHeaderTitle)}
+          </h4>
+        );
+      }
       continue;
     }
 
@@ -404,14 +358,15 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       continue;
     }
 
-    // Normal paragraph
+    // Normal paragraph (strip any unparsed leading hashes)
     flushList(i);
     flushNumList(i);
     flushTable(i);
     flushQuote(i);
+    const cleanParagraphText = line.replace(/^#{1,6}\s*/, '');
     elements.push(
       <p key={i} className="text-xs text-slate-300 leading-relaxed mb-3">
-        {parseInline(line)}
+        {parseInline(cleanParagraphText)}
       </p>
     );
   }
