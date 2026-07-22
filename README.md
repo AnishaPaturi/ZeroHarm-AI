@@ -86,7 +86,7 @@ While standard hackathon entries stop at "combining dashboard components", ZeroH
 
 ### 7. ⚖️ Explainable AI (XAI) Factor Attribution (`rules.py` & `RiskGauge.tsx`)
 * **What We Invented**: Blends deterministic compliance rules ($60\%$) with dual ML models (Random Forest + Isolation Forest $40\%$) to produce a fully transparent risk score with exact percentage factor attributions and confidence metrics ($94.2\%$ confidence).
-* **Key Differentiator**: Completely eliminates the "black box AI" problem for plant safety auditors.
+* **Key Differentiator**: Improves interpretability by exposing confidence scores, contributing factors, and explicit reasoning behind every prediction.
 
 ### 8. 🔍 Automated Counterfactual Prevention Prioritizer (`agent.py`)
 * **What We Invented**: Uses vector RAG over OISD-STD-105, OISD-GDN-137, and Section 36 of the Factories Act 1948 to analyze past near-misses and answer: *"What single statutory control would have prevented this near-miss from escalating?"*

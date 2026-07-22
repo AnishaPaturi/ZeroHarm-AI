@@ -178,7 +178,7 @@ def create_documentation_docx(output_path):
         ("3-Round Multi-Agent Debate Engine (collaborative_reasoning.py)", "Surfaces domain agent disagreements (Gas, Permit, CCTV, Weather, Maintenance) before synthesizing consensus."),
         ("Counterfactual What-If Safety Simulator (ScenarioConsole.tsx)", "Simulates real-time parameter changes without risking live assets."),
         ("Causality Root Cause Graph Generation (knowledge_graph.py)", "Traces causality across Worker -> Permit -> Zone -> Asset -> Sensor."),
-        ("Explainable AI (XAI) Factor Attribution (rules.py)", "Blends 60% deterministic compliance rules + 40% ML models with exact factor weight percentages."),
+        ("Explainable AI (XAI) Factor Attribution (rules.py)", "Improves interpretability by exposing confidence scores, contributing factors, and explicit reasoning behind every prediction."),
         ("Automated Counterfactual Prevention Prioritizer (agent.py)", "Queries vector RAG over OISD / Factories Act to determine the single statutory control that prevents escalation."),
         ("2D Spatial Digital Twin & Autonomous Drone Sweep (digital-twin/page.tsx)", "Renders interactive 2D plant twin with gas cloud physics and autonomous drone aerial sniffer payloads.")
     ]
