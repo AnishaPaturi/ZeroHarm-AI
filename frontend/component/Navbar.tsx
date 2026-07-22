@@ -216,6 +216,7 @@ useEffect(() => {
 
                   <button
                     onClick={() => {
+                      sessionStorage.setItem("loggedOut","true");
                       logout();
                       router.push("/");
                     }}
