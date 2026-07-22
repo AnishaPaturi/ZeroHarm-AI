@@ -56,44 +56,53 @@ ZeroHarm AI focuses on a streamlined, production-proven architecture centered ar
 
 ---
 
-## 💡 What We Invented: The 9 Breakthrough Innovations That Set ZeroHarm AI Apart
+## 💡 Key Technical Innovations & Capabilities Developed for ZeroHarm AI
 
-While standard hackathon entries stop at "combining dashboard components", ZeroHarm AI invents **9 proprietary, production-grade safety algorithms and agent paradigms** that solve fundamental limitations in industrial safety intelligence:
+ZeroHarm AI introduces **nine novel AI-driven safety capabilities developed for ZeroHarm AI** that address critical operational bottlenecks in industrial safety intelligence:
 
 ### 1. 🧠 Adaptive Learning Risk Memory (`learning_risk_memory.py`)
-* **What We Invented**: Industrial facilities suffer from recurrent "hidden biases" (e.g., Monday morning startup surges, Friday handover rushes, night-shift fatigue). Instead of static risk rules, ZeroHarm AI implements an **adaptive learning weight matrix** ($W_{\text{zone}}$) that automatically adjusts baseline sensitivity multipliers whenever a near-miss or anomaly occurs in a specific zone.
+* **Capability Overview**: Industrial facilities suffer from recurrent "hidden biases" (e.g., Monday morning startup surges, Friday handover rushes, night-shift fatigue). Instead of static risk rules, ZeroHarm AI implements an **adaptive learning weight matrix** ($W_{\text{zone}}$) that automatically adjusts baseline sensitivity multipliers whenever a near-miss or anomaly occurs in a specific zone.
+* **Why Existing Systems Can't Do This**: Traditional safety systems treat every plant zone with static, hardcoded thresholds regardless of historical incident trends, whereas ZeroHarm AI dynamically updates spatial risk multipliers ($\Delta W_{\text{zone}}$) based on past near-misses and shift handover surges.
 * **Key Differentiator**: The system gets progressively smarter and more sensitive to specific zone vulnerabilities over time.
 
 ### 2. 🔮 Predictive 15m / 30m / 60m Risk Trajectory (`predictive_timeline.py`)
-* **What We Invented**: Most safety systems flag an alarm only *after* gas limits or thresholds are breached. ZeroHarm AI computes continuous rate-of-change derivatives ($\frac{d\text{CO}}{dt}, \frac{d\text{Pressure}}{dt}$) to project the exact safety score trajectory 15, 30, and 60 minutes into the future.
+* **Capability Overview**: Most safety systems flag an alarm only *after* gas limits or thresholds are breached. ZeroHarm AI computes continuous rate-of-change derivatives ($\frac{d\text{CO}}{dt}, \frac{d\text{Pressure}}{dt}$) to project the exact safety score trajectory 15, 30, and 60 minutes into the future.
+* **Why Existing Systems Can't Do This**: Traditional SCADA systems trigger alarms only after static gas thresholds are crossed, whereas ZeroHarm AI predicts risk trajectories 15–60 minutes in advance by combining rate-of-change trend analysis with contextual operational permit data.
 * **Key Differentiator**: Allows safety officers to intervene **before** gas concentrations reach dangerous lower explosive limits (LEL).
 
 ### 3. 🗺️ Dynamic Plume & AI-Generated Evacuation Simulation (`evacuation.py`)
-* **What We Invented**: Static evacuation signs fail during chemical gas leaks because toxic plumes drift with atmospheric wind vectors. ZeroHarm AI combines micro-climate wind direction ($v_w, \theta_w$) with plant spatial polygons to dynamically calculate safe, plume-avoiding worker evacuation corridors in real time.
+* **Capability Overview**: Static evacuation signs fail during chemical gas leaks because toxic plumes drift with atmospheric wind vectors. ZeroHarm AI combines micro-climate wind direction ($v_w, \theta_w$) with plant spatial polygons to dynamically calculate safe, plume-avoiding worker evacuation corridors in real time.
+* **Why Existing Systems Can't Do This**: Conventional plant evacuation plans rely on static emergency exit signs that may route workers directly into toxic gas plumes, whereas ZeroHarm AI fuses micro-climate wind vector velocity with plant spatial polygons to dynamically calculate safe escape paths.
 * **Key Differentiator**: Calculates real-time escape paths away from moving gas clouds rather than blindly routing workers toward fixed exits.
 
 ### 4. 🗣️ Agent Disagreement & Multi-Agent Debate Engine (`collaborative_reasoning.py`)
-* **What We Invented**: Rather than relying on a single LLM or prompt, ZeroHarm AI simulates a human safety committee using a **3-Round Collaborative Debate Protocol** where 6 specialized domain agents (Gas Telemetry, Maintenance, Permit Compliance, Weather, CCTV, and Safety Coordinator) challenge each other's assumptions and surface domain conflicts before synthesizing a consensus mandate.
-* **Key Differentiator**: Surfaces agent disagreements, sentiment shifts, and conflicting operational priorities in a transparent debate transcript.
+* **Capability Overview**: Rather than relying on a single LLM or prompt, ZeroHarm AI simulates a human safety committee using a **3-Round Collaborative Debate Protocol** where 6 specialized domain agents (Gas Telemetry, Maintenance, Permit Compliance, Weather, CCTV, and Safety Coordinator) challenge each other's assumptions and surface domain conflicts before synthesizing a consensus mandate.
+* **Why Existing Systems Can't Do This**: Single-prompt LLMs and monolithic dashboards suffer from hallucinations or uncoordinated alerts, whereas ZeroHarm AI uses a 3-round debate protocol where domain agents challenge assumptions before issuing a verified consensus mandate.
+* **Key Differentiator**: Solves single-agent hallucinations by requiring multi-agent consensus before raising sirens or revoking permits.
 
 ### 5. 🎛️ Counterfactual "What-If" Safety Simulator (`ScenarioConsole.tsx` / `analysis/page.tsx`)
-* **What We Invented**: Allows plant managers to execute interactive counterfactual queries: *"What if we increase CH4 by 2% while Hot Work Permit PTW-202 is active in stagnant wind?"*
-* **Key Differentiator**: Enables real-time simulation of high-risk scenarios without placing physical assets or human lives at risk.
+* **Capability Overview**: Allows plant managers to execute interactive counterfactual queries: *"What if we increase CH4 by 2% while Hot Work Permit PTW-202 is active in stagnant wind?"*
+* **Why Existing Systems Can't Do This**: Standard safety tools can only process live operational data after events occur, whereas ZeroHarm AI allows safety engineers to simulate hypothetical parameter changes (e.g. gas surges during active hot work) without placing live personnel at risk.
+* **Key Differentiator**: Enables proactive safety testing and scenario drills without placing live assets or personnel at risk.
 
 ### 6. 🕸️ Causality Root Cause Graph Generation (`knowledge_graph.py`)
-* **What We Invented**: Uses Neo4j and NetworkX process graphs to dynamically trace dependencies across `Worker` $\rightarrow$ `Permit` $\rightarrow$ `Zone` $\rightarrow$ `Equipment Asset` $\rightarrow$ `IoT Sensor`.
+* **Capability Overview**: Uses Neo4j and NetworkX process graphs to dynamically trace dependencies across `Worker` $\rightarrow$ `Permit` $\rightarrow$ `Zone` $\rightarrow$ `Equipment Asset` $\rightarrow$ `IoT Sensor`.
+* **Why Existing Systems Can't Do This**: Isolated relational databases store telemetry, worker logs, and permits in separate silos, whereas ZeroHarm AI connects these entities into a unified graph ontology to instantly pinpoint single points of failure.
 * **Key Differentiator**: Instantly pinpoints the exact single-point-of-failure or missing permit isolation step driving an incident.
 
 ### 7. ⚖️ Explainable AI (XAI) Factor Attribution (`rules.py` & `RiskGauge.tsx`)
-* **What We Invented**: Blends deterministic compliance rules ($60\%$) with dual ML models (Random Forest + Isolation Forest $40\%$) to produce a fully transparent risk score with exact percentage factor attributions and confidence metrics ($94.2\%$ confidence).
+* **Capability Overview**: Blends deterministic compliance rules ($60\%$) with dual ML models (Random Forest + Isolation Forest $40\%$) to produce a fully transparent risk score with exact percentage factor attributions and confidence metrics ($94.2\%$ confidence).
+* **Why Existing Systems Can't Do This**: Standard machine learning models operate as opaque "black boxes" returning arbitrary risk numbers, whereas ZeroHarm AI outputs transparent factor attributions and confidence scores for plant safety auditors.
 * **Key Differentiator**: Improves interpretability by exposing confidence scores, contributing factors, and explicit reasoning behind every prediction.
 
 ### 8. 🔍 Automated Counterfactual Prevention Prioritizer (`agent.py`)
-* **What We Invented**: Uses vector RAG over OISD-STD-105, OISD-GDN-137, and Section 36 of the Factories Act 1948 to analyze past near-misses and answer: *"What single statutory control would have prevented this near-miss from escalating?"*
+* **Capability Overview**: Uses vector RAG over OISD-STD-105, OISD-GDN-137, and Section 36 of the Factories Act 1948 to analyze past near-misses and answer: *"What single statutory control would have prevented this near-miss from escalating?"*
+* **Why Existing Systems Can't Do This**: Post-incident compliance audits require safety teams to manually comb through hundreds of pages of paper regulations, whereas ZeroHarm AI executes vector RAG over OISD and Factories Act standards to automatically surface the single statutory control that prevents escalation.
 * **Key Differentiator**: Generates legally binding, actionable prevention checklists mapped to statutory standards.
 
 ### 9. 🤖 2D Spatial Digital Twin & Autonomous Drone Payload Sweep (`digital-twin/page.tsx` & `drone.py`)
-* **What We Invented**: Interactive 2D vector plant layout canvas with live worker telemetry, gas cloud physics, real-time zone risk overlay, and autonomous drone flight paths that return aerial worker counts, thermal max temperatures, and CH4 sniffer payloads.
+* **Capability Overview**: Interactive 2D vector plant layout canvas with live worker telemetry, gas cloud physics, real-time zone risk overlay, and autonomous drone flight paths that return aerial worker counts, thermal max temperatures, and CH4 sniffer payloads.
+* **Why Existing Systems Can't Do This**: Industrial command centers traditionally monitor disconnected 2D charts and static CCTV monitors, whereas ZeroHarm AI renders an interactive 2D spatial canvas with gas cloud physics overlay and autonomous aerial drone sniffer payloads.
 * **Key Differentiator**: Gives safety command centers total 3D/2D situational awareness across heavy industrial facilities.
 
 ---

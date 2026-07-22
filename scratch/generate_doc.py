@@ -172,15 +172,24 @@ def create_documentation_docx(output_path):
     # 4. The 9 Breakthrough Innovations
     add_h1("4. The 9 Breakthrough Innovations")
     innovations = [
-        ("Adaptive Learning Risk Memory (learning_risk_memory.py)", "Learns zone vulnerability biases dynamically over time based on historical near misses."),
-        ("Predictive Safety Score Trajectory (predictive_timeline.py)", "Computes rate-of-change derivatives (dCO/dt, dPressure/dt) to forecast 15m/30m/60m safety risk scores."),
-        ("AI-Generated Evacuation Simulations (evacuation.py)", "Models wind vector gas plume dispersion to plot dynamic escape paths."),
-        ("3-Round Multi-Agent Debate Engine (collaborative_reasoning.py)", "Surfaces domain agent disagreements (Gas, Permit, CCTV, Weather, Maintenance) before synthesizing consensus."),
-        ("Counterfactual What-If Safety Simulator (ScenarioConsole.tsx)", "Simulates real-time parameter changes without risking live assets."),
-        ("Causality Root Cause Graph Generation (knowledge_graph.py)", "Traces causality across Worker -> Permit -> Zone -> Asset -> Sensor."),
-        ("Explainable AI (XAI) Factor Attribution (rules.py)", "Improves interpretability by exposing confidence scores, contributing factors, and explicit reasoning behind every prediction."),
-        ("Automated Counterfactual Prevention Prioritizer (agent.py)", "Queries vector RAG over OISD / Factories Act to determine the single statutory control that prevents escalation."),
-        ("2D Spatial Digital Twin & Autonomous Drone Sweep (digital-twin/page.tsx)", "Renders interactive 2D plant twin with gas cloud physics and autonomous drone aerial sniffer payloads.")
+        ("Adaptive Learning Risk Memory (learning_risk_memory.py)",
+         "Learns zone vulnerability biases dynamically over time based on historical near misses. [Why Existing Systems Can't Do This: Traditional safety systems treat every zone with static, hardcoded thresholds regardless of historical incident trends, whereas ZeroHarm AI dynamically updates spatial risk multipliers (delta W_zone) based on past near-misses.]"),
+        ("Predictive Safety Score Trajectory (predictive_timeline.py)",
+         "Computes rate-of-change derivatives (dCO/dt, dPressure/dt) to forecast 15m/30m/60m safety risk scores. [Why Existing Systems Can't Do This: Traditional SCADA systems trigger alarms only after static gas thresholds are crossed, whereas ZeroHarm AI predicts risk trajectories 15-60 minutes in advance by combining rate-of-change trend analysis with contextual operational permit data.]"),
+        ("AI-Generated Evacuation Simulations (evacuation.py)",
+         "Models wind vector gas plume dispersion to plot dynamic escape paths. [Why Existing Systems Can't Do This: Conventional plant evacuation plans rely on static emergency exit signs that may route workers directly into toxic gas plumes, whereas ZeroHarm AI fuses micro-climate wind vector velocity with plant spatial polygons.]"),
+        ("3-Round Multi-Agent Debate Engine (collaborative_reasoning.py)",
+         "Surfaces domain agent disagreements (Gas, Permit, CCTV, Weather, Maintenance) before synthesizing consensus. [Why Existing Systems Can't Do This: Single-prompt LLMs and monolithic dashboards suffer from hallucinations or uncoordinated alerts, whereas ZeroHarm AI uses a 3-round debate protocol where domain agents challenge assumptions.]"),
+        ("Counterfactual What-If Safety Simulator (ScenarioConsole.tsx)",
+         "Simulates real-time parameter changes without risking live assets. [Why Existing Systems Can't Do This: Standard safety tools can only process live operational data after events occur, whereas ZeroHarm AI allows safety engineers to simulate hypothetical parameter changes without placing live personnel at risk.]"),
+        ("Causality Root Cause Graph Generation (knowledge_graph.py)",
+         "Traces causality across Worker -> Permit -> Zone -> Asset -> Sensor. [Why Existing Systems Can't Do This: Isolated relational databases store telemetry, worker logs, and permits in separate silos, whereas ZeroHarm AI connects these entities into a unified graph ontology.]"),
+        ("Explainable AI (XAI) Factor Attribution (rules.py)",
+         "Improves interpretability by exposing confidence scores, contributing factors, and explicit reasoning behind every prediction. [Why Existing Systems Can't Do This: Standard machine learning models operate as opaque 'black boxes' returning arbitrary risk numbers, whereas ZeroHarm AI outputs transparent factor attributions and confidence scores.]"),
+        ("Automated Counterfactual Prevention Prioritizer (agent.py)",
+         "Queries vector RAG over OISD / Factories Act to determine the single statutory control that prevents escalation. [Why Existing Systems Can't Do This: Post-incident compliance audits require safety teams to manually comb through hundreds of pages of paper regulations, whereas ZeroHarm AI executes vector RAG over OISD and Factories Act standards.]"),
+        ("2D Spatial Digital Twin & Autonomous Drone Sweep (digital-twin/page.tsx)",
+         "Renders interactive 2D plant twin with gas cloud physics and autonomous drone aerial sniffer payloads. [Why Existing Systems Can't Do This: Industrial command centers traditionally monitor disconnected 2D charts and static CCTV monitors, whereas ZeroHarm AI renders an interactive 2D spatial canvas with gas cloud physics.]")
     ]
     for name, desc in innovations:
         add_bullet(f": {desc}", name)
