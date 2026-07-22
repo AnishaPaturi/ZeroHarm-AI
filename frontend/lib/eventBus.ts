@@ -17,6 +17,7 @@ export type AppEvent =
   | { type: 'EmergencyCleared'; payload: {} }
   | { type: 'AlertAcknowledged'; payload: { alertId: string } }
   | { type: 'ComplianceChecklistToggled'; payload: { recordId: string; itemId: string; checked: boolean } }
+  | { type: 'NotificationCreated'; payload: {} }
   | { type: 'SimulationReset'; payload: {} };
 
 type Subscriber = (event: AppEvent) => void;

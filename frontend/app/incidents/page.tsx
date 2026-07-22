@@ -75,6 +75,26 @@ export default function IncidentsPage() {
       });
 
       addIncident(backendReport);
+      if(backendReport.status!=="Resolved"){
+        try{
+            await fetch("http://localhost:8000/api/notifications", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                title: backendReport.title,
+                message: backendReport.severity,
+                category: "incident",
+                severity: backendReport.severity.toLowerCase(),
+              }),
+            });
+        }
+        catch(err){
+        console.error("Failed to send incident notification",err);
+      }
+      }
+      
       
       eventBus.publish({
         type: 'IncidentCreated',
