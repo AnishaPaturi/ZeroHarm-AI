@@ -287,42 +287,10 @@ export default function ShiftHandover() {
       return;
     }
 
-    const permitsRows = data.active_permits?.length
-      ? data.active_permits.map((p: any) => `
-        <tr>
-          <td>${p.permit_id}</td>
-          <td style="text-transform: uppercase;">${p.permit_type?.replace('_', ' ')}</td>
-          <td>${p.zone}</td>
-          <td>${p.workers}</td>
-        </tr>
-      `).join('')
-      : '<tr><td colspan="4" style="text-align: center; color: #64748b;">No active work permits at shift boundary.</td></tr>';
-
-    const maintenanceRows = data.ongoing_maintenance?.length
-      ? data.ongoing_maintenance.map((m: any) => `
-        <tr>
-          <td>${m.equipment}</td>
-          <td>${m.zone}</td>
-          <td>${m.status}</td>
-        </tr>
-      `).join('')
-      : '<tr><td colspan="3" style="text-align: center; color: #64748b;">All machinery operating online. No LOTO tags active.</td></tr>';
-
-    const gasAlertsContent = data.gas_alerts?.length
-      ? data.gas_alerts.map((a: string) => `<li style="color: #b91c1c; font-weight: bold; margin-bottom: 4px;">❌ ${a}</li>`).join('')
-      : '<li style="color: #15803d; list-style-type: none;">✔️ All gas sensor readings within safe statutory thresholds.</li>';
-
-    const riskZonesContent = data.high_risk_zones?.length
-      ? data.high_risk_zones.map((hz: any) => `<li>⚠️ <strong>${hz.zone}</strong>: Composite Risk ${hz.risk_score}% (${hz.risk_level})</li>`).join('')
-      : '<li style="list-style-type: none;">✔️ No critical risk zones active. Plant operating within safe parameters.</li>';
-
-    const recommendationsContent = data.recommendations?.length
-      ? data.recommendations.map((rec: string) => `<li>[ ] ${rec}</li>`).join('')
-      : '<li>[ ] Continue routine safety rounds and monitor SCADA feeds.</li>';
-
     const formattedNarrative = parseMarkdownToHtml(data.handover_narrative || '');
 
     printWindow.document.write(`
+      <!DOCTYPE html>
       <html>
         <head>
           <title>Shift_Handover_Logbook_${new Date(data.timestamp).toISOString().split('T')[0]}</title>
@@ -334,6 +302,7 @@ export default function ShiftHandover() {
               padding: 40px;
               margin: 0;
               background-color: #ffffff;
+              line-height: 1.6;
             }
             .header {
               text-align: center;
@@ -357,35 +326,50 @@ export default function ShiftHandover() {
             }
             .meta-grid {
               display: grid;
-              grid-template-cols: 1fr 1fr;
+              grid-template-columns: 1fr 1fr;
               gap: 15px;
               margin-bottom: 25px;
-              font-size: 13px;
+              font-size: 12px;
               background-color: #f8fafc;
               padding: 15px;
               border: 1px solid #e2e8f0;
               border-radius: 8px;
             }
-            .meta-item {
-              margin-bottom: 4px;
-            }
             .meta-item strong {
               color: #0f172a;
             }
-            .section-title {
-              font-size: 13px;
+            .report-box {
+              background-color: #ffffff;
+              border: 1px solid #cbd5e1;
+              padding: 24px;
+              border-radius: 8px;
+              margin-top: 15px;
+            }
+            .report-box p {
+              margin: 0 0 10px 0;
+              color: #334155;
+            }
+            .report-box h3 {
+              font-size: 16px;
               font-weight: 700;
               color: #0f172a;
-              border-left: 4px solid #f97316;
-              padding-left: 8px;
-              margin: 25px 0 12px 0;
+              margin: 20px 0 10px 0;
+              border-bottom: 2px solid #e2e8f0;
+              padding-bottom: 6px;
               text-transform: uppercase;
-              letter-spacing: 0.5px;
+            }
+            .report-box h4 {
+              font-size: 13px;
+              font-weight: 600;
+              color: #1e293b;
+              margin: 16px 0 8px 0;
+              border-left: 3px solid #ea580c;
+              padding-left: 8px;
             }
             table {
               width: 100%;
               border-collapse: collapse;
-              margin-bottom: 20px;
+              margin: 12px 0 20px 0;
               font-size: 12px;
             }
             table th, table td {
@@ -399,113 +383,25 @@ export default function ShiftHandover() {
               font-weight: 600;
             }
             ul {
-              margin: 0;
+              margin: 8px 0 16px 0;
               padding-left: 20px;
               font-size: 12px;
-              line-height: 1.6;
             }
             li {
               margin-bottom: 6px;
             }
-            .narrative-box {
-              background-color: #fafafa;
-              border: 1px solid #e2e8f0;
-              border-left: 4px solid #0f172a;
-              padding: 15px 20px;
-              font-size: 12px;
-              line-height: 1.6;
-              border-radius: 4px;
-              margin-top: 10px;
-            }
-            .narrative-box p {
-              margin: 0 0 10px 0;
-              color: #334155;
-            }
-            .narrative-box p:last-child {
-              margin-bottom: 0;
-            }
-            .narrative-box h3 {
-              font-size: 13px;
-              font-weight: 700;
-              color: #0f172a;
-              margin: 18px 0 8px 0;
-              border-bottom: 1px solid #e2e8f0;
-              padding-bottom: 4px;
-              text-transform: uppercase;
-            }
-            .narrative-box h3:first-child {
-              margin-top: 0;
-            }
-            .narrative-box h4 {
-              font-size: 11px;
-              font-weight: 600;
-              color: #1e293b;
-              margin: 12px 0 6px 0;
-            }
-            .narrative-box blockquote {
-              border-left: 3px solid #f97316;
-              background-color: #fffbeb;
-              margin: 12px 0;
-              padding: 8px 12px;
-              font-style: italic;
-              color: #451a03;
-            }
-            .narrative-box code {
+            code {
               background-color: #f1f5f9;
-              padding: 2px 4px;
+              padding: 2px 5px;
               border-radius: 4px;
               font-family: monospace;
               font-size: 11px;
               color: #ea580c;
             }
-            .narrative-box ul {
-              margin: 0 0 12px 0;
-              padding-left: 20px;
-            }
-            .narrative-box li {
-              margin-bottom: 4px;
-            }
-            .narrative-box table {
-              width: 100%;
-              border-collapse: collapse;
-              margin: 12px 0;
-            }
-            .narrative-box th, .narrative-box td {
-              border: 1px solid #cbd5e1;
-              padding: 6px 10px;
-              font-size: 11px;
-            }
-            .narrative-box th {
-              background-color: #f1f5f9;
-              font-weight: 600;
-            }
-            .checklist-container {
-              display: flex;
-              flex-direction: column;
-              gap: 6px;
-              margin: 12px 0;
-            }
-            .checklist-item {
-              display: flex;
-              align-items: flex-start;
-              gap: 8px;
-              background-color: #ffffff;
-              border: 1px solid #e2e8f0;
-              padding: 8px 12px;
-              border-radius: 6px;
-            }
-            .checklist-item .checkbox {
-              font-size: 14px;
-              line-height: 1;
-            }
-            .checklist-item .checklist-text {
-              font-size: 11px;
-              color: #334155;
-            }
             .signatures {
               margin-top: 50px;
               display: grid;
-              grid-template-cols: 1fr 1fr;
+              grid-template-columns: 1fr 1fr;
               gap: 50px;
               page-break-inside: avoid;
             }
@@ -519,12 +415,7 @@ export default function ShiftHandover() {
               margin-top: 40px;
             }
             @media print {
-              body {
-                padding: 20px;
-              }
-              .no-print {
-                display: none;
-              }
+              body { padding: 20px; }
             }
           </style>
         </head>
@@ -537,56 +428,13 @@ export default function ShiftHandover() {
           <div class="meta-grid">
             <div class="meta-item"><strong>Generated On:</strong> ${new Date().toLocaleString()}</div>
             <div class="meta-item"><strong>Shift Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}</div>
-            <div class="meta-item"><strong>Facility Location:</strong> Refinery Operations Area</div>
-            <div class="meta-item"><strong>Audited Zones:</strong> Coke Oven Battery, Sinter Plant, Ammonia Storage</div>
+            <div class="meta-item"><strong>Facility Location:</strong> Heavy Industrial Operations Area</div>
+            <div class="meta-item"><strong>Audited Sectors:</strong> Coke Oven Battery, Blast Furnace, Chemical Storage</div>
           </div>
 
-          <div class="section-title">1. Active Work Permits</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Permit ID</th>
-                <th>Permit Type</th>
-                <th>Zone / Sector</th>
-                <th>Worker Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${permitsRows}
-            </tbody>
-          </table>
-
-          <div class="section-title">2. LOTO Status & Machinery Isolations</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Isolated Equipment Segment</th>
-                <th>Zone / Sector</th>
-                <th>Current Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${maintenanceRows}
-            </tbody>
-          </table>
-
-          <div class="section-title">3. Environmental & Gas Telemetry Anomaly Log</div>
-          <ul>
-            ${gasAlertsContent}
-          </ul>
-
-          <div class="section-title">4. Zone Safety Risk Classifications</div>
-          <ul>
-            ${riskZonesContent}
-          </ul>
-
-          <div class="section-title">5. AI Compiled Shift Change Directives</div>
-          <ul>
-            ${recommendationsContent}
-          </ul>
-
-          <div class="section-title">6. Safety RAG Summary & Precedent Analysis</div>
-          <div class="narrative-box">${formattedNarrative}</div>
+          <div class="report-box">
+            ${formattedNarrative}
+          </div>
 
           <div class="signatures">
             <div>
@@ -596,11 +444,13 @@ export default function ShiftHandover() {
               <div class="signature-line">Incoming Shift Safety Officer</div>
             </div>
           </div>
-          
+
           <script>
             window.onload = function() {
-              window.print();
-            }
+              setTimeout(function() {
+                window.print();
+              }, 400);
+            };
           </script>
         </body>
       </html>
