@@ -76,111 +76,6 @@ export default function AnalyticsPage() {
         </span>
       </div>
 
-      {/* Innovation Pillar: Empirical Model Validation Cockpit */}
-      <div className="glass-panel border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-slate-900/60 to-purple-950/40 rounded-3xl p-6 shadow-2xl">
-        <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-          <div>
-            <span className="text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-widest">
-              BENCHMARK & EVALUATION AUDIT (ML_ANOMALY.PY & NEAR_MISS_PREDICTOR.PY)
-            </span>
-            <h3 className="font-heading text-base font-bold text-white mt-0.5">
-              Empirical AI Model Metrics & Single-Sensor Comparison
-            </h3>
-          </div>
-          <span className="text-[10px] font-mono text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
-            N = 1,800 SAMPLES
-          </span>
-        </div>
-
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5 font-mono text-center">
-          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
-            <span className="text-[9px] text-slate-400 block mb-1">ACCURACY</span>
-            <span className="text-lg font-bold text-cyan-400">96.4%</span>
-            <span className="text-[8px] text-slate-500 block mt-0.5">Cross-Validated</span>
-          </div>
-          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
-            <span className="text-[9px] text-slate-400 block mb-1">PRECISION</span>
-            <span className="text-lg font-bold text-green-400">95.8%</span>
-            <span className="text-[8px] text-slate-500 block mt-0.5">Low False Alarms</span>
-          </div>
-          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
-            <span className="text-[9px] text-slate-400 block mb-1">RECALL</span>
-            <span className="text-lg font-bold text-emerald-400">97.2%</span>
-            <span className="text-[8px] text-slate-500 block mt-0.5">Zero Missed Hazards</span>
-          </div>
-          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
-            <span className="text-[9px] text-slate-400 block mb-1">FALSE NEGATIVE RATE</span>
-            <span className="text-lg font-bold text-red-400">0.8%</span>
-            <span className="text-[8px] text-green-400 block mt-0.5">96.4% FNR Cut</span>
-          </div>
-          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
-            <span className="text-[9px] text-slate-400 block mb-1">INFERENCE LATENCY</span>
-            <span className="text-lg font-bold text-amber-400">12.4 ms</span>
-            <span className="text-[8px] text-slate-500 block mt-0.5">Real-time Stream SLA</span>
-          </div>
-          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
-            <span className="text-[9px] text-slate-400 block mb-1">ROC-AUC SCORE</span>
-            <span className="text-lg font-bold text-purple-400">0.984</span>
-            <span className="text-[8px] text-slate-500 block mt-0.5">High Discriminative</span>
-          </div>
-        </div>
-
-        {/* Single-Sensor Threshold vs ZeroHarm Compound AI Comparison Banner */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/40 p-4 rounded-2xl border border-white/10 text-xs font-mono mb-4">
-          <div className="flex flex-col gap-1 border-r border-white/10 pr-4">
-            <span className="text-[10px] text-red-400 font-bold uppercase">
-              ❌ NAIVE SINGLE-SENSOR THRESHOLD BASELINE (BEFORE ZEROHARM)
-            </span>
-            <p className="text-[10px] text-slate-300 leading-relaxed">
-              Single-sensor rule engines miss compound hazards (e.g. sub-threshold gas + hot work + stagnant wind), leading to a dangerous <strong className="text-red-400">22.4% False Negative Rate</strong>.
-            </p>
-          </div>
-          <div className="flex flex-col gap-1 pl-2">
-            <span className="text-[10px] text-green-400 font-bold uppercase">
-              ✅ ZEROHARM COMPOUND RISK CLASSIFIER (WITH ADAPTIVE MEMORY)
-            </span>
-            <p className="text-[10px] text-slate-300 leading-relaxed">
-              Fuses telemetry, SIMOPs permits, and spatial micro-climate. Reduces False Negatives down to <strong className="text-green-400">0.8%</strong> and improves accuracy by <strong className="text-cyan-400">+12.2%</strong> via <code className="text-purple-300">learning_risk_memory.py</code>.
-            </p>
-          </div>
-        </div>
-
-        {/* Enterprise Business Viability & Financial ROI Pitch Bar */}
-        <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-xs font-mono">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">
-              💼 ENTERPRISE FINANCIAL ROI AUDIT (TATA STEEL / JSW / IOCL PITCH CASE)
-            </span>
-            <span className="text-[9px] text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded font-bold">
-              PAYBACK: 4.2 MONTHS
-            </span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-              <span className="text-[8px] text-slate-400 block">DOWNTIME SAVINGS</span>
-              <span className="text-sm font-bold text-amber-300">$4.85M / yr</span>
-              <span className="text-[8px] text-slate-500 block">38% Outage Reduction</span>
-            </div>
-            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-              <span className="text-[8px] text-slate-400 block">ACCIDENT LIABILITY</span>
-              <span className="text-sm font-bold text-green-400">$2.50M / yr</span>
-              <span className="text-[8px] text-slate-500 block">8-12 SIMOPs Accidents Cut</span>
-            </div>
-            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-              <span className="text-[8px] text-slate-400 block">INSURANCE PREMIUM CUT</span>
-              <span className="text-sm font-bold text-cyan-400">$850,000 / yr</span>
-              <span className="text-[8px] text-slate-500 block">14% Premium Discount</span>
-            </div>
-            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-              <span className="text-[8px] text-slate-400 block">NET ANNUAL ROI</span>
-              <span className="text-sm font-bold text-purple-400">8.4x ROI</span>
-              <span className="text-[8px] text-slate-500 block">$8.2M Gross Value</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Grid of narrative stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
@@ -340,6 +235,111 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Innovation Pillar: Empirical Model Validation Cockpit (Moved to Bottom) */}
+      <div className="glass-panel border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-slate-900/60 to-purple-950/40 rounded-3xl p-6 shadow-2xl mt-4">
+        <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+          <div>
+            <span className="text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-widest">
+              BENCHMARK & EVALUATION AUDIT (ML_ANOMALY.PY & NEAR_MISS_PREDICTOR.PY)
+            </span>
+            <h3 className="font-heading text-base font-bold text-white mt-0.5">
+              Empirical AI Model Metrics & Single-Sensor Comparison
+            </h3>
+          </div>
+          <span className="text-[10px] font-mono text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
+            N = 1,800 SAMPLES
+          </span>
+        </div>
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5 font-mono text-center">
+          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
+            <span className="text-[9px] text-slate-400 block mb-1">ACCURACY</span>
+            <span className="text-lg font-bold text-cyan-400">96.4%</span>
+            <span className="text-[8px] text-slate-500 block mt-0.5">Cross-Validated</span>
+          </div>
+          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
+            <span className="text-[9px] text-slate-400 block mb-1">PRECISION</span>
+            <span className="text-lg font-bold text-green-400">95.8%</span>
+            <span className="text-[8px] text-slate-500 block mt-0.5">Low False Alarms</span>
+          </div>
+          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
+            <span className="text-[9px] text-slate-400 block mb-1">RECALL</span>
+            <span className="text-lg font-bold text-emerald-400">97.2%</span>
+            <span className="text-[8px] text-slate-500 block mt-0.5">Zero Missed Hazards</span>
+          </div>
+          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
+            <span className="text-[9px] text-slate-400 block mb-1">FALSE NEGATIVE RATE</span>
+            <span className="text-lg font-bold text-red-400">0.8%</span>
+            <span className="text-[8px] text-green-400 block mt-0.5">96.4% FNR Cut</span>
+          </div>
+          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
+            <span className="text-[9px] text-slate-400 block mb-1">INFERENCE LATENCY</span>
+            <span className="text-lg font-bold text-amber-400">12.4 ms</span>
+            <span className="text-[8px] text-slate-500 block mt-0.5">Real-time Stream SLA</span>
+          </div>
+          <div className="bg-black/40 border border-white/10 p-3 rounded-2xl">
+            <span className="text-[9px] text-slate-400 block mb-1">ROC-AUC SCORE</span>
+            <span className="text-lg font-bold text-purple-400">0.984</span>
+            <span className="text-[8px] text-slate-500 block mt-0.5">High Discriminative</span>
+          </div>
+        </div>
+
+        {/* Single-Sensor Threshold vs ZeroHarm Compound AI Comparison Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/40 p-4 rounded-2xl border border-white/10 text-xs font-mono mb-4">
+          <div className="flex flex-col gap-1 border-r border-white/10 pr-4">
+            <span className="text-[10px] text-red-400 font-bold uppercase">
+              ❌ NAIVE SINGLE-SENSOR THRESHOLD BASELINE (BEFORE ZEROHARM)
+            </span>
+            <p className="text-[10px] text-slate-300 leading-relaxed">
+              Single-sensor rule engines miss compound hazards (e.g. sub-threshold gas + hot work + stagnant wind), leading to a dangerous <strong className="text-red-400">22.4% False Negative Rate</strong>.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1 pl-2">
+            <span className="text-[10px] text-green-400 font-bold uppercase">
+              ✅ ZEROHARM COMPOUND RISK CLASSIFIER (WITH ADAPTIVE MEMORY)
+            </span>
+            <p className="text-[10px] text-slate-300 leading-relaxed">
+              Fuses telemetry, SIMOPs permits, and spatial micro-climate. Reduces False Negatives down to <strong className="text-green-400">0.8%</strong> and improves accuracy by <strong className="text-cyan-400">+12.2%</strong> via <code className="text-purple-300">learning_risk_memory.py</code>.
+            </p>
+          </div>
+        </div>
+
+        {/* Enterprise Business Viability & Financial ROI Pitch Bar */}
+        <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-xs font-mono">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">
+              💼 ENTERPRISE FINANCIAL ROI AUDIT (TATA STEEL / JSW / IOCL PITCH CASE)
+            </span>
+            <span className="text-[9px] text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded font-bold">
+              PAYBACK: 4.2 MONTHS
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
+              <span className="text-[8px] text-slate-400 block">DOWNTIME SAVINGS</span>
+              <span className="text-sm font-bold text-amber-300">$4.85M / yr</span>
+              <span className="text-[8px] text-slate-500 block">38% Outage Reduction</span>
+            </div>
+            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
+              <span className="text-[8px] text-slate-400 block">ACCIDENT LIABILITY</span>
+              <span className="text-sm font-bold text-green-400">$2.50M / yr</span>
+              <span className="text-[8px] text-slate-500 block">8-12 SIMOPs Accidents Cut</span>
+            </div>
+            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
+              <span className="text-[8px] text-slate-400 block">INSURANCE PREMIUM CUT</span>
+              <span className="text-sm font-bold text-cyan-400">$850,000 / yr</span>
+              <span className="text-[8px] text-slate-500 block">14% Premium Discount</span>
+            </div>
+            <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
+              <span className="text-[8px] text-slate-400 block">NET ANNUAL ROI</span>
+              <span className="text-sm font-bold text-purple-400">8.4x ROI</span>
+              <span className="text-[8px] text-slate-500 block">$8.2M Gross Value</span>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
