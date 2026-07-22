@@ -83,7 +83,33 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
     }
 
     // Remove the acknowledged notification from the list
-    setAlerts((prev) => prev.filter((notification) => notification.id !== id));
+  //   setAlerts((prev) => {
+  //   const updated = prev.filter(
+  //     (notification) => notification.id !== id
+  //   );
+
+  //   // If there are no unread notifications left,
+  //   // close the panel so Navbar refreshes the dot.
+  //   if (updated.length === 0) {
+  //     onClose();
+  //   }
+
+  //   return updated;
+  // });
+
+
+  const updatedAlerts = alerts.filter(
+  (notification) => notification.id !== id
+  );
+
+  setAlerts(updatedAlerts);
+
+  if (updatedAlerts.length === 0) {
+    setTimeout(() => {
+      onClose();
+    }, 0);
+  }
+
 
     addToast(
       `Acknowledged alert: "${message.substring(0, 30)}..."`,

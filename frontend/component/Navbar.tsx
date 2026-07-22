@@ -1,5 +1,5 @@
 'use client';
-
+import { eventBus } from "../lib/eventBus";
 import React, { useState,useEffect } from 'react';
 import { 
   Shield, 
@@ -49,7 +49,22 @@ export default function Navbar() {
     { label: 'Handover', fullLabel: 'Shift Handover Summary', path: '/handover', icon: FileText },
   ];
 
-  useEffect(() => {
+//   useEffect(() => {
+//   fetch(`${API_BASE_URL}/api/notifications`)
+//     .then((res) => res.json())
+//     .then((data) => {
+//       const unread = data.filter(
+//         (notification: { is_read: number }) => notification.is_read === 0
+//       ).length;
+
+//       setUnreadCount(unread);
+//     })
+//     .catch((err) => {
+//       console.warn("Could not fetch notifications from backend (server offline?):", err.message || err);
+//     });
+// }, []);
+
+const fetchUnreadCount = () => {
   fetch(`${API_BASE_URL}/api/notifications`)
     .then((res) => res.json())
     .then((data) => {
@@ -60,8 +75,26 @@ export default function Navbar() {
       setUnreadCount(unread);
     })
     .catch((err) => {
-      console.warn("Could not fetch notifications from backend (server offline?):", err.message || err);
+      console.warn(
+        "Could not fetch notifications from backend (server offline?):",
+        err.message || err
+      );
     });
+};
+
+useEffect(() => {
+  fetchUnreadCount();
+}, []);
+
+
+useEffect(() => {
+  const unsubscribe = eventBus.subscribe((event) => {
+    if (event.type === "NotificationCreated") {
+      fetchUnreadCount();
+    }
+  });
+
+  return unsubscribe;
 }, []);
 
   if (user && (user.role === 'Safety Officer' || user.role === 'Plant Manager')) {
@@ -143,15 +176,19 @@ export default function Navbar() {
                 >
                   <Bell className="w-4 h-4" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-safety-orange rounded-full text-[9px] font-bold text-white flex items-center justify-center animate-pulse">
-                      {unreadCount}
-                    </span>
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
                   )}
                 </button>
 
                 {showNotifications && (
                   <div className="absolute right-0 mt-3 w-80 sm:w-96 z-50">
-                    <NotificationPanel onClose={() => setShowNotifications(false)} />
+                    {/* <NotificationPanel onClose={() => setShowNotifications(false)} /> */}
+                    <NotificationPanel
+                        onClose={() => {
+                          setShowNotifications(false);
+                          fetchUnreadCount();
+                        }}
+                      />
                   </div>
                 )}
               </div>
@@ -179,6 +216,7 @@ export default function Navbar() {
 
                   <button
                     onClick={() => {
+                      sessionStorage.setItem("loggedOut","true");
                       logout();
                       router.push("/");
                     }}

@@ -77,6 +77,12 @@ export default function CompliancePage() {
         ? "warning"
         : "info",
   }),
+})
+.then(()=>{
+  eventBus.publish({
+    type:"NotificationCreated",
+    payload: {},
+  });
 }).catch(console.error);
 
 

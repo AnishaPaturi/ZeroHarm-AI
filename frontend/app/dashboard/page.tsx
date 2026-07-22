@@ -42,7 +42,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.replace("/login");
+      const loggedOut = sessionStorage.getItem("loggedOut");
+      if(loggedOut){
+        sessionStorage.removeItem("loggedOut");
+        router.replace("/");
+      }
+      else{
+        router.replace("/login");
+      }
+      
     }
   }, [authLoading, isAuthenticated, router]);
   const { addToast } = useNotifications();
