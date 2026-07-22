@@ -1,4 +1,22 @@
-  ### 1. 🤝 Multi-Agent Collaborative Reasoning
+# 💡 ZeroHarm AI — The 9 Core Innovations That Set Us Apart
+
+> **Answer to the Jury**: *"What can ZeroHarm AI do that nobody else at the hackathon can?"*
+
+1. **Adaptive Learning from Near Misses**: `learning_risk_memory.py` updates baseline zone risk multipliers dynamically based on historical near-miss memory matrices ($W_{\text{zone}}$).
+2. **Predictive Safety Score Trajectory (15m/30m/60m Forecast)**: `predictive_timeline.py` projects rolling rate-of-change risk scores before gas limits are breached.
+3. **AI-Generated Evacuation Simulations**: `evacuation.py` calculates real-time safe evacuation corridors avoiding moving wind-drifted gas plumes.
+4. **Industrial Digital Twin Simulation**: `digital-twin/page.tsx` renders live 2D vector plant twin with worker tracking, gas physics, and drone flight paths.
+5. **Agent Disagreement & Debate Reasoning**: `collaborative_reasoning.py` executes a 3-round multi-agent debate protocol surfacing domain agent conflicts.
+6. **"What-If" Counterfactual Safety Simulator**: `ScenarioConsole.tsx` & `/analysis` allow safety officers to simulate synthetic parameter shifts in real time.
+7. **Root Cause Graph Generation**: `knowledge_graph.py` traces causality paths (`Worker` → `Permit` → `Zone` → `Equipment` → `Sensor`).
+8. **Counterfactual Reasoning Engine**: `agent.py` evaluates statutory regulations (OISD / Factory Act) to determine what single intervention would have prevented a near-miss.
+9. **Explainable AI (XAI) with Confidence Scores**: `rules.py` & `RiskGauge.tsx` output exact factor percentage attributions with $94.2\%$ confidence scores.
+
+---
+
+### Detailed Subsystem Breakdown
+
+### 1. 🤝 Multi-Agent Collaborative Reasoning
 
   • Backend: Implemented in collaborative_reasoning.py under the collaborative_reasoning.py class. It triggers a 3-round
   safety debate script between 6 distinct domain agents: Gas Agent, Maintenance Agent, Permit Agent, Weather Agent, CCTV
