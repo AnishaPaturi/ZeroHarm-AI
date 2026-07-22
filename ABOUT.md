@@ -71,3 +71,17 @@ ZeroHarm AI does not consist of isolated "prompt-checklist" tabs. Instead, it op
 5. **Emergency Response Orchestration**: High compound risk scores automatically trigger permit revocation, drone perimeter sweeps, and gas-plume-avoiding evacuation corridors.
 
 Every module is an indispensable organ of one unified cognitive system.
+
+---
+
+## 7. The 9 Breakthrough Innovations
+
+1. **Adaptive Learning Risk Memory (`learning_risk_memory.py`)**: Learns zone vulnerability biases ($W_{\text{zone}}$) dynamically over time based on historical near misses.
+2. **Predictive Safety Score Trajectory (`predictive_timeline.py`)**: Computes rate-of-change derivatives ($\frac{d\text{CO}}{dt}, \frac{d\text{Pressure}}{dt}$) to forecast 15m/30m/60m safety risk scores before thresholds breach.
+3. **AI-Generated Evacuation Simulations (`evacuation.py`)**: Models wind vector gas plume dispersion to plot dynamic, plume-avoiding evacuation escape paths.
+4. **3-Round Multi-Agent Debate Engine (`collaborative_reasoning.py`)**: Surfaces domain agent disagreements (Gas, Permit, CCTV, Weather, Maintenance) before synthesizing consensus.
+5. **Counterfactual "What-If" Safety Simulator (`ScenarioConsole.tsx` / `analysis/page.tsx`)**: Simulates real-time parameter changes without risking live assets.
+6. **Causality Root Cause Graph Generation (`knowledge_graph.py`)**: Traces causality across `Worker` $\rightarrow$ `Permit` $\rightarrow$ `Zone` $\rightarrow$ `Asset` $\rightarrow$ `Sensor`.
+7. **Explainable AI (XAI) Factor Attribution (`rules.py` & `RiskGauge.tsx`)**: Blends $60\%$ deterministic compliance rules $+ 40\%$ ML models with exact factor weight percentages and $94.2\%$ confidence scores.
+8. **Automated Counterfactual Prevention Prioritizer (`agent.py`)**: Queries vector RAG over OISD / Factories Act to determine the single statutory control that prevents escalation.
+9. **2D Spatial Digital Twin & Autonomous Drone Sweep (`digital-twin/page.tsx` & `drone.py`)**: Renders interactive 2D plant twin with gas cloud physics and autonomous drone aerial sniffer payloads.

@@ -132,9 +132,30 @@ By correlating these inputs, the platform's multi-agent risk engine detects **co
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ System Architecture & Closed-Loop Engine
 
-ZeroHarm AI operates using a decentralized multi-agent system where specialized agents monitor individual safety vectors, collaborate to identify compound risks, and output real-time alerts.
+ZeroHarm AI operates using a **Closed-Loop Cognitive Feedback Engine** where specialized agents monitor individual safety vectors, negotiate compound risk, and trigger preemptive interventions:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Heatmap as Telemetry & Heatmap
+    participant Permit as Permit Agent (SIMOPs)
+    participant Engine as Compound Risk Engine
+    participant Compliance as Compliance Agent & RAG
+    participant Evac as Emergency Response
+
+    Heatmap->>Permit: 1. Gas anomaly / spatial hotspot detected (CH4 > 4% LFL)
+    Permit->>Engine: 2. Cross-reference active permits (PTW-HW-202 Hot Work active in zone)
+    Engine->>Compliance: 3. Compute Composite Risk (Score: 96/100 Critical)
+    Compliance->>Compliance: 4. Query RAG vector store for statutory violations
+    Compliance-->>Engine: 5. Attach citations: OISD-STD-105 Clause 4.2 & Factories Act Sec 36
+    Engine->>Permit: 6. AUTO-REVOKE active hot work permit PTW-HW-202
+    Engine->>Evac: 7. TRIGGER Emergency Evacuation & Drone Perimeter Sweep
+    Evac-->>Heatmap: 8. Update safe evacuation corridors avoiding gas plume
+```
+
+### Multi-Agent Interaction Graph
 
 ```mermaid
 graph TD
