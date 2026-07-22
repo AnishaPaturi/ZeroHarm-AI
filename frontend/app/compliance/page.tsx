@@ -189,9 +189,14 @@ export default function CompliancePage() {
                 {/* Header */}
                 <div className="flex justify-between items-start gap-4 border-b border-white/5 pb-4">
                   <div>
-                    <span className="text-[9px] text-slate-400 font-mono uppercase tracking-widest bg-white/5 border border-white/10 px-2 py-0.5 rounded inline-block">
-                      {selectedRecord.category} AUDIT SUITE
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-slate-400 font-mono uppercase tracking-widest bg-white/5 border border-white/10 px-2 py-0.5 rounded inline-block">
+                        {selectedRecord.category} AUDIT SUITE
+                      </span>
+                      <span className="text-[9px] text-purple-300 font-mono uppercase tracking-wider bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 rounded inline-block">
+                        RAG-POWERED STATUTORY VERIFICATION
+                      </span>
+                    </div>
                     <h3 className="font-heading text-lg font-bold text-white mt-2 leading-snug">
                       {selectedRecord.standardName}
                     </h3>

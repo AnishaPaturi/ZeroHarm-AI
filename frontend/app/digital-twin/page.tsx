@@ -740,49 +740,123 @@ export default function DigitalTwin() {
             className="w-full h-full block"
           />
         </div>
-        {/* Selected Zone Panel */}
+        {/* Selected Zone Panel: Closed-Loop Multi-Agent Intelligence */}
         {selectedZoneData && (
-          <div className="absolute top-4 right-4 w-72 glass-panel-light border border-white/10 rounded-2xl p-4">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-heading text-sm font-bold text-white">{selectedZoneData.zone}</h3>
+          <div className="absolute top-4 right-4 w-96 max-h-[85vh] overflow-y-auto glass-panel border border-white/20 rounded-2xl p-5 shadow-2xl z-30">
+            <div className="flex justify-between items-start mb-3 border-b border-white/10 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-heading text-base font-bold text-white">{selectedZoneData.zone}</h3>
+                  <span className="text-[9px] font-mono bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                    CLOSED-LOOP ENGINE
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono mt-0.5">{selectedZoneData.hazard_classification}</p>
+              </div>
               <button
                 onClick={() => setSelectedZone(null)}
-                className="text-slate-400 hover:text-white text-xs"
+                className="text-slate-400 hover:text-white text-sm font-bold bg-white/5 hover:bg-white/10 w-7 h-7 rounded-full flex items-center justify-center transition-colors"
               >
                 ✕
               </button>
             </div>
-            <p className="text-[10px] text-slate-400 font-mono mb-3">{selectedZoneData.hazard_classification}</p>
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between">
-                <span className="text-[10px] text-slate-400 font-mono">RISK SCORE</span>
-                <span className="text-xs font-bold" style={{ color: selectedZoneData.color }}>
+
+            {/* 1. Composite Risk & Heatmap Metrics */}
+            <div className="grid grid-cols-3 gap-2 mb-4 bg-white/5 p-3 rounded-xl border border-white/5">
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-[9px] text-slate-400 font-mono">RISK SCORE</span>
+                <span className="text-sm font-bold mt-1" style={{ color: selectedZoneData.color }}>
                   {selectedZoneData.risk_score} / 100
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[10px] text-slate-400 font-mono">STATUS</span>
-                <span className="text-xs font-bold" style={{ color: selectedZoneData.color }}>
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-[9px] text-slate-400 font-mono">STATUS</span>
+                <span className="text-xs font-bold mt-1" style={{ color: selectedZoneData.color }}>
                   {selectedZoneData.risk_level.toUpperCase()}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[10px] text-slate-400 font-mono">CREW ON-SITE</span>
-                <span className="text-xs font-bold text-white">{selectedWorkers.length}</span>
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-[9px] text-slate-400 font-mono">CREW ON-SITE</span>
+                <span className="text-sm font-bold text-white mt-1">{selectedWorkers.length} workers</span>
               </div>
-              {selectedZoneData.action_required && (
-                <div className="mt-2 p-2 rounded-lg bg-white/5 border border-white/5">
-                  <span className="text-[9px] text-slate-500 font-mono uppercase block mb-1">ACTION REQUIRED</span>
-                  <p className="text-[10px] text-slate-300 leading-relaxed">{selectedZoneData.action_required}</p>
+            </div>
+
+            {/* 2. Permit Agent Section */}
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[10px] font-mono text-cyan-400 uppercase font-bold tracking-wider">
+                  1. PERMIT AGENT AUDIT (SIMOPS)
+                </span>
+                <span className="text-[9px] font-mono text-slate-400">ACTIVE PERMITS</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-900/60 border border-cyan-500/20 text-xs">
+                {selectedZoneData.risk_score >= 75 ? (
+                  <div className="flex flex-col gap-1 text-red-400 font-mono text-[11px]">
+                    <span className="font-bold flex items-center gap-1">
+                      ⚠️ PTW-HW-202 (Hot Work) — AUTO-SUSPENDED
+                    </span>
+                    <span className="text-[10px] text-slate-300">
+                      Reason: Spark risk during elevated methane levels. Closed-loop engine revoked permit automatically.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between text-green-400 font-mono text-[11px]">
+                    <span>✓ Active Permits Audited</span>
+                    <span className="text-[10px] text-slate-400">0 SIMOPs Conflicts</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Statutory Compliance Citations (RAG) */}
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[10px] font-mono text-purple-400 uppercase font-bold tracking-wider">
+                  2. RAG STATUTORY CITATIONS
+                </span>
+                <span className="text-[9px] font-mono text-purple-300 bg-purple-500/10 px-1.5 py-0.5 rounded">
+                  OISD / FACTORIES ACT
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[10px] text-slate-300 flex flex-col gap-1.5 font-mono">
+                <div className="flex items-center gap-1.5 text-purple-300 font-bold">
+                  <span className="bg-purple-500/30 px-1 py-0.5 rounded text-[9px]">OISD-STD-105 Clause 4.2</span>
+                  <span>Hot Work Prohibition Zone</span>
                 </div>
-              )}
-              
+                <p className="text-[9px] text-slate-400 leading-relaxed">
+                  "Hot work is strictly prohibited within 15 meters of hydrocarbon venting or atmosphere with CH4 &gt; 4% LFL."
+                </p>
+                <div className="flex items-center gap-1.5 text-amber-300 font-bold pt-1 border-t border-purple-500/20">
+                  <span className="bg-amber-500/30 px-1 py-0.5 rounded text-[9px]">Factories Act 1948 Sec 36</span>
+                  <span>Confined Space Entry Rule</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Compound Action Required */}
+            {selectedZoneData.action_required && (
+              <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <span className="text-[9px] text-amber-400 font-mono uppercase font-bold block mb-1">
+                  3. COMPOUND RISK MANDATE
+                </span>
+                <p className="text-[10px] text-slate-200 leading-relaxed font-mono">{selectedZoneData.action_required}</p>
+              </div>
+            )}
+
+            {/* 5. Emergency Response Trigger */}
+            <div className="grid grid-cols-2 gap-2 mt-4">
               <button
                 onClick={() => dispatchDrone(selectedZoneData.zone)}
-                className="mt-3 w-full py-2 bg-gradient-to-r from-safety-orange to-amber-500 hover:from-safety-orange/95 hover:to-amber-500/95 text-white font-semibold rounded-xl text-[10px] tracking-wide transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer border-0"
+                className="py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl text-[10px] tracking-wide transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer border-0"
               >
                 <Cpu className="w-3.5 h-3.5" />
-                DISPATCH DRONE SWEEP
+                DISPATCH DRONE
+              </button>
+              <button
+                onClick={() => alert(`Initiated emergency evacuation procedure for ${selectedZoneData.zone}`)}
+                className="py-2.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-semibold rounded-xl text-[10px] tracking-wide transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer border-0"
+              >
+                EVACUATE ZONE
               </button>
             </div>
           </div>

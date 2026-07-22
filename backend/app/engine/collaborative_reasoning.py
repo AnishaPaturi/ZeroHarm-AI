@@ -27,6 +27,7 @@ class CollaborativeReasoningResponse(BaseModel):
     recommendations: List[str]
     weather_info: Dict[str, Any]
     mode: str
+    statutory_citations: List[Dict[str, Any]] = Field(default_factory=list)
 
 class MultiAgentCollaborativeReasoning:
     """
@@ -255,6 +256,8 @@ class MultiAgentCollaborativeReasoning:
         # Set base weather dispersion note
         ventilation_note = "Natural dispersion rates are high due to active wind currents." if weather_info["wind_speed_m_s"] > 5 else "Stagnant micro-climate detected, heightening risk of toxic/flammable pocket accumulation."
 
+        statutory_citations: List[Dict[str, Any]] = []
+
         if is_explosion_risk:
             risk_probability = 96.0
             prediction = "Explosion possible within 18 minutes."
@@ -269,6 +272,10 @@ class MultiAgentCollaborativeReasoning:
                 "HALT PERMITS: Immediately revoke Hot Work permit and deactivate welding stations.",
                 "ISOLATE PROCESS: Close ESD valves upstream of the valve maintenance segment.",
                 "FORCE VENTILATION: Deploy explosion-proof exhaust blowers to purge methane pockets."
+            ]
+            statutory_citations = [
+                {"code": "OISD-STD-105", "clause": "Clause 4.2", "title": "Work Permit System - Hot Work Constraints", "description": "Hot work strictly prohibited within 15m of flammable gas or CH4 >4% LFL."},
+                {"code": "OISD-GDN-137", "clause": "Section 6.1", "title": "Hazardous Gas Monitoring", "description": "Mandates immediate work suspension upon CH4 gas accumulation."}
             ]
             
             # Dialogue - Round 1: Registration
@@ -347,6 +354,10 @@ class MultiAgentCollaborativeReasoning:
                 "REVOKE PERMIT: Terminate Confined Space permit PTW-CS-101 immediately.",
                 "ATMOSPHERIC SWEEP: Conduct oxygen sweeps before allowing any future entries."
             ]
+            statutory_citations = [
+                {"code": "Factories Act 1948", "clause": "Section 36", "title": "Precautions Against Dangerous Fumes", "description": "Mandates certified safe oxygen (>19.5%) prior to and during confined space entry."},
+                {"code": "OISD-STD-105", "clause": "Annexure II", "title": "Confined Space Entry Protocol", "description": "Continuous atmospheric monitoring and standby rescue watcher required."}
+            ]
             
             # dialogue
             transcript.append(DebateMessage(
@@ -412,6 +423,10 @@ class MultiAgentCollaborativeReasoning:
                 "SECTOR CONTROL: Restrict access to a 50m buffer around the Blast Furnace gas lines.",
                 "BYPASS CHECK: Ensure lock-out valves are correctly oriented and no bypass line is sealed solid."
             ]
+            statutory_citations = [
+                {"code": "OISD-STD-105", "clause": "Section 8.3", "title": "Pressure Vessel & Piping Integrity", "description": "Mandatory bypass valve opening during flushing operations."},
+                {"code": "Factories Act 1948", "clause": "Section 37", "title": "Explosive/Flammable Gas Protection", "description": "Pressure relief valves and emergency venting required before line isolation."}
+            ]
             
             transcript.append(DebateMessage(
                 agent_id="gas_agent", agent_name="Gas Sensor Monitoring Agent", role="IoT Telemetry Analysis", round=1,
@@ -466,6 +481,10 @@ class MultiAgentCollaborativeReasoning:
                 "SUPERVISOR DEPLOYMENT: Deploy safety supervisor to inspect worker compliance.",
                 "PAUSE WORK: Halt local permits until worker gear is verified."
             ]
+            statutory_citations = [
+                {"code": "Factories Act 1948", "clause": "Section 87", "title": "Dangerous Operations & Height Work", "description": "Mandatory safety harness and fall protection above 2 meters height."},
+                {"code": "OISD-STD-105", "clause": "SIMOPs Annexure", "title": "Height Work Permit Rules", "description": "Work permit void without physical harness hook verification."}
+            ]
             
             transcript.append(DebateMessage(
                 agent_id="cctv_agent", agent_name="CCTV Computer Vision Agent", role="Visual Security Analytics", round=1,
@@ -512,6 +531,9 @@ class MultiAgentCollaborativeReasoning:
                 "Maintain standard safety patrol rounds.",
                 "Continue routine SCADA sensor telemetry monitoring."
             ]
+            statutory_citations = [
+                {"code": "OISD-STD-105", "clause": "Section 1.1", "title": "General Industrial Safety Standards", "description": "All parameters comply with statutory industrial safety guidelines."}
+            ]
             
             transcript.append(DebateMessage(
                 agent_id="gas_agent", agent_name="Gas Sensor Monitoring Agent", role="IoT Telemetry Analysis", round=1,
@@ -556,5 +578,6 @@ class MultiAgentCollaborativeReasoning:
             final_consensus=final_consensus,
             recommendations=recommendations,
             weather_info=weather_info,
-            mode="Rule-Based Collaborative Debate Simulator"
+            mode="Rule-Based Collaborative Debate Simulator",
+            statutory_citations=statutory_citations
         )

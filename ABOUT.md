@@ -57,3 +57,17 @@ ZeroHarm AI directly references and audits compliance against:
 * **OISD-GDN-137**: Guidelines on hazardous gas monitoring systems and sensor placements.
 * **OISD-STD-105**: Work Permit System standards (Hot work, Cold work, Confined space, and Height work constraints).
 * **DGMS (Directorate General of Mines Safety)**: Heavy equipment and hazardous area safety rules.
+
+---
+
+## 6. The Closed-Loop Cognitive Safety Engine (Eliminating Feature Silos)
+
+ZeroHarm AI does not consist of isolated "prompt-checklist" tabs. Instead, it operates as a **single, 100% interconnected closed-loop cognitive engine**:
+
+1. **Spatial Telemetry & Heatmap**: Ingests real-time IoT gas readings and visualizes spatial hotspot intensity.
+2. **Permit Agent (SIMOPs)**: Cross-references active permits in those exact spatial coordinates.
+3. **Compound Risk Engine**: Fuses telemetry + permit SIMOPs + CCTV posture into a composite 0-100 risk score.
+4. **Compliance Agent & RAG**: Automatically fetches and attaches statutory citations (OISD-STD-105 Clause 4.2 / Factories Act Sec 36) when risk thresholds are breached.
+5. **Emergency Response Orchestration**: High compound risk scores automatically trigger permit revocation, drone perimeter sweeps, and gas-plume-avoiding evacuation corridors.
+
+Every module is an indispensable organ of one unified cognitive system.

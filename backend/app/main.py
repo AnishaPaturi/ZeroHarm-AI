@@ -507,11 +507,31 @@ async def _feed_person_b(zone: str, risk_assessment: dict):
     # to flag (keeps the feed quiet during normal operation). ---
     try:
         permit_audit = permit_agent.audit_zone(zone, plant_state[zone], all_zone_states=plant_state)
-        if permit_audit.conflicts:
+        comp_score = risk_assessment.get("composite_score", 0.0)
+        
+        # Closed-loop enforcement: If risk score is critical, automatically revoke permits in plant_state
+        if comp_score >= 75.0 or permit_audit.suspend_permits:
+            zone_permits = plant_state[zone].get("permits", [])
+            revoked_ids = []
+            for p in zone_permits:
+                if p.get("status", "").lower() in ["active", "approved"]:
+                    p["status"] = "SUSPENDED (AUTO-REVOKED BY ZERO HARM AI)"
+                    p["revocation_reason"] = (
+                        f"Auto-suspended by Closed-Loop Risk Engine (Composite Score: {comp_score}/100). "
+                        f"Statutory Citation: OISD-STD-105 Clause 4.2 & Factories Act 1948 Section 36."
+                    )
+                    revoked_ids.append(p.get("permit_id"))
+            
+            if revoked_ids:
+                logger.warning(f"CLOSED-LOOP TRIGGER: Automatically revoked permits {revoked_ids} in zone {zone} due to critical risk score {comp_score}")
+
+        if permit_audit.conflicts or comp_score >= 75.0:
             await manager.broadcast({
                 "event": "permit_alert",
                 "zone": zone,
                 "permit_audit": permit_audit.dict(),
+                "closed_loop_enforced": True,
+                "statutory_citation": "OISD-STD-105 Clause 4.2 & Factories Act 1948 Section 36"
             })
     except Exception as e:
         logger.error(f"Permit intelligence audit failed for zone '{zone}': {e}")

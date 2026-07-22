@@ -1,8 +1,32 @@
 # ZeroHarm AI System Architecture & Data Flow
 
-This document maps out the end-to-end architecture of the **ZeroHarm AI Industrial Safety Intelligence Platform**. It is divided into two sections:
-1. **Page Implementation & Frontend-to-Backend Binding Graph**: Traces how user interaction travels from page entry through state managers to the corresponding API endpoints and the backend files that process them.
-2. **Backend Architecture & Subsystem Flow Graph**: Visualizes the internal mechanics, calculations, pipelines, and data flow of the FastAPI backend modules.
+This document maps out the end-to-end architecture of the **ZeroHarm AI Industrial Safety Intelligence Platform**. It is divided into three sections:
+1. **Closed-Loop Inter-Module Cognitive Feedback Loop**: Demonstrates how spatial heatmap, permit agent, compound risk, RAG compliance, and emergency response interlock seamlessly.
+2. **Page Implementation & Frontend-to-Backend Binding Graph**: Traces how user interaction travels from page entry through state managers to API endpoints.
+3. **Backend Architecture & Subsystem Flow Graph**: Visualizes backend mechanics and pipeline execution.
+
+---
+
+## 0. Closed-Loop Inter-Module Cognitive Feedback Loop
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Heatmap as Telemetry & Heatmap
+    participant Permit as Permit Agent (SIMOPs)
+    participant Engine as Compound Risk Engine
+    participant Compliance as Compliance Agent & RAG
+    participant Evac as Emergency Response
+
+    Heatmap->>Permit: 1. Gas anomaly / spatial hotspot detected (CH4 > 4% LFL)
+    Permit->>Engine: 2. Cross-reference active permits (PTW-HW-202 Hot Work active in zone)
+    Engine->>Compliance: 3. Compute Composite Risk (Score: 96/100 Critical)
+    Compliance->>Compliance: 4. Query RAG vector store for statutory violations
+    Compliance-->>Engine: 5. Attach citations: OISD-STD-105 Clause 4.2 & Factories Act Sec 36
+    Engine->>Permit: 6. AUTO-REVOKE active hot work permit PTW-HW-202
+    Engine->>Evac: 7. TRIGGER Emergency Evacuation & Drone Perimeter Sweep
+    Evac-->>Heatmap: 8. Update safe evacuation corridors avoiding gas plume
+```
 
 ---
 
