@@ -16,6 +16,7 @@ class EvacuationManager:
 
     Driven by risk_level coming from Person A's risk feed:
       - "Critical" arrives while zone isn't already evacuating -> ALERT + start evacuation
+      - "Warning" arrives while zone isn't already evacuating -> ALERT (no evacuation start)
       - "Safe" or "Warning" arrives while zone is evacuating -> RESOLVE
     """
 
@@ -37,7 +38,10 @@ class EvacuationManager:
             return self._trigger(zone, risk_assessment, score)
 
         if risk_level in ("Safe", "Warning") and current_status == "evacuating":
-            return self._resolve(zone)
+            return self._resolve(zone, risk_level)
+
+        if risk_level == "Warning" and current_status != "evacuating":
+            self._notify_warning(zone, risk_assessment, score)
 
         return self._records.get(zone)
 
@@ -58,7 +62,7 @@ class EvacuationManager:
             f"[CRITICAL] Evacuation triggered for '{zone}'. "
             f"Composite risk score: {score}. {risk_assessment.get('action_required', '')}"
         )
-        dispatch_all_channels(zone, message)
+        dispatch_all_channels(zone, message, severity="critical")
 
         if self._worker_simulator:
             self._worker_simulator.mark_zone_evacuating(zone)
@@ -69,16 +73,31 @@ class EvacuationManager:
 
         return record
 
-    def _resolve(self, zone: str) -> EvacuationRecord:
+    def _notify_warning(self, zone: str, risk_assessment: dict, score: float) -> None:
+        """Elevated risk, but not yet critical enough to force an evacuation.
+        Still fires all alert channels so the on-call team has a heads-up."""
+        logger.warning(f"WARNING level risk for zone '{zone}' (score={score}) — alert sent, evacuation not triggered.")
+
+        message = (
+            f"[WARNING] Elevated risk detected in '{zone}'. "
+            f"Composite risk score: {score}. {risk_assessment.get('action_required', '')}"
+        )
+        dispatch_all_channels(zone, message, severity="warning")
+
+    def _resolve(self, zone: str, risk_level: str) -> EvacuationRecord:
         record = self._records[zone]
         record.status = "resolved"
         record.resolved_at = datetime.now(timezone.utc).isoformat()
-        logger.info(f"Zone '{zone}' risk level dropped — evacuation marked resolved.")
+        logger.info(f"Zone '{zone}' risk level dropped to '{risk_level}' — evacuation marked resolved.")
 
         if self._worker_simulator:
             self._worker_simulator.mark_zone_resolved(zone)
 
-        dispatch_all_channels(zone, f"[RESOLVED] Zone '{zone}' risk level has dropped. Stand down / re-entry authorized.")
+        dispatch_all_channels(
+            zone,
+            f"[RESOLVED] Zone '{zone}' risk level has dropped. Stand down / re-entry authorized.",
+            severity="warning",
+        )
         return record
 
     def all_records(self):
