@@ -1590,6 +1590,19 @@ def get_task_status(task_id: str):
     return status
 
 
+@app.get("/api/ai-evaluation/metrics")
+def get_ai_evaluation_metrics():
+    """
+    Returns empirical AI model validation metrics:
+    Accuracy, Precision, Recall, F1, False Negative Rate, Latency, ROC-AUC & Baseline Comparisons.
+    """
+    try:
+        return ml_model.evaluate_model()
+    except Exception as e:
+        logger.error(f"Error computing AI evaluation metrics: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/api/integration/demo-scenario", response_model=DemoScenarioResponse)
 def demo_scenario():
     """Curated, step-by-step narrative tying all four agents together — the script for the demo video and pitch deck."""
